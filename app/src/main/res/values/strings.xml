@@ -1,5 +1,14 @@
 <resources>
-    <string name="app_name">Ringbones</string>
+    <string name="app_name">Ringstones</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="shr_button_next">download</string>
+    <string name="shr_button_cancel">cancle</string>
+    <string name="prevew">preview</string>
+    <string name="title">Ishare Tere Karti Nigah - Sumit Goswami</string>
+    <string name="tag">tag</string>
+    <string name="download">download</string>
+    <string name="text_label_1">Ringstone</string>
+    <string name="text_label_2">Favorite</string>
+    <string name="text_label_3">Profile</string>
 </resources>
