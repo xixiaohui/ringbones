@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Ringstones</string>
+    <string name="app_name">musix</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="shr_button_next">download</string>
@@ -11,4 +11,8 @@
     <string name="text_label_1">Ringstone</string>
     <string name="text_label_2">Favorite</string>
     <string name="text_label_3">Profile</string>
+    <string name="action_1">play</string>
+    <string name="action_2">stop</string>
+    <string name="action_3">listen</string>
+    <string name="copy">copy</string>
 </resources>

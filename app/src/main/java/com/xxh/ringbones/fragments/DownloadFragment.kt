@@ -1,5 +1,6 @@
 package com.xxh.ringbones.fragments
 
+import android.content.DialogInterface
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -12,6 +13,7 @@ import com.xxh.ringbones.R
 import com.xxh.ringbones.data.Ringstone
 import com.xxh.ringbones.databinding.FragmentDownloadBinding
 import com.xxh.ringbones.databinding.FragmentMainBinding
+import com.xxh.ringbones.utils.AssetsTest
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -31,6 +33,8 @@ class DownloadFragment : Fragment() {
 
     private lateinit var binding: FragmentDownloadBinding
 
+    private lateinit var song: AssetsTest
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -38,6 +42,10 @@ class DownloadFragment : Fragment() {
             param2 = it.getString(ARG_PARAM2)
             ringstone = it.getSerializable("ringstone") as Ringstone
         }
+
+        var tempPath = "ring/" + ringstone?.title
+        song = AssetsTest(this.requireActivity(),tempPath)
+//        song.initSong(ringstone!!.title)
     }
 
     override fun onCreateView(
@@ -51,22 +59,40 @@ class DownloadFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.previewButton.setOnClickListener{
-            view.findNavController().navigate(R.id.action_downloadFragment_to_mainFragment)
-        }
+//        binding.previewButton.setOnClickListener{
+//            view.findNavController().navigate(R.id.action_downloadFragment_to_mainFragment)
+//        }
 
         binding.card.ringtoneTitle.text = ringstone?.title
         binding.card.ringtoneTag.text = ringstone?.tag
 
-        binding.card.ringtoneDownload.setOnClickListener{
+        binding.card.ringtoneStop.setOnClickListener{
             Toast.makeText(requireContext(), "Clicked: ${ringstone?.title} Download", Toast.LENGTH_SHORT).show()
         }
 
         binding.card.ringtonePlay.setOnClickListener{
-            MaterialAlertDialogBuilder(requireContext()).setTitle("Title").setMessage("Message")
-                .setPositiveButton("OK", null).show()
+//            MaterialAlertDialogBuilder(requireContext()).setTitle("Title").setMessage("Message")
+//                .setPositiveButton("OK", object: DialogInterface.OnClickListener{
+//                    override fun onClick(dialog: DialogInterface?, which: Int) {
+//                        song.stop()
+//                    }
+//
+//                }).show()
 //            Toast.makeText(requireContext(), "Clicked: ${ringstone?.title} Play", Toast.LENGTH_SHORT).show()
+
+            song.play()
         }
+
+        binding.card.ringtoneStop.setOnClickListener{
+            song.stop()
+        }
+
+
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        song.release()
     }
     companion object {
         /**

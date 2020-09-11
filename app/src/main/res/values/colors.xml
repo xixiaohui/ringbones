@@ -12,4 +12,8 @@
     <color name="colorWhite">#FFFFFF</color>
     <color name="colorGray">#B4C6E1</color>
     <color name="colorBlack">#181A1D</color>
+
+    <color name="colorSecondGray">#5555</color>
+    <color name="colorPurple">#8e1b8e</color>
+
 </resources>
