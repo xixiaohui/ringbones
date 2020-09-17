@@ -1,11 +1,15 @@
 package com.xxh.ringbones.fragments
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.xxh.ringbones.R
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentPagerAdapter
+import androidx.viewpager.widget.ViewPager
+import com.xxh.ringbones.databinding.FragmentPageViewBinding
+
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -22,6 +26,8 @@ class PageViewFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
 
+    private lateinit var binding: FragmentPageViewBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -35,7 +41,16 @@ class PageViewFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_page_view, container, false)
+        binding = FragmentPageViewBinding.inflate(layoutInflater)
+
+        var pager: ViewPager = binding.pager
+
+        pager.adapter = this.activity?.supportFragmentManager?.let { MyPagerAdapter(it, 0) }
+
+        var tabs = binding.pageTabs
+        tabs.setViewPager(pager)
+
+        return binding.root
     }
 
     companion object {
@@ -57,4 +72,30 @@ class PageViewFragment : Fragment() {
                 }
             }
     }
+
+    class MyPagerAdapter : FragmentPagerAdapter {
+
+
+        constructor(fm: FragmentManager, behavior: Int) : super(fm, behavior) {
+
+        }
+
+        private val TITLES = arrayOf(
+            "2020", "Funny", "Malayalam", "Bollywood", "Romantic", "English",
+            "Animal", "Love"
+        )
+
+        override fun getCount(): Int {
+            return TITLES.size
+        }
+
+        override fun getItem(position: Int): Fragment {
+            return SuperAwesomeCardFragment.newInstance(position)
+        }
+
+        override fun getPageTitle(position: Int): CharSequence? {
+            return TITLES[position]
+        }
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.xxh.ringbones.fragments
 
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -55,7 +56,7 @@ class MainFragment : Fragment() {
         }
 
 //        this.initRingtones()
-        this.prepareRingtonesData()
+        this.ringtonesArray = prepareRingtonesData(requireContext(),"rings/Airtel.json")
     }
 
 
@@ -122,27 +123,7 @@ class MainFragment : Fragment() {
         }
     }
 
-    private fun prepareRingtonesData() {
-        ringtonesArray = mutableListOf()
 
-        val jsonString = LocalJsonResolutionUtils.getJson(
-            this.requireContext(),
-            "rings/Airtel.json"
-        )
-
-        val jsonArray: JSONArray = LocalJsonResolutionUtils.getJsonArray(jsonString)
-
-        val len = jsonArray.length() - 1
-
-        for (i in 0..len) {
-            var jsonObject = jsonArray.getJSONObject(i)
-            var newRingstone = LocalJsonResolutionUtils.jsonToObject(
-                jsonObject.toString(),
-                NewRingstone::class.java
-            )
-            ringtonesArray.add(newRingstone)
-        }
-    }
 
     private fun ringstoneItemClicked(ringstone: NewRingstone, holder: RingstoneHolder) {
 //        Toast.makeText(requireContext(), "Clicked: ${ringstone.title}", Toast.LENGTH_SHORT).show()
@@ -217,7 +198,9 @@ class MainFragment : Fragment() {
         @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
         fun bind(ringstone: NewRingstone, clickListener: (NewRingstone, RingstoneHolder) -> Unit) {
             mTitle?.text = ringstone.title
-            mTag?.text = ringstone.tag
+            mTag?.text = ringstone.des
+
+
 
             mMore?.setOnClickListener {
 //                clickListener(ringstone)
@@ -304,6 +287,29 @@ class MainFragment : Fragment() {
                     putString(ARG_PARAM2, param2)
                 }
             }
+
+        fun prepareRingtonesData(context: Context,fileName: String): MutableList<NewRingstone>{
+            var ringtonesArray = mutableListOf<NewRingstone>()
+
+            val jsonString = LocalJsonResolutionUtils.getJson(
+                context,
+                fileName
+            )
+
+            val jsonArray: JSONArray = LocalJsonResolutionUtils.getJsonArray(jsonString)
+
+            val len = jsonArray.length() - 1
+
+            for (i in 0..len) {
+                var jsonObject = jsonArray.getJSONObject(i)
+                var newRingstone = LocalJsonResolutionUtils.jsonToObject(
+                    jsonObject.toString(),
+                    NewRingstone::class.java
+                )
+                ringtonesArray.add(newRingstone)
+            }
+            return ringtonesArray
+        }
     }
 
     override fun onDestroy() {

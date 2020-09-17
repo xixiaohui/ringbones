@@ -12,9 +12,10 @@
 
     <ImageView
         android:id="@+id/ringtone_ring"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:background="@drawable/ring"
+        android:backgroundTint="@color/colorPurple"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.05"
@@ -24,10 +25,11 @@
 
     <ImageView
         android:id="@+id/ringtone_fav"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:src="@drawable/emptyheart"
         android:tag="unselect"
+        app:tint="@color/colorPurple"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.18"
@@ -37,10 +39,11 @@
 
     <ImageView
         android:id="@+id/ringtone_download"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:layout_gravity="left"
         android:src="@drawable/download"
+        app:tint="@color/colorPurple"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.31"
@@ -50,10 +53,11 @@
 
     <ImageView
         android:id="@+id/ringtone_share"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:layout_gravity="left"
         android:src="@drawable/share"
+        app:tint="@color/colorPurple"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.43"
@@ -65,29 +69,31 @@
         android:id="@+id/ringtone_share_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Google Play Music"
-        android:textColor="#ff5722"
-        android:textSize="15dp"
         android:layout_marginLeft="20dp"
+        android:text="Google Play Music"
+        android:textColor="@color/colorPurple"
+        android:textSize="17dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.2" />
+        app:layout_constraintVertical_bias="0.111" />
 
     <TextView
         android:id="@+id/ringtone_share_tag"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Ellie Goulding"
-        android:textColor="#8a000000"
-        android:textSize="10dp"
         android:layout_marginLeft="20dp"
+        android:text="Ellie Goulding"
+        android:textColor="@color/colorSecondGray"
+        android:textSize="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.95"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.4" />
+        app:layout_constraintVertical_bias="0.289" />
 
     <ImageView
         android:id="@+id/ringtone_card_play"
@@ -97,10 +103,10 @@
         android:tag="unSelect"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.849"
+        app:layout_constraintHorizontal_bias="0.808"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.7" />
+        app:tint="@color/colorPurple" />
 
     <ProgressBar
         android:id="@+id/ringtone_progress_bar"
@@ -108,13 +114,13 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_centerHorizontal="true"
-        android:visibility="invisible"
         android:progressDrawable="@drawable/circular_progress_bar"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.849"
+        app:layout_constraintHorizontal_bias="0.869"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.7"/>
+        app:layout_constraintVertical_bias="1.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
