@@ -44,7 +44,7 @@ class MainFragment : Fragment() {
     private lateinit var binding: FragmentMainBinding
 
     private lateinit var navController: NavController
-    
+
 
     private lateinit var ringtonesArray: MutableList<NewRingstone>
 
@@ -56,9 +56,8 @@ class MainFragment : Fragment() {
         }
 
 //        this.initRingtones()
-        this.ringtonesArray = prepareRingtonesData(requireContext(),"rings/Airtel.json")
+        this.ringtonesArray = prepareRingtonesData(requireContext(), "rings/Airtel.json")
     }
-
 
 
     fun initRingtones() {
@@ -122,7 +121,6 @@ class MainFragment : Fragment() {
             true
         }
     }
-
 
 
     private fun ringstoneItemClicked(ringstone: NewRingstone, holder: RingstoneHolder) {
@@ -225,15 +223,14 @@ class MainFragment : Fragment() {
                 } else {
                     mPlay?.setImageDrawable(res.getDrawable(R.drawable.playwhite))
                 }
-
                 clickListener(ringstone, this)
             }
 
-            mDownload?.setOnClickListener{
+            mDownload?.setOnClickListener {
 
                 MaterialAlertDialogBuilder(it.context)
-                    .setTitle("Download")
-                    .setMessage("Are you sure to download this ringtone?")
+                    .setTitle("Hi~")
+                    .setMessage("Want to download this one?")
                     .setNegativeButton(it.context.resources.getString(R.string.cancel)) { dialog, which ->
                         // Respond to negative button press
                     }
@@ -241,7 +238,7 @@ class MainFragment : Fragment() {
                         // Respond to positive button press
                         var url = ringstone.url
                         var title = ringstone.title
-                        DownloadManagerTest.download(it.context,url,title)
+                        DownloadManagerTest.download(it.context, url, title)
                     }
                     .show()
             }
@@ -288,7 +285,7 @@ class MainFragment : Fragment() {
                 }
             }
 
-        fun prepareRingtonesData(context: Context,fileName: String): MutableList<NewRingstone>{
+        fun prepareRingtonesData(context: Context, fileName: String): MutableList<NewRingstone> {
             var ringtonesArray = mutableListOf<NewRingstone>()
 
             val jsonString = LocalJsonResolutionUtils.getJson(
