@@ -2,27 +2,28 @@ package com.xxh.ringbones.fragments
 
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
-import android.view.*
-import android.widget.Button
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.button.MaterialButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import com.xxh.ringbones.R
-import com.xxh.ringbones.data.Ringstone
+import com.xxh.ringbones.data.NewRingstone
 import com.xxh.ringbones.databinding.FragmentMainBinding
-import com.xxh.ringbones.utils.AssetsTest
-import com.xxh.ringbones.utils.HttpUtils
-import com.xxh.ringbones.utils.PlayMusic
-import java.io.File
+import com.xxh.ringbones.utils.DownloadManagerTest
+import com.xxh.ringbones.utils.LocalJsonResolutionUtils
+import com.xxh.ringbones.utils.MyMediaPlayerManager
+import org.json.JSONArray
+
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -42,30 +43,29 @@ class MainFragment : Fragment() {
     private lateinit var binding: FragmentMainBinding
 
     private lateinit var navController: NavController
+    
 
-    var ringstones = mutableListOf<Ringstone>()
-
-    private var song: AssetsTest? = null
+    private lateinit var ringtonesArray: MutableList<NewRingstone>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-              arguments?.let {
+        arguments?.let {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
 
-        this.initRingtones()
-
-
+//        this.initRingtones()
+        this.prepareRingtonesData()
     }
 
+
+
     fun initRingtones() {
-        var list = AssetsTest.getList(this.requireActivity())
-//        var pre: String = "ring/"
-        list?.forEach {
-            var title = it.toString()
-            ringstones.add(Ringstone(title, ""))
-        }
+//        var list = AssetsTest.getList(this.requireActivity())
+//        list?.forEach {
+//            var title = it.toString()
+//            ringstones.add(Ringstone(title, ""))
+//        }
     }
 
     override fun onCreateView(
@@ -94,57 +94,89 @@ class MainFragment : Fragment() {
         binding.recycleMainContent.apply {
             layoutManager = LinearLayoutManager(requireContext())
             setHasFixedSize(true)
-            adapter = ListAdapter(ringstones) { ringstone, imageView ->
-                ringstoneItemClicked(ringstone, imageView)
+            adapter = ListAdapter(ringtonesArray) { ringstone, holder ->
+                ringstoneItemClicked(ringstone, holder)
             }
+            setItemViewCacheSize(1000)
         }
 
-        binding.bottomNavigation.setOnNavigationItemSelectedListener(object: BottomNavigationView.OnNavigationItemSelectedListener{
-            override fun onNavigationItemSelected(item: MenuItem): Boolean {
-
-                when (item.itemId) {
-                    R.id.bottome_ringstone -> {
-                        // Respond to navigation item 1 click
-                        true
-                    }
-                    R.id.bottom_fav -> {
-                        // Respond to navigation item 2 click
-                        true
-                    }
-                    R.id.bottom_person -> {
-                        // Respond to navigation item 2 click
-
-                        navController.navigate(R.id.action_mainFragment_to_playFragment)
-                        true
-                    }
-                    else -> false
+        binding.bottomNavigation.setOnNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.bottome_ringstone -> {
+                    // Respond to navigation item 1 click
+                    true
                 }
-               return true
-            }
-        })
+                R.id.bottom_fav -> {
+                    // Respond to navigation item 2 click
+                    true
+                }
+                R.id.bottom_person -> {
+                    // Respond to navigation item 2 click
 
+                    navController.navigate(R.id.action_mainFragment_to_pageViewFragment)
+                    true
+                }
+                else -> false
+            }
+            true
+        }
     }
 
+    private fun prepareRingtonesData() {
+        ringtonesArray = mutableListOf()
 
-    private fun ringstoneItemClicked(ringstone: Ringstone, imageView: ImageView) {
+        val jsonString = LocalJsonResolutionUtils.getJson(
+            this.requireContext(),
+            "rings/Airtel.json"
+        )
+
+        val jsonArray: JSONArray = LocalJsonResolutionUtils.getJsonArray(jsonString)
+
+        val len = jsonArray.length() - 1
+
+        for (i in 0..len) {
+            var jsonObject = jsonArray.getJSONObject(i)
+            var newRingstone = LocalJsonResolutionUtils.jsonToObject(
+                jsonObject.toString(),
+                NewRingstone::class.java
+            )
+            ringtonesArray.add(newRingstone)
+        }
+    }
+
+    private fun ringstoneItemClicked(ringstone: NewRingstone, holder: RingstoneHolder) {
 //        Toast.makeText(requireContext(), "Clicked: ${ringstone.title}", Toast.LENGTH_SHORT).show()
 //        var bundle = bundleOf("ringstone" to ringstone)
 //        navController.navigate(R.id.action_mainFragment_to_downloadFragment, bundle)
-
-        var tempPath = "ring/" + ringstone.title
+//        var tempPath = "ring/" + ringstone.title
 //        song = AssetsTest(this.requireActivity(), tempPath)
 //        song.play()
+//        if (imageView.drawable.current.constantState == this.resources.getDrawable(R.drawable.playwhite).constantState) {
+//            song?.stop()
+//        } else {
+//            if (song != null) {
+//                song?.release()
+//                song = null
+//            }
+//            song = AssetsTest(this.requireActivity(), tempPath)
+//            song?.play()
+//        }
 
-        if (imageView.drawable.current.constantState == this.resources.getDrawable(R.drawable.playwhite).constantState) {
-            song?.stop()
+        val url = ringstone.url
+        val imageView = holder.getPlay()
+
+        if (imageView!!.tag.equals("unSelect")) {
+            val mediaTask = MyMediaPlayerManager.MediaTaskSecond(holder)
+            mediaTask.execute(url)
+
         } else {
-            if (song != null) {
-                song?.release()
-                song = null
-            }
-            song = AssetsTest(this.requireActivity(), tempPath)
-            song?.play()
+            imageView?.setImageResource(R.drawable.ic_play)
+            MyMediaPlayerManager.stop()
+            imageView.tag = "unSelect"
         }
+
+        Snackbar.make(binding.root, url, Snackbar.LENGTH_LONG)
+            .show()
     }
 
     class RingstoneHolder(itemView: View) :
@@ -158,7 +190,10 @@ class MainFragment : Fragment() {
         private var mHeart: ImageView? = null
         private var mPlay: ImageView? = null
 
-        private var mCopy: Button? = null
+        private var mDownload: ImageView? = null
+
+        private var mProgressBar: ProgressBar? = null
+
         init {
             mTitle = itemView.findViewById(R.id.ringtone_share_card)
             mTag = itemView.findViewById(R.id.ringtone_share_tag)
@@ -166,18 +201,27 @@ class MainFragment : Fragment() {
 
             mHeart = itemView.findViewById(R.id.ringtone_fav)
             mPlay = itemView.findViewById(R.id.ringtone_card_play)
+            mProgressBar = itemView.findViewById(R.id.ringtone_progress_bar)
 
-//            mCopy = itemView.findViewById(R.id.copy)
+            mDownload = itemView.findViewById(R.id.ringtone_download)
+        }
+
+        fun getPlay(): ImageView? {
+            return mPlay
+        }
+
+        fun getProgressBar(): ProgressBar? {
+            return mProgressBar
         }
 
         @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-        fun bind(ringstone: Ringstone, clickListener: (Ringstone, ImageView) -> Unit) {
+        fun bind(ringstone: NewRingstone, clickListener: (NewRingstone, RingstoneHolder) -> Unit) {
             mTitle?.text = ringstone.title
             mTag?.text = ringstone.tag
 
             mMore?.setOnClickListener {
 //                clickListener(ringstone)
-                PlayMusic.click(it)
+//                PlayMusic.click(it)
             }
 
             mHeart?.setOnClickListener {
@@ -199,18 +243,35 @@ class MainFragment : Fragment() {
                     mPlay?.setImageDrawable(res.getDrawable(R.drawable.playwhite))
                 }
 
-                clickListener(ringstone, mPlay!!)
+                clickListener(ringstone, this)
+            }
+
+            mDownload?.setOnClickListener{
+
+                MaterialAlertDialogBuilder(it.context)
+                    .setTitle("Download")
+                    .setMessage("Are you sure to download this ringtone?")
+                    .setNegativeButton(it.context.resources.getString(R.string.cancel)) { dialog, which ->
+                        // Respond to negative button press
+                    }
+                    .setPositiveButton(it.context.resources.getString(R.string.ok)) { dialog, which ->
+                        // Respond to positive button press
+                        var url = ringstone.url
+                        var title = ringstone.title
+                        DownloadManagerTest.download(it.context,url,title)
+                    }
+                    .show()
             }
         }
     }
 
     class ListAdapter(
-        private val data: MutableList<Ringstone>,
-        private val clickListener: (Ringstone, ImageView) -> Unit
+        private val data: MutableList<NewRingstone>,
+        private val clickListener: (NewRingstone, RingstoneHolder) -> Unit
     ) :
         RecyclerView.Adapter<RingstoneHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RingstoneHolder {
-            val v = LayoutInflater.from(parent.context).inflate(R.layout.sharecard, parent, false)
+            val v = LayoutInflater.from(parent.context).inflate(R.layout.ringbox, parent, false)
             return RingstoneHolder(v)
         }
 
@@ -220,7 +281,7 @@ class MainFragment : Fragment() {
 
         @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
         override fun onBindViewHolder(holder: RingstoneHolder, position: Int) {
-            val ringstone: Ringstone = data[position]
+            val ringstone: NewRingstone = data[position]
             holder.bind(ringstone, clickListener)
         }
     }
@@ -247,6 +308,6 @@ class MainFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        song?.release()
+//        song?.release()
     }
 }

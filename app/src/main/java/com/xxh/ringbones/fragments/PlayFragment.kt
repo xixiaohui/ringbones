@@ -11,8 +11,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
@@ -37,21 +39,10 @@ import java.lang.Exception
 class PlayFragment : Fragment() {
 
     private lateinit var binding: FragmentPlayBinding
-
-
-    val malaya = "https://2u039f-a.akamaihd.net/downloads/ringtones/files/mp3/helalu-51148.mp3"
-    val testUrl =
-        "http://tyst.migu.cn/public/600902-2008430/tone/2008/09/10/2008年9月/4月环球106首歌曲/彩铃/7_mp3-128kbps/等你等到我心痛-张学友.mp3"
-    val jap = "https://audionautix.com/Music/AcousticBlues.mp3"
-
-    private lateinit var imagePlayPause: ImageView
-
     private lateinit var ringtonesArray: MutableList<NewRingstone>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-//        prepareMediaPlay()
 
     }
 
@@ -62,16 +53,10 @@ class PlayFragment : Fragment() {
         // Inflate the layout for this fragment
 
         binding = FragmentPlayBinding.inflate(layoutInflater)
-
-//        imagePlayPause = binding.musicPlay
-
-//        imagePlayPause.setOnClickListener {
-//            mediaPlayer.start()
-//        }
-
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -80,29 +65,34 @@ class PlayFragment : Fragment() {
         binding.recyclePlayContent.apply {
             layoutManager = LinearLayoutManager(requireContext())
             setHasFixedSize(true)
-            adapter = MusicListAdapter(ringtonesArray) { ringstone, imageView ->
-                ringstoneItemClicked(ringstone, imageView)
+            adapter = MusicListAdapter(ringtonesArray) { ringstone, view ->
+                ringstoneItemClicked(ringstone, view)
             }
+            setItemViewCacheSize(1000)
         }
     }
 
-    private fun ringstoneItemClicked(ringstone: NewRingstone, imageView: ImageView) {
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    private fun ringstoneItemClicked(ringstone: NewRingstone, holder: NewRingstoneHolder) {
         val url = ringstone.url
 
-//        if (MyMediaPlayerManager.isPlaying()){
-//            mediaPlayer.stop()
-//        }else{
-//            prepareMediaPlay(url)
-//            mediaPlayer.start()
-//        }
+        val imageView = holder.getPlay()
+
+
+        if (imageView!!.tag.equals("unSelect")) {
+            val mediaTask = MyMediaPlayerManager.MediaTask(holder)
+            mediaTask.execute(url)
+
+        } else {
+            imageView?.setImageResource(R.drawable.ic_play)
+            MyMediaPlayerManager.stop()
+            imageView.tag = "unSelect"
+        }
 
         Snackbar.make(binding.root, url, Snackbar.LENGTH_LONG)
             .show()
     }
 
-    private fun prepareMediaPlay(url: String = testUrl) {
-        MyMediaPlayerManager.prepare(url)
-    }
 
     private fun prepareRingtonesData() {
         ringtonesArray = mutableListOf()
@@ -121,8 +111,6 @@ class PlayFragment : Fragment() {
             )
             ringtonesArray.add(newRingstone)
         }
-
-        Log.i("PlayFragment", "prepareRingtonesData...end")
     }
 
     class NewRingstoneHolder(itemView: View) :
@@ -136,6 +124,8 @@ class PlayFragment : Fragment() {
         private var mHeart: ImageView? = null
         private var mPlay: ImageView? = null
 
+        private var mProgressBar: ProgressBar? = null
+
         init {
             mTitle = itemView.findViewById(R.id.ringtone_share_card)
             mTag = itemView.findViewById(R.id.ringtone_share_tag)
@@ -144,10 +134,22 @@ class PlayFragment : Fragment() {
             mHeart = itemView.findViewById(R.id.ringtone_fav)
             mPlay = itemView.findViewById(R.id.ringtone_card_play)
 
+            mProgressBar = itemView.findViewById(R.id.ringtone_progress_bar)
+        }
+
+        fun getPlay(): ImageView? {
+            return mPlay
+        }
+
+        fun getProgressBar(): ProgressBar? {
+            return mProgressBar
         }
 
         @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-        fun bind(ringstone: NewRingstone, clickListener: (NewRingstone, ImageView) -> Unit) {
+        fun bind(
+            ringstone: NewRingstone,
+            clickListener: (NewRingstone, NewRingstoneHolder) -> Unit
+        ) {
             mTitle?.text = ringstone.title
             mTag?.text = ringstone.des
 
@@ -166,25 +168,14 @@ class PlayFragment : Fragment() {
             }
 
             mPlay?.setOnClickListener {
-                val res = it.context
-                val pause = res.getDrawable(R.drawable.pause)
-                if (mPlay!!.drawable.current.constantState != pause!!.constantState) {
-                    mPlay?.setImageDrawable(pause)
-
-                    MyMediaPlayerManager.start(ringstone.url)
-                } else {
-                    mPlay?.setImageDrawable(res.getDrawable(R.drawable.playwhite))
-                    MyMediaPlayerManager.stop()
-                }
-
-                clickListener(ringstone, mPlay!!)
+                clickListener(ringstone, this)
             }
         }
     }
 
     class MusicListAdapter(
         private val data: MutableList<NewRingstone>,
-        private val clickListener: (NewRingstone, ImageView) -> Unit
+        private val clickListener: (NewRingstone, NewRingstoneHolder) -> Unit
     ) :
         RecyclerView.Adapter<PlayFragment.NewRingstoneHolder>() {
         override fun onCreateViewHolder(

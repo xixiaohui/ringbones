@@ -15,4 +15,6 @@
     <string name="action_2">stop</string>
     <string name="action_3">listen</string>
     <string name="copy">copy</string>
+    <string name="cancel">cancel</string>
+    <string name="ok">ok</string>
 </resources>

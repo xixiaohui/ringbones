@@ -15,6 +15,9 @@
         <action
             android:id="@+id/action_mainFragment_to_playFragment"
             app:destination="@id/playFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_pageViewFragment"
+            app:destination="@id/pageViewFragment" />
     </fragment>
     <fragment
         android:id="@+id/downloadFragment"
@@ -30,4 +33,9 @@
         android:name="com.xxh.ringbones.fragments.PlayFragment"
         android:label="fragment_play"
         tools:layout="@layout/fragment_play" />
+    <fragment
+        android:id="@+id/pageViewFragment"
+        android:name="com.xxh.ringbones.fragments.PageViewFragment"
+        android:label="fragment_page_view"
+        tools:layout="@layout/fragment_page_view" />
 </navigation>
