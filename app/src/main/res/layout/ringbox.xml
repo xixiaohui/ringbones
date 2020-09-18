@@ -7,8 +7,20 @@
     android:layout_width="match_parent"
     android:layout_height="166dp"
     android:layout_marginBottom="1dp"
-    android:elevation="20dp">
+    android:elevation="20dp"
+    android:tag="unSelect"
+    >
 
+    <View
+        android:id="@+id/ringtone_background"
+        android:layout_width="1dp"
+        android:layout_height="match_parent"
+        android:background="@color/colorGray"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:layout_editor_absoluteY="16dp" />
 
     <ImageView
         android:id="@+id/ringtone_ring"

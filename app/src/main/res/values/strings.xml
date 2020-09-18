@@ -7,7 +7,7 @@
     <string name="prevew">preview</string>
     <string name="title">Ishare Tere Karti Nigah - Sumit Goswami</string>
     <string name="tag">tag</string>
-    <string name="download">download</string>
+    <string name="download">Download</string>
     <string name="text_label_1">Ringstone</string>
     <string name="text_label_2">Favorite</string>
     <string name="text_label_3">Profile</string>
@@ -17,4 +17,6 @@
     <string name="copy">copy</string>
     <string name="cancel">cancel</string>
     <string name="ok">ok</string>
+    <string name="hi">Hi~</string>
+    <string name="download_tips">Want to download this one?</string>
 </resources>

@@ -1,19 +1,21 @@
 package com.xxh.ringbones.fragments
 
+import android.animation.Animator
+import android.animation.ValueAnimator
+import android.os.Build
 import android.os.Bundle
-import android.util.Log
+import android.util.DisplayMetrics
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
+import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.snackbar.Snackbar
 import com.xxh.ringbones.R
 import com.xxh.ringbones.data.NewRingstone
 import com.xxh.ringbones.databinding.FragmentSuperAwesomeCardBinding
-import com.xxh.ringbones.utils.MyMediaPlayerManager
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -30,14 +32,12 @@ class SuperAwesomeCardFragment : Fragment() {
 
     // TODO: Rename and change types of parameters
     private var position: Int? = null
-
-
-
     private lateinit var binding: FragmentSuperAwesomeCardBinding
-
     private lateinit var ringtonesArray: MutableList<NewRingstone>
-
     private var mediaHolder: MediaHolder? = null
+    private lateinit var valueAnimator: ValueAnimator
+    private var screen_width: Int = 0
+
 
     private val ringFileList = arrayOf(
         "2020", "Funny", "Malayalam", "Bollywood", "Romantic", "English",
@@ -50,9 +50,23 @@ class SuperAwesomeCardFragment : Fragment() {
             position = it.getInt(ARG_PARAM1)
         }
         mediaHolder = MediaHolder(requireContext())
-        this.ringtonesArray = MainFragment.prepareRingtonesData(requireContext(),"rings/${ringFileList[position!!]}.json")
+
+        this.ringtonesArray = MainFragment.prepareRingtonesData(
+            requireContext(),
+            "rings/${ringFileList[position!!]}.json"
+        )
+
+        var wm = this.requireActivity().windowManager
+        var outMetrics: DisplayMetrics = DisplayMetrics()
+        wm.defaultDisplay.getMetrics(outMetrics)
+        screen_width = outMetrics.widthPixels
+
+        valueAnimator = ValueAnimator.ofInt(0, screen_width)
+
+
     }
 
+    @RequiresApi(Build.VERSION_CODES.KITKAT)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -67,48 +81,153 @@ class SuperAwesomeCardFragment : Fragment() {
             setHasFixedSize(true)
             adapter = MainFragment.ListAdapter(ringtonesArray) { ringstone, holder ->
                 ringstoneItemClicked(ringstone, holder)
+            }.apply {
+                setOnItemClickLitener(object : MainFragment.OnItemClickListener {
+                    override fun onItemClick(
+                        ringstone: NewRingstone,
+                        holder: MainFragment.RingstoneHolder,
+                        position: Int
+                    ) {
+//                        ringstoneItemClicked(ringstone, holder)
+
+                    }
+                })
             }
             setItemViewCacheSize(1000)
         }
-
         return binding.root
     }
 
-    private fun ringstoneItemClicked(ringstone: NewRingstone, holder: MainFragment.RingstoneHolder) {
+    @RequiresApi(Build.VERSION_CODES.KITKAT)
+    private fun ringstoneItemClicked(
+        ringstone: NewRingstone,
+        holder: MainFragment.RingstoneHolder
+    ) {
 
         val url = ringstone.url
         val imageView = holder.getPlay()
         var progressBar: ProgressBar? = holder.getProgressBar()
 
-        if (imageView!!.tag.equals("unSelect")) {
 
-            Log.i(TAG,url)
-            mediaHolder!!.setDataSource(url,object: MediaHolder.MediaAction{
-                override fun doAction() {
-                    imageView?.setImageResource(R.drawable.ic_pause)
-                    progressBar?.visibility = View.INVISIBLE
-                }
-            })
+        if (imageView!!.tag.equals("unSelect")) {
+//            if (valueAnimator.isPaused){
+//                mediaHolder!!.start()
+//                valueAnimator.start()
+//                imageView?.setImageResource(R.drawable.ic_pause)
+//
+//            }else{
+//                mediaHolder!!.setDataSource(url, object : MediaHolder.MediaAction {
+//                    override fun doAction() {
+//                        imageView?.setImageResource(R.drawable.ic_pause)
+//                        progressBar?.visibility = View.INVISIBLE
+//
+//                        //设置属性动画
+//                        val backgroundView: View? = holder.getBackgroundView()
+//                        updateBackgroundWidthAnimator(backgroundView, mediaHolder!!.getDuration())
+//                        valueAnimator.start()
+//                    }
+//                })
+//                progressBar?.visibility = View.VISIBLE
+//            }
+
+            imageView?.setImageResource(R.drawable.ic_pause)
             imageView.tag = "Select"
-            progressBar?.visibility = View.VISIBLE
-            Snackbar.make(binding.root, "Play", Snackbar.LENGTH_LONG)
-                .show()
+//            updateBackgroundWidthAnimator(holder.getBackgroundView(), 3000)
+
+            if (valueAnimator.isPaused) {
+                valueAnimator.resume()
+                mediaHolder!!.start()
+            } else {
+//              valueAnimator.start()
+
+                mediaHolder!!.setDataSource(url, object : MediaHolder.MediaAction {
+                    override fun doAction() {
+                        imageView?.setImageResource(R.drawable.ic_pause)
+                        progressBar?.visibility = View.INVISIBLE
+
+                        //设置属性动画
+                        val backgroundView: View? = holder.getBackgroundView()
+                        updateBackgroundWidthAnimator(backgroundView, mediaHolder!!.getDuration())
+                        valueAnimator.start()
+                    }
+                })
+                progressBar?.visibility = View.VISIBLE
+            }
+
 
         } else {
-            mediaHolder!!.pause(object: MediaHolder.MediaAction{
-                override fun doAction() {
-                    imageView?.setImageResource(R.drawable.ic_play)
-                }
-            })
+//            if (mediaHolder!!.isPlaying()) {
+//                mediaHolder!!.pause()
+//
+//                imageView?.setImageResource(R.drawable.ic_play)
+//                valueAnimator.pause()
+//            } else {
+//                mediaHolder!!.stop(object : MediaHolder.MediaAction {
+//                    override fun doAction() {
+//                        imageView?.setImageResource(R.drawable.ic_play)
+//                        valueAnimator.setIntValues(0)
+//                    }
+//                })
+//            }
+//
             imageView?.setImageResource(R.drawable.ic_play)
             imageView.tag = "unSelect"
 
-            Snackbar.make(binding.root, "Pause", Snackbar.LENGTH_LONG)
-                .show()
+
+            if (valueAnimator.isRunning) {
+                valueAnimator.pause()
+                mediaHolder!!.pause()
+            } else {
+                mediaHolder!!.stop(object : MediaHolder.MediaAction {
+                    override fun doAction() {
+                        imageView?.setImageResource(R.drawable.ic_play)
+                        valueAnimator.setIntValues(0)
+                    }
+                })
+            }
         }
 
-//        Snackbar.make(binding.root, url, Snackbar.LENGTH_LONG)
-//            .show()
+    }
+
+    fun updateBackgroundWidthAnimator(backgroundView: View?, duration: Int) {
+        this.valueAnimator.removeAllUpdateListeners()
+
+        var animator: ValueAnimator = this.valueAnimator
+
+        animator.repeatMode = ValueAnimator.REVERSE
+        animator.addUpdateListener {
+            var curValue = animator.animatedValue
+
+            backgroundView!!.layoutParams.width = curValue as Int
+            backgroundView!!.requestLayout()
+            if (backgroundView!!.layoutParams.width > 5) {
+                backgroundView!!.visibility = View.VISIBLE
+            }
+        }
+
+        animator.addListener(object : Animator.AnimatorListener {
+            override fun onAnimationStart(animation: Animator?) {
+
+            }
+
+            override fun onAnimationEnd(animation: Animator?) {
+//                backgroundView!!.visibility = View.INVISIBLE
+            }
+
+            override fun onAnimationCancel(animation: Animator?) {
+
+            }
+
+            override fun onAnimationRepeat(animation: Animator?) {
+
+            }
+
+        })
+        setValueAnimationDuration(duration)
+    }
+
+    fun setValueAnimationDuration(duration: Int) {
+        this.valueAnimator.duration = duration.toLong()
     }
 
     companion object {

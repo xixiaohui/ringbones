@@ -1,5 +1,6 @@
 package com.xxh.ringbones.fragments
 
+import android.animation.ValueAnimator
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
@@ -94,8 +95,12 @@ class MainFragment : Fragment() {
         binding.recycleMainContent.apply {
             layoutManager = LinearLayoutManager(requireContext())
             setHasFixedSize(true)
-            adapter = ListAdapter(ringtonesArray) { ringstone, holder ->
-                ringstoneItemClicked(ringstone, holder)
+//            adapter = ListAdapter(ringtonesArray) { ringstone, holder ->
+//                ringstoneItemClicked(ringstone, holder)
+//            }
+            adapter  = ListAdapter(ringtonesArray){ ringtone,holder ->
+                ringstoneItemClicked(ringtone,holder)
+
             }
             setItemViewCacheSize(1000)
         }
@@ -163,26 +168,22 @@ class MainFragment : Fragment() {
 
         private var mTitle: TextView? = null
         private var mTag: TextView? = null
-
         private var mMore: ImageView? = null
-
         private var mHeart: ImageView? = null
         private var mPlay: ImageView? = null
-
         private var mDownload: ImageView? = null
-
         private var mProgressBar: ProgressBar? = null
+        private var mView: View? = null
 
         init {
             mTitle = itemView.findViewById(R.id.ringtone_share_card)
             mTag = itemView.findViewById(R.id.ringtone_share_tag)
-            mMore = itemView.findViewById(R.id.ringtone_download)
-
+            mMore = itemView.findViewById(R.id.ringtone_share)
             mHeart = itemView.findViewById(R.id.ringtone_fav)
             mPlay = itemView.findViewById(R.id.ringtone_card_play)
             mProgressBar = itemView.findViewById(R.id.ringtone_progress_bar)
-
             mDownload = itemView.findViewById(R.id.ringtone_download)
+            mView = itemView.findViewById(R.id.ringtone_background)
         }
 
         fun getPlay(): ImageView? {
@@ -193,44 +194,53 @@ class MainFragment : Fragment() {
             return mProgressBar
         }
 
+        fun getBackgroundView(): View? {
+            return mView
+        }
+
+        /**
+         * value : View.INVISIBLE | View.VISIBLE
+         */
+        fun setBackgroundVisibility(value: Int){
+            mView!!.visibility = value
+        }
+
+        fun setPlayerButtonPlay(){
+            mPlay!!.setImageResource(R.drawable.ic_play)
+        }
+
         @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
         fun bind(ringstone: NewRingstone, clickListener: (NewRingstone, RingstoneHolder) -> Unit) {
             mTitle?.text = ringstone.title
             mTag?.text = ringstone.des
 
-
-
             mMore?.setOnClickListener {
 //                clickListener(ringstone)
 //                PlayMusic.click(it)
+
+
+
             }
 
             mHeart?.setOnClickListener {
-                val res = it.context
-                val heart = res.getDrawable(R.drawable.heart)
-                if (mHeart!!.drawable.current.constantState != heart!!.constantState) {
-                    mHeart?.setImageDrawable(heart)
+                if (mHeart!!.tag.equals("unSelect")) {
+                    mHeart!!.tag = "Select"
+                    mHeart!!.setImageResource(R.drawable.heart)
                 } else {
-                    mHeart?.setImageDrawable(res.getDrawable(R.drawable.emptyheart))
+                    mHeart!!.tag = "unSelect"
+                    mHeart!!.setImageResource(R.drawable.emptyheart)
                 }
+
             }
 
-            mPlay?.setOnClickListener {
-                val res = it.context
-                val pause = res.getDrawable(R.drawable.pause)
-                if (mPlay!!.drawable.current.constantState != pause!!.constantState) {
-                    mPlay?.setImageDrawable(pause)
-                } else {
-                    mPlay?.setImageDrawable(res.getDrawable(R.drawable.playwhite))
-                }
-                clickListener(ringstone, this)
-            }
+//            mPlay?.setOnClickListener {
+//                clickListener(ringstone, this)
+//            }
 
             mDownload?.setOnClickListener {
-
                 MaterialAlertDialogBuilder(it.context)
-                    .setTitle("Hi~")
-                    .setMessage("Want to download this one?")
+                    .setTitle(mDownload!!.context.getString(R.string.hi))
+                    .setMessage(mDownload!!.context.getString(R.string.download_tips))
                     .setNegativeButton(it.context.resources.getString(R.string.cancel)) { dialog, which ->
                         // Respond to negative button press
                     }
@@ -242,14 +252,46 @@ class MainFragment : Fragment() {
                     }
                     .show()
             }
+
+//            itemView.setOnClickListener{
+//                if (it.tag == "unSelect"){
+//                    itemView.tag = "Select"
+//                    itemView.setBackgroundColor(it.context.resources.getColor(R.color.colorSecondGray))
+//                }else{
+//                    itemView.tag = "unSelect"
+//                    itemView.setBackgroundColor(it.context.resources.getColor(R.color.colorWhite))
+//                }
+//            }
+            mView?.setOnClickListener{
+
+            }
         }
     }
 
     class ListAdapter(
         private val data: MutableList<NewRingstone>,
+
         private val clickListener: (NewRingstone, RingstoneHolder) -> Unit
+
     ) :
         RecyclerView.Adapter<RingstoneHolder>() {
+
+        private lateinit var isClicks : MutableList<Boolean> //控件是否被点击,默认为false，如果被点击，改变值，控件根据值改变自身颜色
+
+        private var mOnItemClickListener: OnItemClickListener? = null
+
+        init {
+            val len = data.size
+            isClicks = mutableListOf()
+            for(i in 0..len){
+                isClicks.add(false)
+            }
+        }
+
+        fun setOnItemClickLitener(onItemClickListener: OnItemClickListener){
+            this.mOnItemClickListener = onItemClickListener
+        }
+
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RingstoneHolder {
             val v = LayoutInflater.from(parent.context).inflate(R.layout.ringbox, parent, false)
             return RingstoneHolder(v)
@@ -263,7 +305,37 @@ class MainFragment : Fragment() {
         override fun onBindViewHolder(holder: RingstoneHolder, position: Int) {
             val ringstone: NewRingstone = data[position]
             holder.bind(ringstone, clickListener)
+
+            if(isClicks[position]){
+//                holder.itemView.setBackgroundColor(holder.itemView.context.resources.getColor(R.color.colorWhite))
+
+            }else{
+//                holder.itemView.setBackgroundColor(holder.itemView.context.resources.getColor(R.color.colorWhite))
+                holder.setBackgroundVisibility(View.INVISIBLE)
+                holder.setPlayerButtonPlay()
+
+            }
+
+            if (mOnItemClickListener != null){
+                holder.getPlay()!!.setOnClickListener{
+                    for(i in 0..data.size){
+                        isClicks[i] = false
+                    }
+                    isClicks[position] = true
+                    notifyDataSetChanged()
+                    mOnItemClickListener!!.onItemClick(data[position],holder,position)
+
+                    clickListener(ringstone,holder)
+                }
+
+            }
         }
+    }
+
+    interface OnItemClickListener {
+//        fun onItemClick(view: View, position: Int)
+
+        fun onItemClick(ringstone: NewRingstone, holder: MainFragment.RingstoneHolder,position: Int)
     }
 
     companion object {

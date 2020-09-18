@@ -9,46 +9,64 @@ class MediaHolder {
 
     private var context: Context? = null
 
-    private var mediaPlayer: MediaPlayer? = null
-
+    private lateinit var mediaPlayer: MediaPlayer
 
 
     constructor(context: Context) {
         this.context = context
-
-        if (mediaPlayer == null){
-            mediaPlayer = MediaPlayer()
-        }
+        mediaPlayer = MediaPlayer()
     }
 
-    private fun play(){
-        mediaPlayer!!.start()
+    private fun play() {
+        mediaPlayer.start()
     }
 
-    fun pause(action: MediaAction){
-        if (mediaPlayer!!.isPlaying){
-            mediaPlayer!!.pause()
+    fun start(){
+        mediaPlayer.start()
+    }
+
+    fun stop(action: MediaAction) {
+        if (mediaPlayer.isPlaying) {
+            mediaPlayer.reset()
+            mediaPlayer.stop()
             action.doAction()
         }
 
     }
 
-    fun setDataSource(path: String,action: MediaAction){
-        mediaPlayer!!.setDataSource(path)
-        mediaPlayer!!.prepareAsync()
+    fun setDataSource(path: String, action: MediaAction) {
+        mediaPlayer.reset()
+        mediaPlayer.setDataSource(path)
+        mediaPlayer.prepareAsync()
 
-        mediaPlayer!!.setOnPreparedListener{
+        mediaPlayer.setOnPreparedListener {
             action.doAction()
+            //播放
             this.play()
+            //设置循环播放
+            this.mediaPlayer.isLooping = true
         }
     }
 
-    interface MediaAction{
+    interface MediaAction {
         fun doAction()
     }
 
-    fun release(){
-        mediaPlayer!!.release()
+    fun release() {
+        mediaPlayer.release()
     }
+
+    fun isPlaying():Boolean{
+        return mediaPlayer.isPlaying
+    }
+
+    fun getDuration(): Int{
+        return mediaPlayer.duration
+    }
+
+    fun pause(){
+        mediaPlayer.pause()
+    }
+
 
 }
