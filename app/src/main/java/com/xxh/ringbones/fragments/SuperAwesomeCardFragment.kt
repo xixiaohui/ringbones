@@ -181,7 +181,7 @@ class SuperAwesomeCardFragment : Fragment() {
                 mediaHolder!!.stop(object : MediaHolder.MediaAction {
                     override fun doAction() {
                         imageView?.setImageResource(R.drawable.ic_play)
-                        valueAnimator.setIntValues(0)
+
                     }
                 })
             }
