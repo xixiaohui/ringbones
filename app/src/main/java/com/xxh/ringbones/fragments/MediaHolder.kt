@@ -25,16 +25,17 @@ class MediaHolder {
         mediaPlayer.start()
     }
 
-    fun stop(action: MediaAction) {
-        if (mediaPlayer.isPlaying) {
-            mediaPlayer.reset()
-            mediaPlayer.stop()
-            action.doAction()
-        }
+    fun reset(action: MediaAction) {
+        mediaPlayer.reset()
+        action.doAction()
+    }
 
+    fun stop(){
+        mediaPlayer.stop()
     }
 
     fun setDataSource(path: String, action: MediaAction) {
+
         mediaPlayer.reset()
         mediaPlayer.setDataSource(path)
         mediaPlayer.prepareAsync()
@@ -44,7 +45,7 @@ class MediaHolder {
             //播放
             this.play()
             //设置循环播放
-            this.mediaPlayer.isLooping = true
+//            this.mediaPlayer.isLooping = true
         }
     }
 
@@ -68,5 +69,24 @@ class MediaHolder {
         mediaPlayer.pause()
     }
 
+    fun reset(){
+        mediaPlayer.reset()
+    }
+
+    fun setOnCompletionListener(listner: CompletionListner){
+
+        mediaPlayer.setOnCompletionListener {
+            listner.doAction()
+
+        }
+    }
+
+    interface CompletionListner{
+        fun doAction()
+    }
+
+    fun seekTo(msec: Int){
+        mediaPlayer.seekTo(msec)
+    }
 
 }

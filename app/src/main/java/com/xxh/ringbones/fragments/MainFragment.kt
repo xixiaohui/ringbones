@@ -1,9 +1,9 @@
 package com.xxh.ringbones.fragments
 
-import android.animation.ValueAnimator
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -39,6 +39,8 @@ private const val ARG_PARAM2 = "param2"
  */
 class MainFragment : Fragment() {
     // TODO: Rename and change types of parameters
+
+
     private var param1: String? = null
     private var param2: String? = null
 
@@ -98,8 +100,8 @@ class MainFragment : Fragment() {
 //            adapter = ListAdapter(ringtonesArray) { ringstone, holder ->
 //                ringstoneItemClicked(ringstone, holder)
 //            }
-            adapter  = ListAdapter(ringtonesArray){ ringtone,holder ->
-                ringstoneItemClicked(ringtone,holder)
+            adapter = ListAdapter(ringtonesArray) { ringtone, holder, position ->
+                ringstoneItemClicked(ringtone, holder, position)
 
             }
             setItemViewCacheSize(1000)
@@ -128,7 +130,11 @@ class MainFragment : Fragment() {
     }
 
 
-    private fun ringstoneItemClicked(ringstone: NewRingstone, holder: RingstoneHolder) {
+    private fun ringstoneItemClicked(
+        ringstone: NewRingstone,
+        holder: RingstoneHolder,
+        position: Int
+    ) {
 //        Toast.makeText(requireContext(), "Clicked: ${ringstone.title}", Toast.LENGTH_SHORT).show()
 //        var bundle = bundleOf("ringstone" to ringstone)
 //        navController.navigate(R.id.action_mainFragment_to_downloadFragment, bundle)
@@ -201,25 +207,30 @@ class MainFragment : Fragment() {
         /**
          * value : View.INVISIBLE | View.VISIBLE
          */
-        fun setBackgroundVisibility(value: Int){
+        fun setBackgroundVisibility(value: Int) {
             mView!!.visibility = value
         }
 
-        fun setPlayerButtonPlay(){
+        fun setBackgroundWidth(value: Int) {
+            mView!!.layoutParams.width = value
+        }
+
+        fun setPlayerButtonPlay() {
             mPlay!!.setImageResource(R.drawable.ic_play)
         }
 
         @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-        fun bind(ringstone: NewRingstone, clickListener: (NewRingstone, RingstoneHolder) -> Unit) {
+        fun bind(
+            ringstone: NewRingstone,
+            clickListener: (NewRingstone, RingstoneHolder, Int) -> Unit,
+            position: Int
+        ) {
             mTitle?.text = ringstone.title
             mTag?.text = ringstone.des
 
             mMore?.setOnClickListener {
 //                clickListener(ringstone)
 //                PlayMusic.click(it)
-
-
-
             }
 
             mHeart?.setOnClickListener {
@@ -230,12 +241,11 @@ class MainFragment : Fragment() {
                     mHeart!!.tag = "unSelect"
                     mHeart!!.setImageResource(R.drawable.emptyheart)
                 }
-
             }
 
-//            mPlay?.setOnClickListener {
-//                clickListener(ringstone, this)
-//            }
+            mPlay?.setOnClickListener {
+                clickListener(ringstone, this, position)
+            }
 
             mDownload?.setOnClickListener {
                 MaterialAlertDialogBuilder(it.context)
@@ -253,44 +263,46 @@ class MainFragment : Fragment() {
                     .show()
             }
 
-//            itemView.setOnClickListener{
-//                if (it.tag == "unSelect"){
-//                    itemView.tag = "Select"
-//                    itemView.setBackgroundColor(it.context.resources.getColor(R.color.colorSecondGray))
-//                }else{
-//                    itemView.tag = "unSelect"
-//                    itemView.setBackgroundColor(it.context.resources.getColor(R.color.colorWhite))
-//                }
-//            }
-            mView?.setOnClickListener{
+            mView?.setOnClickListener {
 
             }
+        }
+
+        fun reset(){
+            this.setBackgroundVisibility(View.INVISIBLE)
+            this.setBackgroundWidth(0)
+            this.setPlayerButtonPlay()
+            this.getPlay()!!.tag = "Normal"
+            this.getProgressBar()!!.visibility = View.INVISIBLE
         }
     }
 
     class ListAdapter(
+
         private val data: MutableList<NewRingstone>,
 
-        private val clickListener: (NewRingstone, RingstoneHolder) -> Unit
+        private val clickListener: (NewRingstone, RingstoneHolder, Int) -> Unit
 
     ) :
         RecyclerView.Adapter<RingstoneHolder>() {
 
-        private lateinit var isClicks : MutableList<Boolean> //控件是否被点击,默认为false，如果被点击，改变值，控件根据值改变自身颜色
+        private lateinit var isClicks: MutableList<Boolean> //控件是否被点击,默认为false，如果被点击，改变值，控件根据值改变自身颜色
 
-        private var mOnItemClickListener: OnItemClickListener? = null
+//        private var mOnItemClickListener: OnItemClickListener? = null
+
+        private val TAG: String = "ListAdapter"
 
         init {
             val len = data.size
             isClicks = mutableListOf()
-            for(i in 0..len){
+            for (i in 0..len) {
                 isClicks.add(false)
             }
         }
 
-        fun setOnItemClickLitener(onItemClickListener: OnItemClickListener){
-            this.mOnItemClickListener = onItemClickListener
-        }
+//        fun setOnItemClickLitener(onItemClickListener: OnItemClickListener){
+//            this.mOnItemClickListener = onItemClickListener
+//        }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RingstoneHolder {
             val v = LayoutInflater.from(parent.context).inflate(R.layout.ringbox, parent, false)
@@ -301,41 +313,69 @@ class MainFragment : Fragment() {
             return data.size
         }
 
+        override fun onViewRecycled(holder: RingstoneHolder) {
+            super.onViewRecycled(holder)
+
+//            Log.i(TAG,"onViewRecycled")
+        }
+
+//        fun reset(holder: RingstoneHolder){
+//            for (i in 0..data.size) {
+//                if (!isClicks[i]) {
+//                    holder.setBackgroundVisibility(View.INVISIBLE)
+//                    holder.setBackgroundWidth(0)
+//                    holder.setPlayerButtonPlay()
+//                    holder.getPlay()!!.tag = "Normal"
+//                    holder.getProgressBar()!!.visibility = View.INVISIBLE
+//                }
+//            }
+//        }
+
         @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
         override fun onBindViewHolder(holder: RingstoneHolder, position: Int) {
             val ringstone: NewRingstone = data[position]
-            holder.bind(ringstone, clickListener)
+            holder.bind(ringstone, clickListener,position)
 
-            if(isClicks[position]){
+            Log.i(TAG, "position = $position")
+//            Log.d(TAG, Log.getStackTraceString(Throwable()))
+
+            if (isClicks[position]) {
+//                holder.itemView.setBackgroundColor(holder.itemView.context.resources.getColor(R.color.colorDarkBlue))
+
+//                holder.getProgressBar()!!.visibility = View.VISIBLE
+//                holder.setBackgroundVisibility(View.VISIBLE)
+//                holder.getPlay()!!.tag = "Normal"
+//                holder.setBackgroundWidth(0)
+//                holder.setPlayerButtonPlay()
+            } else {
 //                holder.itemView.setBackgroundColor(holder.itemView.context.resources.getColor(R.color.colorWhite))
-
-            }else{
-//                holder.itemView.setBackgroundColor(holder.itemView.context.resources.getColor(R.color.colorWhite))
-                holder.setBackgroundVisibility(View.INVISIBLE)
-                holder.setPlayerButtonPlay()
-
+//                holder.setBackgroundVisibility(View.INVISIBLE)
+//                holder.setBackgroundWidth(0)
+//                holder.setPlayerButtonPlay()
+//                holder.getPlay()!!.tag = "Normal"
+//                holder.getProgressBar()!!.visibility = View.INVISIBLE
             }
 
-            if (mOnItemClickListener != null){
-                holder.getPlay()!!.setOnClickListener{
-                    for(i in 0..data.size){
-                        isClicks[i] = false
-                    }
-                    isClicks[position] = true
-                    notifyDataSetChanged()
-                    mOnItemClickListener!!.onItemClick(data[position],holder,position)
 
-                    clickListener(ringstone,holder)
-                }
+//            holder.getPlay()!!.setOnClickListener {
+//                for (i in 0..data.size) {
+//                    isClicks[i] = false
+//                }
+//                isClicks[position] = true
+//                clickListener(ringstone, holder, position)
+//            }
 
-            }
         }
     }
 
     interface OnItemClickListener {
 //        fun onItemClick(view: View, position: Int)
 
-        fun onItemClick(ringstone: NewRingstone, holder: MainFragment.RingstoneHolder,position: Int)
+        fun onItemClick(
+            ringstone: NewRingstone,
+            holder: MainFragment.RingstoneHolder,
+            position: Int
+        )
     }
 
     companion object {

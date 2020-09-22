@@ -109,10 +109,10 @@
 
     <ImageView
         android:id="@+id/ringtone_card_play"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
         android:src="@drawable/ic_play"
-        android:tag="unSelect"
+        android:tag="Normal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.808"
@@ -123,8 +123,8 @@
     <ProgressBar
         android:id="@+id/ringtone_progress_bar"
         style="?android:attr/progressBarStyleLarge"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
         android:layout_centerHorizontal="true"
         android:progressDrawable="@drawable/circular_progress_bar"
         android:visibility="invisible"
