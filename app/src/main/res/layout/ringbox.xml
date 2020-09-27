@@ -22,32 +22,32 @@
         app:layout_constraintStart_toStartOf="parent"
         tools:layout_editor_absoluteY="16dp" />
 
-    <ImageView
-        android:id="@+id/ringtone_ring"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:background="@drawable/ring"
-        android:backgroundTint="@color/colorPurple"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.05"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.9" />
+<!--    <ImageView-->
+<!--        android:id="@+id/ringtone_set"-->
+<!--        android:layout_width="30dp"-->
+<!--        android:layout_height="30dp"-->
+<!--        android:background="@drawable/ring"-->
+<!--        android:backgroundTint="@color/colorPurple"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintHorizontal_bias="0.05"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="parent"-->
+<!--        app:layout_constraintVertical_bias="0.9" />-->
 
-    <ImageView
-        android:id="@+id/ringtone_fav"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:src="@drawable/emptyheart"
-        android:tag="unselect"
-        app:tint="@color/colorPurple"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.18"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.9" />
+<!--    <ImageView-->
+<!--        android:id="@+id/ringtone_fav"-->
+<!--        android:layout_width="30dp"-->
+<!--        android:layout_height="30dp"-->
+<!--        android:src="@drawable/emptyheart"-->
+<!--        android:tag="unselect"-->
+<!--        app:tint="@color/colorPurple"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintHorizontal_bias="0.18"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="parent"-->
+<!--        app:layout_constraintVertical_bias="0.9" />-->
 
     <ImageView
         android:id="@+id/ringtone_download"
@@ -58,24 +58,24 @@
         app:tint="@color/colorPurple"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.31"
+        app:layout_constraintHorizontal_bias="0.05"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.9" />
 
-    <ImageView
-        android:id="@+id/ringtone_share"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_gravity="left"
-        android:src="@drawable/share"
-        app:tint="@color/colorPurple"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.43"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.9"/>
+<!--    <ImageView-->
+<!--        android:id="@+id/ringtone_share"-->
+<!--        android:layout_width="30dp"-->
+<!--        android:layout_height="30dp"-->
+<!--        android:layout_gravity="left"-->
+<!--        android:src="@drawable/share"-->
+<!--        app:tint="@color/colorPurple"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintHorizontal_bias="0.43"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="parent"-->
+<!--        app:layout_constraintVertical_bias="0.9"/>-->
 
     <TextView
         android:id="@+id/ringtone_share_card"

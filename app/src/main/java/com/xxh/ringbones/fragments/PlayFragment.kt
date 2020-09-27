@@ -1,34 +1,24 @@
 package com.xxh.ringbones.fragments
 
-import android.media.MediaPlayer
-import android.media.Ringtone
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.annotation.RequiresApi
-import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.xxh.ringbones.R
 import com.xxh.ringbones.data.NewRingstone
-import com.xxh.ringbones.data.Ringstone
-import com.xxh.ringbones.databinding.FragmentMainBinding
 import com.xxh.ringbones.databinding.FragmentPlayBinding
-import com.xxh.ringbones.utils.AssetsTest
 import com.xxh.ringbones.utils.LocalJsonResolutionUtils
 import com.xxh.ringbones.utils.MyMediaPlayerManager
-import com.xxh.ringbones.utils.PlayMusic
 import org.json.JSONArray
-import java.lang.Exception
 
 
 /**

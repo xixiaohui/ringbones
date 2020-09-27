@@ -81,8 +81,18 @@ class PageViewFragment : Fragment() {
         }
 
         private val TITLES = arrayOf(
-            "2020", "Funny", "Malayalam", "Bollywood", "Romantic", "English",
-            "Animal", "Love"
+            "2020", "Airtel", "Alarm", "Animal", "Arabic",
+            "Attitude", "Bengali", "BGM", "Bhojpuri", "Blackberry",
+            "Bollywood", "Call", "Christmas", "Classical", "Corona",
+            "DeshBhakti", "Dialogue", "Electronica", "English", "Funny",
+            "Google", "Infinix", "Instrumental", "iPhone", "IPL",
+            "Islamic", "Joker", "Kannada", "LG", "Love",
+            "Malayalam", "Marathi", "Mashup", "MoodOff",
+            "Music", "Nokia", "Oneplus", "Oppo", "PakistaniSong",
+            "Poetry", "PSL5","Punjabi", "Remix", "Romantic",
+            "Sad", "Samsung","Scary", "SMS", "Sounds",
+            "Spanish", "Tamil","Techno", "Telugu", "TikTok",
+            "Vivo", "Warning","Xiaomi"
         )
 
         override fun getCount(): Int {

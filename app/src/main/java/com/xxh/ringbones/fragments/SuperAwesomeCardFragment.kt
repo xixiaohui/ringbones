@@ -1,24 +1,40 @@
 package com.xxh.ringbones.fragments
 
+import android.Manifest
 import android.animation.Animator
 import android.animation.ValueAnimator
-import android.media.Image
+import android.app.Activity
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.database.Cursor
+import android.media.RingtoneManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
+import android.provider.Settings
 import android.util.DisplayMetrics
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.ProgressBar
 import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityCompat.requestPermissions
+import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.checkSelfPermission
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.xxh.ringbones.R
 import com.xxh.ringbones.data.NewRingstone
 import com.xxh.ringbones.databinding.FragmentSuperAwesomeCardBinding
+import com.xxh.ringbones.utils.RingtoneAction
+import java.io.File
+
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -42,12 +58,22 @@ class SuperAwesomeCardFragment : Fragment() {
     private var screen_width: Int = 0
     private var currentUrl = ""
     private lateinit var recyclerView: RecyclerView
-
+    private var playView: ImageView? = null
     private var oldViewHolder: MainFragment.RingstoneHolder? = null
 
     private val ringFileList = arrayOf(
-        "2020", "Funny", "Malayalam", "Bollywood", "Romantic", "English",
-        "Animal", "Love"
+        "2020", "Airtel", "Alarm", "Animal", "Arabic",
+        "Attitude", "Bengali", "BGM", "Bhojpuri", "Blackberry",
+        "Bollywood", "Call", "Christmas", "Classical", "Corona",
+        "DeshBhakti", "Dialogue", "Electronica", "English", "Funny",
+        "Google", "Infinix", "Instrumental", "iPhone", "IPL",
+        "Islamic", "Joker", "Kannada", "LG", "Love",
+        "Malayalam", "Marathi", "Mashup", "MoodOff",
+        "Music", "Nokia", "Oneplus", "Oppo", "PakistaniSong",
+        "Poetry", "PSL5", "Punjabi", "Remix", "Romantic",
+        "Sad", "Samsung", "Scary", "SMS", "Sounds",
+        "Spanish", "Tamil", "Techno", "Telugu", "TikTok",
+        "Vivo", "Warning", "Xiaomi"
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -85,17 +111,172 @@ class SuperAwesomeCardFragment : Fragment() {
         recyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext())
             setHasFixedSize(true)
-            adapter = MainFragment.ListAdapter(ringtonesArray) { ringstone, holder,position ->
-                ringstoneItemClicked(ringstone, holder,position)
-            }
+            adapter = MainFragment.ListAdapter(ringtonesArray,
+                { ringstone, holder, position ->
+                    ringstoneItemClicked(ringstone, holder, position)
+                },
+                { url -> setRingtone(url) })
             setItemViewCacheSize(1000)
         }
 
         return binding.root
     }
 
+    private fun setRingtone(url: String) {
+
+        Log.i(TAG, url)
+
+
+        val context  = requireActivity()
+        if (Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(context
+                ,Manifest.permission.READ_EXTERNAL_STORAGE)
+            != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(context,
+                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),1);
+        }
+        if (Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(requireContext()
+                ,Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(context,
+                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),1);
+        }
+
+        
+//        RingtoneAction.getFileList()
+//        RingtoneAction.getAllRingtonesAvailable(this.requireActivity())
+
+//        myDesirePermissionCode(context)
+//        RingtoneAction.getLocalRingtone(this.requireContext())
+        RingtoneAction.getLocalRingtone(context)
+//        RingtoneAction.changeMod(File("/sdcard/Ringtones/LaAfareyeFi.mp3"))
+    }
+
+    fun myDesirePermissionCode(context: Activity) {
+        val permission: Boolean = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Settings.System.canWrite(context)
+        } else {
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.WRITE_SETTINGS
+            ) == PackageManager.PERMISSION_GRANTED
+        }
+        if (permission) {
+            //do your code
+            Log.i(TAG, "获得了写入权限")
+
+//            var path = combine("first")
+//            RingtoneAction.setAsRingtoneOrNotification(this.requireContext(),File(path),RingtoneManager.TYPE_RINGTONE)
+//            RingtoneAction.setMyRingtone(this.requireActivity(), path)
+
+
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS)
+                intent.data = Uri.parse("package:" + context.packageName)
+                context.startActivityForResult(
+                    intent,
+                    CODE_WRITE_SETTINGS_PERMISSION
+                )
+//                startActivity(intent)
+                Log.i(TAG, "youDesirePermissionCode....1")
+            } else {
+                ActivityCompat.requestPermissions(
+                    context,
+                    arrayOf(Manifest.permission.WRITE_SETTINGS),
+                    CODE_WRITE_SETTINGS_PERMISSION
+                )
+                Log.i(TAG, "youDesirePermissionCode....2")
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == CODE_WRITE_SETTINGS_PERMISSION
+            && Settings.System.canWrite(
+                this.requireContext()
+            )
+        ) {
+            Log.d(TAG, "MainActivity.CODE_WRITE_SETTINGS_PERMISSION success..1")
+
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == CODE_WRITE_SETTINGS_PERMISSION &&
+            grantResults[0] == PackageManager.PERMISSION_GRANTED
+        ) {
+            Log.d(TAG, "MainActivity.CODE_WRITE_SETTINGS_PERMISSION success..2")
+        }
+    }
+
+    private fun openAndroidPermissionsMenu(context: Activity) {
+        val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS)
+        intent.data = Uri.parse("package:" + context.packageName)
+//        startActivity(intent)
+        context.startActivityForResult(
+            intent,
+            SuperAwesomeCardFragment.CODE_WRITE_SETTINGS_PERMISSION
+        )
+    }
+
+    fun test2() {
+//        RingtoneAction.setMyRingtone(requireActivity(), url)
+        val uri = RingtoneManager.getActualDefaultRingtoneUri(
+            requireContext(),
+            RingtoneManager.TYPE_RINGTONE
+        )
+        val uri2 = RingtoneManager.getActualDefaultRingtoneUri(
+            requireContext(),
+            RingtoneManager.TYPE_ALARM
+        )
+        val uri3 = RingtoneManager.getActualDefaultRingtoneUri(
+            requireContext(),
+            RingtoneManager.TYPE_NOTIFICATION
+        )
+        Log.i(TAG, uri.toString())
+        Log.i(TAG, uri2.toString())
+        Log.i(TAG, uri3.toString())
+    }
+
+    private fun test() {
+        val rm = RingtoneManager(this.activity)
+        val cursor = rm.cursor
+        val columnNames: Array<String> = cursor.columnNames
+        columnNames.forEach {
+            var position = cursor.getColumnIndex(it)
+            var uri = rm.getRingtoneUri(position)
+            Log.i(TAG, uri.toString())
+        }
+    }
+
     /**
-     * 状态：  Normal / Loading / Play / Pause / Stop / Repeat / End
+     * 获取音频文件路径
+     */
+    private fun combine(filename: String = "MoneyHeist"): String {
+//        return "storage/emulated/0/MIUI/.ringtone/$filename.mp3"
+        var path = ""
+        var sdDir: File? = null
+        val sdCardExist =
+            Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED // 判断sd卡是否存在
+
+        if (sdCardExist) {
+            sdDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_RINGTONES) // 获取根目录
+            path = sdDir.path + File.separator + filename + ".mp3"
+//            path = "/sdcard/Ringtones/$filename.mp3"
+        }
+
+        return path
+    }
+
+    /**
+     * 状态：  Normal / Loading / Play / Pause / End
      *
      */
     @RequiresApi(Build.VERSION_CODES.KITKAT)
@@ -106,11 +287,10 @@ class SuperAwesomeCardFragment : Fragment() {
     ) {
 
         val url = ringstone.url
-        Log.i(TAG,url)
-        Log.i(TAG,ringstone.title)
+
         //换了一个歌曲
         if (this.currentUrl != url && this.currentUrl != "") {
-            mediaHolder!!.reset(object: MediaHolder.MediaAction{
+            mediaHolder!!.reset(object : MediaHolder.MediaAction {
                 override fun doAction() {
                     valueAnimator.removeAllListeners()
                     valueAnimator.cancel()
@@ -118,12 +298,13 @@ class SuperAwesomeCardFragment : Fragment() {
             })
             this.currentUrl = url
             this.oldViewHolder!!.reset()
-            this.ringstoneItemClicked(ringstone,holder,position)
+            this.ringstoneItemClicked(ringstone, holder, position)
             return
         }
 
         this.currentUrl = url
         val imageView = holder.getPlay()
+        this.playView = imageView
         var progressBar: ProgressBar? = holder.getProgressBar()
         var state = imageView!!.tag
         this.oldViewHolder = holder
@@ -131,24 +312,24 @@ class SuperAwesomeCardFragment : Fragment() {
         when (state) {
             "Normal" -> {
 //                progressBar?.visibility = View.VISIBLE
-                ringstoneStartState(imageView,progressBar,url,holder)
+                ringstoneStartState(imageView, progressBar, url, holder)
             }
             "Loading" -> {
 
             }
             "Play" -> {
                 if (valueAnimator.isRunning) {
-                    imageView.tag = "Pause"
                     mediaHolder!!.pause()
                     valueAnimator.pause()
+                    imageView.tag = "Pause"
                     imageView?.setImageResource(R.drawable.ic_play)
                 }
             }
             "Pause" -> {
-                imageView.tag = "Play"
-                imageView?.setImageResource(R.drawable.ic_pause)
                 mediaHolder!!.start()
                 valueAnimator.resume()
+                imageView.tag = "Play"
+                imageView?.setImageResource(R.drawable.ic_pause)
             }
             "End" -> {
                 imageView.tag = "Play"
@@ -159,14 +340,7 @@ class SuperAwesomeCardFragment : Fragment() {
                 mediaHolder!!.start()
                 imageView?.setImageResource(R.drawable.ic_pause)
             }
-            "Repeat" -> {
-
-            }
-            "Stop" -> {
-
-            }
         }
-//        this.recyclerView.adapter!!.notifyItemChanged(position)
     }
 
     private fun ringstoneStartState(
@@ -189,7 +363,6 @@ class SuperAwesomeCardFragment : Fragment() {
                 valueAnimator.start()
 
                 imageView.tag = "Play"
-
                 mediaHolder!!.setOnCompletionListener(object :
                     MediaHolder.CompletionListner {
                     override fun doAction() {
@@ -205,7 +378,6 @@ class SuperAwesomeCardFragment : Fragment() {
 
     fun updateBackgroundWidthAnimator(backgroundView: View?, duration: Int) {
         this.valueAnimator.removeAllUpdateListeners()
-
         var animator: ValueAnimator = this.valueAnimator
 
         animator.repeatMode = ValueAnimator.REVERSE
@@ -218,13 +390,11 @@ class SuperAwesomeCardFragment : Fragment() {
                 backgroundView!!.visibility = View.VISIBLE
             }
         }
-
-
         setValueAnimationDuration(duration)
     }
 
     fun setValueAnimationDuration(duration: Int) {
-        if (duration == -1){
+        if (duration == -1) {
             return
         }
         this.valueAnimator.duration = duration.toLong()
@@ -254,7 +424,42 @@ class SuperAwesomeCardFragment : Fragment() {
         })
     }
 
+    override fun onResume() {
+        super.onResume()
+
+//        Log.i(TAG,"onResume")
+
+        mediaHolder!!.resume()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+//        Log.i(TAG,"onDestroy")
+
+        mediaHolder!!.release()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.KITKAT)
+    override fun onPause() {
+        super.onPause()
+//        Log.i(TAG,"onPause")
+
+        if (mediaHolder!!.isPlaying()) {
+            this.playView!!.tag = "Pause"
+            this.playView!!.setImageResource(R.drawable.ic_play)
+            mediaHolder!!.pause()
+            valueAnimator.pause()
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+//        Log.i(TAG,"onStop")
+    }
+
     companion object {
+        val CODE_WRITE_SETTINGS_PERMISSION = 10
+
         /**
          * Use this factory method to create a new instance of
          * this fragment using the provided parameters.

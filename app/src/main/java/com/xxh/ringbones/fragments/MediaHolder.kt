@@ -34,6 +34,10 @@ class MediaHolder {
         mediaPlayer.stop()
     }
 
+    fun resume(){
+
+    }
+
     fun setDataSource(path: String, action: MediaAction) {
 
         mediaPlayer.reset()

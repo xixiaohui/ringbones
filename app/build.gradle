@@ -15,6 +15,14 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
+    signingConfigs {
+        he {
+            keyAlias "musix"
+            keyPassword "ivy,123456"
+            storeFile rootProject.file("musix.jks")
+            storePassword "ivy,123456"
+        }
+    }
 
     viewBinding {
         enabled = true
@@ -31,6 +39,8 @@ android {
         }
     }
 }
+
+
 
 dependencies {
     def nav_version = "2.3.0"
