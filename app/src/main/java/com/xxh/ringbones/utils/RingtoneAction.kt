@@ -1,10 +1,7 @@
 package com.xxh.ringbones.utils
 
 import android.app.Activity
-import android.content.ContentResolver
-import android.content.ContentValues
-import android.content.Context
-import android.content.Intent
+import android.content.*
 import android.content.res.AssetFileDescriptor
 import android.database.Cursor
 import android.media.RingtoneManager
@@ -114,39 +111,93 @@ class RingtoneAction {
          * 需要先将音乐文件插入到多媒体库
          */
         //设置--铃声的具体方法
+        @RequiresApi(Build.VERSION_CODES.KITKAT)
         fun setMyRingtone(activity: Activity, path: String) {
-//            val sdfile: File = File("/system/media/audio/ringtones/MiRemix.ogg")
             val sdfile: File = File(path)
-
-            val values = ContentValues()
-
-            values.put(MediaStore.MediaColumns.DATA, sdfile.absolutePath)
-            values.put(MediaStore.MediaColumns.TITLE, sdfile.name)
-            values.put(MediaStore.Audio.Media.SIZE, sdfile.length())
-            values.put(MediaStore.MediaColumns.MIME_TYPE, "audio/mp3")
-            values.put(MediaStore.Audio.Media.ARTIST, R.string.app_name)
-            values.put(MediaStore.Audio.Media.IS_RINGTONE, true)
-            values.put(MediaStore.Audio.Media.IS_NOTIFICATION, false)
-            values.put(MediaStore.Audio.Media.IS_ALARM, false)
-            values.put(MediaStore.Audio.Media.IS_MUSIC, false)
-
-//            val uri = Uri.parse("file://"+sdfile.path);
+//            val values = ContentValues()
+//            values.put(MediaStore.MediaColumns.DATA, sdfile.absolutePath)
+//            values.put(MediaStore.MediaColumns.TITLE, sdfile.name)
+//            values.put(MediaStore.Audio.Media.SIZE, sdfile.length())
+//            values.put(MediaStore.MediaColumns.MIME_TYPE, "audio/mp3")
+//            values.put(MediaStore.Audio.Media.ARTIST, R.string.app_name)
+//            values.put(MediaStore.Audio.Media.IS_RINGTONE, true)
+//            values.put(MediaStore.Audio.Media.IS_NOTIFICATION, false)
+//            values.put(MediaStore.Audio.Media.IS_ALARM, false)
+//            values.put(MediaStore.Audio.Media.IS_MUSIC, false)
 //            val uri = MediaStore.Audio.Media.getContentUriForPath(sdfile.absolutePath)
-            val uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-            Log.i(TAG,uri.path)
+//            Log.i(TAG, uri.toString())
+//            activity.contentResolver.delete(uri, null, null)
+//            activity.contentResolver.delete(
+//                uri,
+//                MediaStore.MediaColumns.DATA + "=\"" + (sdfile.absolutePath).toString() + "\"",
+//                null
+//            )
 
+            val external_content_uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+            val internal_content_uri = MediaStore.Audio.Media.INTERNAL_CONTENT_URI
 
+            val current_uri = external_content_uri
 
-            val newUri: Uri? = activity.contentResolver.insert(uri, values)
-            Log.i("tag", "newUri =" + newUri.toString())
+            val projection = arrayOf(MediaStore.Audio.Media._ID)
+            val selectionClause = MediaStore.Audio.Media.DATA + " = ? "
+            val selectionArgs = arrayOf<String>(sdfile.absolutePath)
+            val cursor: Cursor? = activity.baseContext.contentResolver.query(
+                current_uri,
+                projection,
+                selectionClause,
+                selectionArgs,
+                null
+            )
+            val insertedUri: Uri
+            insertedUri = if (cursor == null || cursor.count < 1) {
+                // not exist, insert into MediaStore
+                val cv = ContentValues()
+                cv.put(MediaStore.Audio.Media.DATA, sdfile.absolutePath)
+                cv.put(MediaStore.MediaColumns.TITLE, sdfile.name)
+                cv.put(MediaStore.MediaColumns.MIME_TYPE, "audio/mp3")
+                cv.put(MediaStore.Audio.Media.SIZE, sdfile.length())
+                cv.put(MediaStore.Audio.Media.ARTIST, R.string.app_name)
+                cv.put(MediaStore.Audio.Media.IS_RINGTONE, true)
+                cv.put(MediaStore.Audio.Media.IS_NOTIFICATION, false)
+                cv.put(MediaStore.Audio.Media.IS_ALARM, false)
+                cv.put(MediaStore.Audio.Media.IS_MUSIC, false)
 
+                activity.baseContext.contentResolver.insert(current_uri, cv)!!
+            } else {
+                // already exist
+                cursor.moveToNext()
+                val id = cursor.getLong(0)
+                ContentUris.withAppendedId(current_uri, id)
+            }
+//            RingtoneUtils.addCustomExternalRingtone(
+//                activity.baseContext,
+//                insertedUri,
+//                RingtoneManager.TYPE_RINGTONE
+//            )
             RingtoneManager.setActualDefaultRingtoneUri(
-                activity,
+                activity.baseContext,
                 RingtoneManager.TYPE_RINGTONE,
-                newUri
+                insertedUri
             )
 
-            Toast.makeText(activity, "设置铃声成功！", Toast.LENGTH_SHORT).show()
+            Toast.makeText(activity.baseContext, "设置铃声成功！", Toast.LENGTH_SHORT).show()
+        }
+
+        fun setRingtongByID(context: Context, id: Long, internal: Boolean){
+            val external_content_uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+            val internal_content_uri = MediaStore.Audio.Media.INTERNAL_CONTENT_URI
+
+            var  current_uri = external_content_uri
+            if(internal){
+                current_uri = internal_content_uri
+            }
+            val insertedUri = ContentUris.withAppendedId(current_uri, id)
+
+            RingtoneManager.setActualDefaultRingtoneUri(
+                context,
+                RingtoneManager.TYPE_RINGTONE,
+                insertedUri
+            )
         }
 
         //设置--提示音的具体实现方法
@@ -325,7 +376,7 @@ class RingtoneAction {
 //                ringtoneDir =
 
 //                copyTest()
-//                test(DIRECTORY_RINGTONES)
+                test(DIRECTORY_RINGTONES)
 
 
             }
@@ -438,26 +489,6 @@ class RingtoneAction {
             Log.i(TAG, localringtonguri.path)
         }
 
-
-        /**
-         * 删除当前铃声
-         */
-        fun deleteAllRingtones(context: Context){
-
-            val mCr: ContentResolver = context.contentResolver
-
-
-            val ringtoneManager = RingtoneManager(context)
-            val cursor = ringtoneManager.cursor
-            cursor.moveToFirst()
-            while (cursor.moveToNext()){
-                val uri = cursor.getString(RingtoneManager.URI_COLUMN_INDEX)
-
-
-
-
-            }
-        }
 
         fun getFilesAllName(path: String?): List<String>? {
             val file = File(path)
@@ -630,7 +661,7 @@ class RingtoneAction {
 
         fun setAsRingtoneOrNotification(context: Context, k: File, type: Int): Boolean {
             val values = ContentValues()
-           values.put(MediaStore.MediaColumns.TITLE, k.name)
+            values.put(MediaStore.MediaColumns.TITLE, k.name)
 
 
             values.put(MediaStore.MediaColumns.MIME_TYPE, "audio/mp3")
@@ -702,19 +733,38 @@ class RingtoneAction {
             }
         }
 
-
-        fun changeMod(destFile: File) {
-
-            try {
-                val command = "chmod 777 " + destFile.absolutePath
-                Log.i("zyl", "command = $command")
-                val runtime = Runtime.getRuntime()
-                val proc = runtime.exec(command)
-            } catch (e: IOException) {
-                Log.i("zyl", "chmod fail!!!!")
-                e.printStackTrace()
+        fun getAllRingtoneList(context: Context): Array<Uri?>?{
+            val ringtoneMgr = RingtoneManager(context)
+            ringtoneMgr.setType(RingtoneManager.TYPE_RINGTONE)
+            val alarmsCursor = ringtoneMgr.cursor
+            val alarmsCount = alarmsCursor.count
+            if (alarmsCount == 0 && !alarmsCursor.moveToFirst()) {
+                return null
             }
+            val alarms = arrayOfNulls<Uri>(alarmsCount)
+            while (!alarmsCursor.isAfterLast && alarmsCursor.moveToNext()) {
+                val currentPosition = alarmsCursor.position
+                alarms[currentPosition] = ringtoneMgr.getRingtoneUri(currentPosition)
+            }
+            alarmsCursor.close()
+            return alarms
         }
+
+        fun getAllRingtoneMap(context: Context): Map<String, String>? {
+            val manager = RingtoneManager(context)
+            manager.setType(RingtoneManager.TYPE_RINGTONE)
+            val cursor = manager.cursor
+            val list: MutableMap<String, String> = HashMap()
+            while (cursor.moveToNext()) {
+                val notificationTitle = cursor.getString(RingtoneManager.TITLE_COLUMN_INDEX)
+                val notificationUri = cursor.getString(RingtoneManager.URI_COLUMN_INDEX) + "/" + cursor.getString(
+                    RingtoneManager.ID_COLUMN_INDEX
+                )
+                list[notificationTitle] = notificationUri
+            }
+            return list
+        }
+
 
         private fun getRealPathFromURI(context: Context, contentUri: Uri): String? {
             val proj = arrayOf(MediaStore.Images.Media.DATA)
@@ -727,6 +777,102 @@ class RingtoneAction {
             return result
         }
 
+        fun changeMod(destFile: File){
+            try {
+                val command = "chmod 777 " + destFile.absolutePath
+                Log.i("zyl", "command = $command")
+                val runtime = Runtime.getRuntime()
+                val proc = runtime.exec(command)
+            } catch (e: IOException) {
+                Log.i("zyl", "chmod fail!!!!")
+                e.printStackTrace()
+            }
+        }
+
+        fun getImageFilePathFromUri(context: Context, uri: Uri?): String? {
+            if (null == uri) return null
+            val scheme = uri.scheme
+            var data: String? = null
+            if (scheme == null) data = uri.path else if (ContentResolver.SCHEME_FILE == scheme) {
+                data = uri.path
+            } else if (ContentResolver.SCHEME_CONTENT == scheme) {
+                val cursor = context.contentResolver.query(
+                    uri,
+                    arrayOf(MediaStore.Images.ImageColumns.DATA),
+                    null,
+                    null,
+                    null
+                )
+                if (null != cursor) {
+                    if (cursor.moveToFirst()) {
+                        val index = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA)
+                        if (index > -1) {
+                            data = cursor.getString(index)
+                        }
+                    }
+                    cursor.close()
+                }
+            }
+            return data
+        }
+
+        fun getMediaFilePathFromUri(context: Context, uri: Uri?): String? {
+            if (null == uri) return null
+            val scheme = uri.scheme
+            var data: String? = null
+            if (scheme == null) data = uri.path else if (ContentResolver.SCHEME_FILE == scheme) {
+                data = uri.path
+            } else if (ContentResolver.SCHEME_CONTENT == scheme) {
+                val cursor = context.contentResolver.query(
+                    uri,
+                    arrayOf(MediaStore.Audio.Media.DATA),
+                    null,
+                    null,
+                    null
+                )
+                if (null != cursor) {
+                    if (cursor.moveToFirst()) {
+                        val index = cursor.getColumnIndex(MediaStore.Audio.Media.DATA)
+                        if (index > -1) {
+                            data = cursor.getString(index)
+                        }
+                    }
+                    cursor.close()
+                }
+            }
+            return data
+        }
+
+        fun playDefaultRingtone(activity: Activity){
+            val ringtone = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
+            val r = RingtoneManager.getRingtone(activity.baseContext, ringtone)
+            r.play()
+        }
+
+        /**
+         * 判断文件是否存在
+         */
+        fun fileIsExists(strFile: String?): Boolean {
+            try {
+                val f = File(strFile)
+                if (!f.exists()) {
+                    return false
+                }
+            } catch (e: java.lang.Exception) {
+                return false
+            }
+            return true
+        }
+
+        fun fileIsExistsInRingtonesHolder(fileName: String): Boolean{
+            val file = File(getExternalStorageDirectory(), File.separator+Environment.DIRECTORY_RINGTONES+File.separator)
+            if (!file.exists()) {
+                file.mkdirs()
+            }
+            val root = getExternalStorageDirectory()
+            val path = "$root" +  File.separator+Environment.DIRECTORY_RINGTONES+File.separator + fileName
+            return fileIsExists(path)
+        }
 
     }
 

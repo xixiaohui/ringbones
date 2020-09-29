@@ -83,7 +83,7 @@ class PageViewFragment : Fragment() {
         private val TITLES = arrayOf(
             "2020", "Airtel", "Alarm", "Animal", "Arabic",
             "Attitude", "Bengali", "BGM", "Bhojpuri", "Blackberry",
-            "Bollywood", "Call", "Christmas", "Classical", "Corona",
+            "Bollywood", "Call", "Christmas", "Classical",
             "DeshBhakti", "Dialogue", "Electronica", "English", "Funny",
             "Google", "Infinix", "Instrumental", "iPhone", "IPL",
             "Islamic", "Joker", "Kannada", "LG", "Love",

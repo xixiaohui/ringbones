@@ -4,15 +4,17 @@ import android.Manifest
 import android.animation.Animator
 import android.animation.ValueAnimator
 import android.app.Activity
+import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
 import android.content.pm.PackageManager
-import android.database.Cursor
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
-import android.provider.MediaStore
+import android.os.IBinder
 import android.provider.Settings
 import android.util.DisplayMetrics
 import android.util.Log
@@ -25,15 +27,18 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.xxh.ringbones.R
 import com.xxh.ringbones.data.NewRingstone
 import com.xxh.ringbones.databinding.FragmentSuperAwesomeCardBinding
+import com.xxh.ringbones.utils.DownloadManagerTest
+import com.xxh.ringbones.utils.DownloadServise
 import com.xxh.ringbones.utils.RingtoneAction
+import com.xxh.ringbones.utils.Utils
 import java.io.File
+import java.io.RandomAccessFile
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -64,7 +69,7 @@ class SuperAwesomeCardFragment : Fragment() {
     private val ringFileList = arrayOf(
         "2020", "Airtel", "Alarm", "Animal", "Arabic",
         "Attitude", "Bengali", "BGM", "Bhojpuri", "Blackberry",
-        "Bollywood", "Call", "Christmas", "Classical", "Corona",
+        "Bollywood", "Call", "Christmas", "Classical",
         "DeshBhakti", "Dialogue", "Electronica", "English", "Funny",
         "Google", "Infinix", "Instrumental", "iPhone", "IPL",
         "Islamic", "Joker", "Kannada", "LG", "Love",
@@ -115,48 +120,80 @@ class SuperAwesomeCardFragment : Fragment() {
                 { ringstone, holder, position ->
                     ringstoneItemClicked(ringstone, holder, position)
                 },
-                { url -> setRingtone(url) })
+                { ringstone, url -> setRingtone(ringstone, url) })
             setItemViewCacheSize(1000)
         }
 
         return binding.root
     }
 
-    private fun setRingtone(url: String) {
+    @RequiresApi(Build.VERSION_CODES.KITKAT)
+    private fun setRingtone(ringstone: NewRingstone, url: String) {
 
         Log.i(TAG, url)
 
-
-        val context  = requireActivity()
-        if (Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(context
-                ,Manifest.permission.READ_EXTERNAL_STORAGE)
-            != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(context,
-                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),1);
+        val context = requireActivity()
+        if (Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(
+                context, Manifest.permission.READ_EXTERNAL_STORAGE
+            )
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermissions(
+                context,
+                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 1
+            );
         }
-        if (Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(requireContext()
-                ,Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(context,
-                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),1);
+        if (Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(
+                requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermissions(
+                context,
+                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 1
+            );
         }
 
-        
-//        RingtoneAction.getFileList()
-//        RingtoneAction.getAllRingtonesAvailable(this.requireActivity())
-
-//        myDesirePermissionCode(context)
-//        RingtoneAction.getLocalRingtone(this.requireContext())
-        RingtoneAction.getLocalRingtone(context)
-//        RingtoneAction.changeMod(File("/sdcard/Ringtones/LaAfareyeFi.mp3"))
+        myDesirePermissionCode(context, ringstone)
     }
 
-    fun myDesirePermissionCode(context: Activity) {
+    fun getAllRingtonlist(activity: Activity) {
+//            val res = RingtoneAction.getAllRingtoneMap(activity.baseContext)
+//            for (entry in res!!){
+//                val key = entry.key
+//                val value = entry.value
+//                Log.i(TAG,"$key = $value")
+//                //airtel-kannada-2020.mp3
+//                //MiRemix.ogg
+//                if (key == "test" ){
+//                    Log.i(TAG,value)
+//                    val uristring = value
+//                    val uri = Uri.parse(uristring)
+//                    val  path = RingtoneAction.getMediaFilePathFromUri(activity.baseContext,uri)
+//                    Log.i(TAG,path)
+//                }
+//            }
+
+//            val ringtone = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
+//            val r = RingtoneManager.getRingtone(activity.baseContext,ringtone)
+//            r.play()
+    }
+
+
+    fun downloadFile(activity: Activity, ringstone: NewRingstone){
+        val filename = Utils.getFileNameFromUrl(ringstone.url)
+        Log.i(TAG, filename)
+        val url = ringstone.url
+        DownloadManagerTest.download(activity.baseContext, url, filename, true)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.KITKAT)
+    fun myDesirePermissionCode(activity: Activity, ringstone: NewRingstone) {
         val permission: Boolean = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            Settings.System.canWrite(context)
+            Settings.System.canWrite(activity)
         } else {
             ContextCompat.checkSelfPermission(
-                context,
+                activity,
                 Manifest.permission.WRITE_SETTINGS
             ) == PackageManager.PERMISSION_GRANTED
         }
@@ -164,16 +201,32 @@ class SuperAwesomeCardFragment : Fragment() {
             //do your code
             Log.i(TAG, "获得了写入权限")
 
-//            var path = combine("first")
-//            RingtoneAction.setAsRingtoneOrNotification(this.requireContext(),File(path),RingtoneManager.TYPE_RINGTONE)
-//            RingtoneAction.setMyRingtone(this.requireActivity(), path)
+//            val path = "/system/media/audio/ringtones/MiRemix.ogg"
+//            val path = combine("airtel-kannada-2020")
+//            RingtoneAction.setMyRingtone(this.requireActivity(),path)
+//            val uri = RingtoneManager.getValidRingtoneUri(context)
+//            Log.i(TAG,uri.path)
+//            Log.i(TAG,res.toString())
+//            RingtoneAction.setRingtongByID(activity.baseContext,2156,false)
 
+//            val ringtone = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
+//            val r = RingtoneManager.getRingtone(activity.baseContext,ringtone)
+//            r.play()
+
+            val filename = Utils.getFileNameFromUrl(ringstone.url)
+            if (!RingtoneAction.fileIsExistsInRingtonesHolder(filename)){
+//                downloadFile(activity,ringstone)
+
+//                setBroadcast(activity.baseContext,ringstone.url,filename)
+
+                DownloadManagerTest.doInBackground(activity.baseContext,ringstone.url,filename)
+            }
 
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS)
-                intent.data = Uri.parse("package:" + context.packageName)
-                context.startActivityForResult(
+                intent.data = Uri.parse("package:" + activity.packageName)
+                activity.startActivityForResult(
                     intent,
                     CODE_WRITE_SETTINGS_PERMISSION
                 )
@@ -181,11 +234,29 @@ class SuperAwesomeCardFragment : Fragment() {
                 Log.i(TAG, "youDesirePermissionCode....1")
             } else {
                 ActivityCompat.requestPermissions(
-                    context,
+                    activity,
                     arrayOf(Manifest.permission.WRITE_SETTINGS),
                     CODE_WRITE_SETTINGS_PERMISSION
                 )
                 Log.i(TAG, "youDesirePermissionCode....2")
+            }
+        }
+    }
+
+
+    fun setBroadcast(context: Context, downloadUrl: String, filename: String){
+
+        var conn: ServiceConnection = object :ServiceConnection{
+            override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+                val binder: DownloadServise.DownloadBinder = service as DownloadServise.DownloadBinder
+                val downloadServise: DownloadServise = binder.getService(
+                    context,
+                    downloadUrl,
+                    filename
+                )
+            }
+
+            override fun onServiceDisconnected(name: ComponentName?) {
             }
         }
     }
@@ -259,7 +330,7 @@ class SuperAwesomeCardFragment : Fragment() {
     /**
      * 获取音频文件路径
      */
-    private fun combine(filename: String = "MoneyHeist"): String {
+    private fun combine(filename: String = "first"): String {
 //        return "storage/emulated/0/MIUI/.ringtone/$filename.mp3"
         var path = ""
         var sdDir: File? = null
@@ -267,11 +338,38 @@ class SuperAwesomeCardFragment : Fragment() {
             Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED // 判断sd卡是否存在
 
         if (sdCardExist) {
-            sdDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_RINGTONES) // 获取根目录
+            sdDir =
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_RINGTONES) // 获取根目录
             path = sdDir.path + File.separator + filename + ".mp3"
-//            path = "/sdcard/Ringtones/$filename.mp3"
         }
 
+        return path
+    }
+
+    private fun makeRingtoneFilename(title: CharSequence, extension: String): String {
+        val subdir: String
+        var externalRootDir = Environment.getExternalStorageDirectory().path
+        if (!externalRootDir.endsWith("/")) {
+            externalRootDir += "/"
+        }
+
+        subdir = "media/audio/ringtones/"
+        var parentdir = externalRootDir + subdir
+
+        val parentDirFile = File(parentdir)
+        parentDirFile.mkdirs()
+
+        var filename = title
+
+        var path: String = ""
+        var testPath: String = parentdir + filename + extension
+        try {
+            val f = RandomAccessFile(File(testPath), "rwd")
+            f.close()
+            path = testPath
+        } catch (e: Exception) {
+            path = testPath
+        }
         return path
     }
 
