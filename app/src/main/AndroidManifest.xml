@@ -35,6 +35,8 @@
         </activity>
         <service android:name=".utils.DownloadServise"
             tools:ignore="Instantiatable" />
+        <service android:name=".utils.MyIntentService"
+            tools:ignore="Instantiatable" />
 
 <!--        <provider-->
 <!--            android:name="androidx.core.content.FileProvider"-->

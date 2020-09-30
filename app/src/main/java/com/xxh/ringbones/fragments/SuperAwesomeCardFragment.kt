@@ -4,10 +4,7 @@ import android.Manifest
 import android.animation.Animator
 import android.animation.ValueAnimator
 import android.app.Activity
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
-import android.content.ServiceConnection
+import android.content.*
 import android.content.pm.PackageManager
 import android.media.RingtoneManager
 import android.net.Uri
@@ -28,15 +25,13 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.xxh.ringbones.R
 import com.xxh.ringbones.data.NewRingstone
 import com.xxh.ringbones.databinding.FragmentSuperAwesomeCardBinding
-import com.xxh.ringbones.utils.DownloadManagerTest
-import com.xxh.ringbones.utils.DownloadServise
-import com.xxh.ringbones.utils.RingtoneAction
-import com.xxh.ringbones.utils.Utils
+import com.xxh.ringbones.utils.*
 import java.io.File
 import java.io.RandomAccessFile
 
@@ -65,6 +60,10 @@ class SuperAwesomeCardFragment : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private var playView: ImageView? = null
     private var oldViewHolder: MainFragment.RingstoneHolder? = null
+
+    var localBroadcastManager: LocalBroadcastManager? = null
+    var myBroadcastReceiver: MyBroadcastReceiver? = null
+
 
     private val ringFileList = arrayOf(
         "2020", "Airtel", "Alarm", "Animal", "Arabic",
@@ -101,6 +100,12 @@ class SuperAwesomeCardFragment : Fragment() {
         valueAnimator = ValueAnimator.ofInt(0, screen_width)
 
 
+        myBroadcastReceiver = MyBroadcastReceiver()
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(
+            myBroadcastReceiver!!,
+            IntentFilter(SuperAwesomeCardFragment.ACTION_THREAD_STATUS)
+        )
+
     }
 
     @RequiresApi(Build.VERSION_CODES.KITKAT)
@@ -130,7 +135,7 @@ class SuperAwesomeCardFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.KITKAT)
     private fun setRingtone(ringstone: NewRingstone, url: String) {
 
-        Log.i(TAG, url)
+//        Log.i(TAG, url)
 
         val context = requireActivity()
         if (Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(
@@ -180,7 +185,7 @@ class SuperAwesomeCardFragment : Fragment() {
     }
 
 
-    fun downloadFile(activity: Activity, ringstone: NewRingstone){
+    fun downloadFile(activity: Activity, ringstone: NewRingstone) {
         val filename = Utils.getFileNameFromUrl(ringstone.url)
         Log.i(TAG, filename)
         val url = ringstone.url
@@ -214,13 +219,11 @@ class SuperAwesomeCardFragment : Fragment() {
 //            r.play()
 
             val filename = Utils.getFileNameFromUrl(ringstone.url)
-            if (!RingtoneAction.fileIsExistsInRingtonesHolder(filename)){
-//                downloadFile(activity,ringstone)
-
-//                setBroadcast(activity.baseContext,ringstone.url,filename)
-
-                DownloadManagerTest.doInBackground(activity.baseContext,ringstone.url,filename)
-            }
+//            if (!RingtoneAction.fileIsExistsInRingtonesHolder(filename)){
+//
+//                DownloadManagerTest.doInBackground(activity.baseContext,ringstone.url,filename)
+//            }
+            startDownloadService(activity, ringstone)
 
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -243,12 +246,24 @@ class SuperAwesomeCardFragment : Fragment() {
         }
     }
 
+    private fun startDownloadService(activity: Activity, ringstone: NewRingstone) {
+        var intent =
+            Intent(activity, MyIntentService(ringstone.title)::class.java)
 
-    fun setBroadcast(context: Context, downloadUrl: String, filename: String){
+        val filename = Utils.getFileNameFromUrl(ringstone.url)
 
-        var conn: ServiceConnection = object :ServiceConnection{
+        intent.putExtra(MyIntentService.URL, ringstone.url)
+        intent.putExtra(MyIntentService.FILENAME, filename)
+
+        activity.baseContext.startService(intent)
+    }
+
+    fun setBroadcast(context: Context, downloadUrl: String, filename: String) {
+
+        var conn: ServiceConnection = object : ServiceConnection {
             override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-                val binder: DownloadServise.DownloadBinder = service as DownloadServise.DownloadBinder
+                val binder: DownloadServise.DownloadBinder =
+                    service as DownloadServise.DownloadBinder
                 val downloadServise: DownloadServise = binder.getService(
                     context,
                     downloadUrl,
@@ -528,6 +543,8 @@ class SuperAwesomeCardFragment : Fragment() {
 //        Log.i(TAG,"onResume")
 
         mediaHolder!!.resume()
+
+        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(myBroadcastReceiver!!)
     }
 
     override fun onDestroy() {
@@ -535,6 +552,8 @@ class SuperAwesomeCardFragment : Fragment() {
 //        Log.i(TAG,"onDestroy")
 
         mediaHolder!!.release()
+
+        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(myBroadcastReceiver!!)
     }
 
     @RequiresApi(Build.VERSION_CODES.KITKAT)
@@ -555,8 +574,33 @@ class SuperAwesomeCardFragment : Fragment() {
 //        Log.i(TAG,"onStop")
     }
 
+
+
+    class MyBroadcastReceiver : BroadcastReceiver() {
+
+        private val TAG = "MyBroadcastReceiver"
+
+        override fun onReceive(context: Context?, intent: Intent?) {
+
+            var str = intent!!.getStringExtra("status")
+            Log.i(TAG, str)
+
+            when (intent!!.action) {
+                ACTION_INTENTSERVICE_STATUS -> {
+                    Log.i(TAG, "SuperAwesomeCardFragment.ACTION_INTENTSERVICE_STATUS")
+                }
+                ACTION_THREAD_STATUS -> {
+                    Log.i(TAG, "SuperAwesomeCardFragment.ACTION_THREAD_STATUS")
+                }
+            }
+        }
+
+    }
+
     companion object {
         val CODE_WRITE_SETTINGS_PERMISSION = 10
+        val ACTION_THREAD_STATUS = "action_thread_status"
+        val ACTION_INTENTSERVICE_STATUS = "action_intentservice_status"
 
         /**
          * Use this factory method to create a new instance of

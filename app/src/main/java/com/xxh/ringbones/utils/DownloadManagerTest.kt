@@ -67,7 +67,7 @@ class DownloadManagerTest {
 //                )
 //                val idDownLoad: Long = mManager.enqueue(mRqRequest)
 
-                val idDownLoad:Long? = download(context,downloadUrl, fileName)
+                val idDownLoad:Long? = download(context,downloadUrl, fileName,true)
                 var query: DownloadManager.Query? = null
                 query = DownloadManager.Query()
                 var c: Cursor? = null
