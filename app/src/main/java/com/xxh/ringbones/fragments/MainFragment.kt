@@ -1,5 +1,6 @@
 package com.xxh.ringbones.fragments
 
+import android.app.Application
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
@@ -83,7 +84,8 @@ class MainFragment : Fragment() {
 
             adapter = ListAdapter(ringtonesArray,
                 { ringtone, holder, position -> ringstoneItemClicked(ringtone, holder, position) },
-                { ringtone,url -> setRingtone(ringtone,url) })
+                { ringtone, url -> setRingtone(ringtone, url) },
+                { clickFavButton() })
 
 //            { ringtone, holder, position ->
 //                ringstoneItemClicked(ringtone, holder, position)
@@ -113,7 +115,11 @@ class MainFragment : Fragment() {
         }
     }
 
-    private fun setRingtone(ringtone: NewRingstone,url: String) {
+    private fun setRingtone(ringtone: NewRingstone, url: String) {
+
+    }
+
+    private fun clickFavButton() {
 
     }
 
@@ -164,7 +170,7 @@ class MainFragment : Fragment() {
         private var mSet: ImageView? = null
 
         //        private var mMore: ImageView? = null
-//        private var mHeart: ImageView? = null
+        private var mHeart: ImageView? = null
         private var mPlay: ImageView? = null
         private var mDownload: ImageView? = null
         private var mProgressBar: ProgressBar? = null
@@ -175,7 +181,7 @@ class MainFragment : Fragment() {
             mSet = itemView.findViewById(R.id.ringtone_set)
             mTag = itemView.findViewById(R.id.ringtone_share_tag)
 //            mMore = itemView.findViewById(R.id.ringtone_share)
-//            mHeart = itemView.findViewById(R.id.ringtone_fav)
+            mHeart = itemView.findViewById(R.id.ringtone_fav)
             mPlay = itemView.findViewById(R.id.ringtone_card_play)
             mProgressBar = itemView.findViewById(R.id.ringtone_progress_bar)
             mDownload = itemView.findViewById(R.id.ringtone_download)
@@ -214,7 +220,8 @@ class MainFragment : Fragment() {
             ringstone: NewRingstone,
             clickPlayListener: (NewRingstone, RingstoneHolder, Int) -> Unit,
             position: Int,
-            clickSetListener: (NewRingstone, url: String) -> Unit
+            clickSetListener: (NewRingstone, url: String) -> Unit,
+            clickFavListener: () -> Unit
         ) {
             mTitle?.text = ringstone.title
             mTag?.text = ringstone.des
@@ -224,19 +231,29 @@ class MainFragment : Fragment() {
 //            }
 
             mSet?.setOnClickListener {
-                var url = ringstone.url
-                clickSetListener(ringstone,url)
+                if (mSet!!.tag == "unSelect") {
+                    mSet!!.tag = "Select"
+                    mSet!!.setImageResource(R.drawable.ring)
+
+                    var url = ringstone.url
+                    clickSetListener(ringstone, url)
+                } else {
+                    mSet!!.tag = "unSelect"
+                    mSet!!.setImageResource(R.drawable.notification)
+                }
             }
 
-//            mHeart?.setOnClickListener {
-//                if (mHeart!!.tag == "unSelect") {
-//                    mHeart!!.tag = "Select"
-//                    mHeart!!.setImageResource(R.drawable.heart)
-//                } else {
-//                    mHeart!!.tag = "unSelect"
-//                    mHeart!!.setImageResource(R.drawable.emptyheart)
-//                }
-//            }
+            mHeart?.setOnClickListener {
+                if (mHeart!!.tag == "unSelect") {
+                    mHeart!!.tag = "Select"
+                    mHeart!!.setImageResource(R.drawable.heart)
+
+                    clickFavListener()
+                } else {
+                    mHeart!!.tag = "unSelect"
+                    mHeart!!.setImageResource(R.drawable.emptyheart)
+                }
+            }
 
             mPlay?.setOnClickListener {
                 clickPlayListener(ringstone, this, position)
@@ -278,7 +295,9 @@ class MainFragment : Fragment() {
     class ListAdapter(
         private val data: MutableList<NewRingstone>,
         private val clickPlayListener: (NewRingstone, RingstoneHolder, Int) -> Unit,
-        private val clickSetListener: (NewRingstone, url: String) -> Unit
+        private val clickSetListener: (NewRingstone, url: String) -> Unit,
+        private val clickFavListener: () -> Unit
+
     ) :
         RecyclerView.Adapter<RingstoneHolder>() {
         private val TAG: String = "ListAdapter"
@@ -295,7 +314,7 @@ class MainFragment : Fragment() {
         @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
         override fun onBindViewHolder(holder: RingstoneHolder, position: Int) {
             val ringstone: NewRingstone = data[position]
-            holder.bind(ringstone, clickPlayListener, position, clickSetListener)
+            holder.bind(ringstone, clickPlayListener, position, clickSetListener, clickFavListener)
 
 //            Log.i(TAG, "position = $position")
         }

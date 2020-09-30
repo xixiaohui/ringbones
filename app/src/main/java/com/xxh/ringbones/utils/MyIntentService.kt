@@ -1,50 +1,50 @@
 package com.xxh.ringbones.utils
 
 import android.app.IntentService
-import android.content.BroadcastReceiver
-import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.xxh.ringbones.fragments.SuperAwesomeCardFragment
 
-class MyIntentService(name: String?="MyIntentService") : IntentService(name) {
+class MyIntentService(name: String? = "MyIntentService") : IntentService(name) {
 
     private val TAG = "MyIntentService"
 
 
-
-    companion object{
+    companion object {
         val URL = "url"
         val FILENAME = "filename"
+        val STATUS = "status"
     }
 
     override fun onHandleIntent(intent: Intent?) {
 
-        Log.i(TAG,"current thread: " + Thread.currentThread().name)
+        Log.i(TAG, "current thread: " + Thread.currentThread().name)
 
         val url = intent!!.getStringExtra(MyIntentService.URL)
         val filename = intent!!.getStringExtra(MyIntentService.FILENAME)
-        Log.i(TAG,"url = $url")
-        Log.i(TAG,"filename = $filename")
+        Log.i(TAG, "url = $url")
+        Log.i(TAG, "filename = $filename")
 
 
-//        for ( i in (0..3)){
-//            Thread.sleep(500)
-//
-//            sendThreadStatus("Sleep now!")
-//        }
+        //下载铃声
 
-        sendThreadStatus("Sleep now!")
-        Log.i(TAG,"onHandleIntent done!")
-        Log.i(TAG,"===================")
+//        DownloadManagerTest.download(this.baseContext,url,filename,true)
+
+        DownloadManagerTest.doInBackground(this.baseContext,
+            url,
+            filename,
+            true) { status,filename -> sendThreadStatus(status,filename) }
+
+//        Log.i(TAG,"onHandleIntent done!")
+//        Log.i(TAG,"===================")
+
     }
 
-
-    private fun sendThreadStatus(status: String){
-        var intent  = Intent(SuperAwesomeCardFragment.ACTION_THREAD_STATUS)
-        intent.putExtra("status",status)
-
+    private fun sendThreadStatus(status: Int,filename: String) {
+        var intent = Intent(SuperAwesomeCardFragment.ACTION_THREAD_STATUS)
+        intent.putExtra(STATUS, status)
+        intent.putExtra(FILENAME, filename)
         LocalBroadcastManager.getInstance(this.baseContext).sendBroadcast(intent)
     }
 
@@ -57,6 +57,6 @@ class MyIntentService(name: String?="MyIntentService") : IntentService(name) {
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.i(TAG,"onDestroy")
+        Log.i(TAG, "onDestroy")
     }
 }

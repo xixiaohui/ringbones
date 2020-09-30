@@ -19,4 +19,7 @@
     <string name="ok">ok</string>
     <string name="hi">Hi~</string>
     <string name="download_tips">Want to download this one?</string>
+
+    <string name="download_tips_failed">Download failed.</string>
+    <string name="download_tips_success">Download success.</string>
 </resources>

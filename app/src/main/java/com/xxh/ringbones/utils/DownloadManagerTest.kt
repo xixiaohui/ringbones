@@ -56,7 +56,7 @@ class DownloadManagerTest {
         fun doInBackground(context: Context,
                            downloadUrl: String,
                            fileName: String,
-                           hasExtention: Boolean = false): Boolean? {
+                           hasExtention: Boolean = false,sendBroadcast: (Int,String) -> Unit): Boolean? {
             var flag = true
             var downloading = true
             return try {
@@ -67,7 +67,7 @@ class DownloadManagerTest {
 //                )
 //                val idDownLoad: Long = mManager.enqueue(mRqRequest)
 
-                val idDownLoad:Long? = download(context,downloadUrl, fileName,true)
+                val idDownLoad:Long? = download(context,downloadUrl, fileName,hasExtention)
                 var query: DownloadManager.Query? = null
                 query = DownloadManager.Query()
                 var c: Cursor? = null
@@ -85,11 +85,13 @@ class DownloadManagerTest {
                             Log.i("FLAG", "done")
                             downloading = false
                             flag = true
+                            sendBroadcast(DownloadManager.STATUS_SUCCESSFUL,fileName)
                             break
                         }
                         if (status == DownloadManager.STATUS_FAILED) {
                             Log.i("FLAG", "Fail")
                             downloading = false
+                            sendBroadcast(DownloadManager.STATUS_FAILED,"Download Fail! Filename = $fileName ")
                             flag = false
                             break
                         }
@@ -102,12 +104,9 @@ class DownloadManagerTest {
             }
         }
 
-        private fun getDownloadURL(): Any? {
-            return ""
-        }
 
 
-        fun onProcessLoadingState(context: Context) {
+        fun onProcessLoadingState(context: Context,sendbroadcast:(String)->Unit) {
 
             var query: DownloadManager.Query? = null
             var c: Cursor? = null
@@ -139,6 +138,7 @@ class DownloadManagerTest {
                     }
                     DownloadManager.STATUS_SUCCESSFUL -> {
                         Log.i("onProcessLoadingState", "DownloadManager.STATUS_SUCCESSFUL")
+                        sendbroadcast("DownloadManager.STATUS_SUCCESSFUL")
                     }
                     DownloadManager.STATUS_FAILED -> {
                         Log.i("onProcessLoadingState", "DownloadManager.STATUS_FAILED")
