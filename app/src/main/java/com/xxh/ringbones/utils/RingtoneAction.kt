@@ -643,7 +643,7 @@ class RingtoneAction {
             if (sdCardExist) {
                 sdDir =
                     Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_RINGTONES) // 获取根目录
-                path = sdDir.path + File.separator + filename + ".mp3"
+                path = sdDir.path + File.separator + filename
             }
 
             return path

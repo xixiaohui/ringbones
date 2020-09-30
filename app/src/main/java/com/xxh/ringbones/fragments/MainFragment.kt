@@ -232,11 +232,11 @@ class MainFragment : Fragment() {
 
             mSet?.setOnClickListener {
                 if (mSet!!.tag == "unSelect") {
-                    mSet!!.tag = "Select"
-                    mSet!!.setImageResource(R.drawable.ring)
-
                     var url = ringstone.url
                     clickSetListener(ringstone, url)
+
+                    mSet!!.tag = "Select"
+                    mSet!!.setImageResource(R.drawable.ring)
                 } else {
                     mSet!!.tag = "unSelect"
                     mSet!!.setImageResource(R.drawable.notification)
