@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/top_favorite"
+        android:icon="@drawable/fav"
+        android:title="@string/favorite"
+        android:iconTint="@color/colorWhite"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/top_download"
+        android:icon="@drawable/ic_downward_24"
+        android:title="@string/download"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/top_search"
+        android:title="@string/search"
+        app:showAsAction="never" >
+    </item>
+    <item
+        android:id="@+id/top_setting"
+        android:title="@string/setting"
+        app:showAsAction="never" >
+    </item>
+    <item
+        android:id="@+id/top_about_us"
+        android:title="@string/about_us"
+        app:showAsAction="never" >
+    </item>
+
+</menu>

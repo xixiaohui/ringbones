@@ -13,6 +13,8 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -22,6 +24,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.xxh.ringbones.R
 import com.xxh.ringbones.data.NewRingstone
 import com.xxh.ringbones.databinding.FragmentMainBinding
+import com.xxh.ringbones.models.RingtoneViewModel
 import com.xxh.ringbones.utils.DownloadManagerTest
 import com.xxh.ringbones.utils.LocalJsonResolutionUtils
 import com.xxh.ringbones.utils.MyMediaPlayerManager
@@ -51,6 +54,8 @@ class MainFragment : Fragment() {
 
     private lateinit var ringtonesArray: MutableList<NewRingstone>
 
+    private lateinit var ringtoneViewModel: RingtoneViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -59,6 +64,13 @@ class MainFragment : Fragment() {
         }
 
         this.ringtonesArray = prepareRingtonesData(requireContext(), "rings/Airtel.json")
+
+        this.ringtoneViewModel = ViewModelProvider(this.requireActivity()).get(RingtoneViewModel::class.java)
+        ringtoneViewModel.allRingtones.observe(this, Observer { ringtone ->
+            ringtone?.let {
+
+            }
+        })
     }
 
 
