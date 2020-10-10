@@ -10,6 +10,9 @@ interface RingtoneDao{
     @Query("SELECT * FROM ringtone")
     fun getAll(): LiveData<List<NewRingstone>>
 
+    @Query("SELECT * FROM ringtone")
+    fun getSecondAll(): List<NewRingstone>
+
     @Query("SELECT * FROM ringtone Where  title = :title")
     fun loadRingtoneByTitle(title: String): NewRingstone
 
@@ -19,9 +22,12 @@ interface RingtoneDao{
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insertAll(vararg newRingstone: NewRingstone)
 
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    fun insert(newRingstone: NewRingstone)
+
     @Delete
     fun delete(newRingstone: NewRingstone)
 
     @Query("DELETE FROM ringtone")
-    suspend fun deleteAll()
+    fun deleteAll()
 }

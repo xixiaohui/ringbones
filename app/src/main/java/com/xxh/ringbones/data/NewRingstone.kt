@@ -8,6 +8,7 @@ import java.util.*
 
 @Entity(tableName = "ringtone")
 data class NewRingstone(
+    @PrimaryKey
     @ColumnInfo(name = "title")
     val title: String,
     @ColumnInfo(name = "des")
@@ -15,10 +16,10 @@ data class NewRingstone(
     @ColumnInfo(name = "url")
     val url: String,
     @ColumnInfo(name = "tag")
-    val tag: String = "test",
-    @PrimaryKey
-    var ringtoneId: String = UUID.randomUUID().toString()
+    val tag: String = "test"
+
+
 ) {
 
-
+    var ringtoneId: String = UUID.randomUUID().toString()
 }

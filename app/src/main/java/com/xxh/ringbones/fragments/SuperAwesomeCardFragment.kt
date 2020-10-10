@@ -69,20 +69,7 @@ class SuperAwesomeCardFragment : Fragment() {
     var myBroadcastReceiver: MyBroadcastReceiver? = null
 
 
-    private val ringFileList = arrayOf(
-        "2020", "Airtel", "Alarm", "Animal", "Arabic",
-        "Attitude", "Bengali", "BGM", "Bhojpuri", "Blackberry",
-        "Bollywood", "Call", "Christmas", "Classical",
-        "DeshBhakti", "Dialogue", "Electronica", "English", "Funny",
-        "Google", "Infinix", "Instrumental", "iPhone", "IPL",
-        "Islamic", "Joker", "Kannada", "LG", "Love",
-        "Malayalam", "Marathi", "Mashup", "MoodOff",
-        "Music", "Nokia", "Oneplus", "Oppo", "PakistaniSong",
-        "Poetry", "PSL5", "Punjabi", "Remix", "Romantic",
-        "Sad", "Samsung", "Scary", "SMS", "Sounds",
-        "Spanish", "Tamil", "Techno", "Telugu", "TikTok",
-        "Vivo", "Warning", "Xiaomi"
-    )
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -199,7 +186,6 @@ class SuperAwesomeCardFragment : Fragment() {
         if (permission) {
             //do your code
             Log.i(TAG, "获得了写入权限")
-
 
             val filename = Utils.getFileNameFromUrl(ringstone.url)
             if (!RingtoneAction.fileIsExistsInRingtonesHolder(filename)){
@@ -533,6 +519,22 @@ class SuperAwesomeCardFragment : Fragment() {
 
         lateinit var rootView: FrameLayout
         private lateinit var activityForSetRingtone: Activity
+
+        val ringFileList = arrayOf(
+            "2020", "Airtel", "Alarm", "Animal", "Arabic",
+            "Attitude", "Bengali", "BGM", "Bhojpuri", "Blackberry",
+            "Bollywood", "Call", "Christmas", "Classical",
+            "DeshBhakti", "Dialogue", "Electronica", "English", "Funny",
+            "Google", "Infinix", "Instrumental", "iPhone", "IPL",
+            "Islamic", "Joker", "Kannada", "LG", "Love",
+            "Malayalam", "Marathi", "Mashup", "MoodOff",
+            "Music", "Nokia", "Oneplus", "Oppo", "PakistaniSong",
+            "Poetry", "PSL5", "Punjabi", "Remix", "Romantic",
+            "Sad", "Samsung", "Scary", "SMS", "Sounds",
+            "Spanish", "Tamil", "Techno", "Telugu", "TikTok",
+            "Vivo", "Warning", "Xiaomi"
+        )
+
         /**
          * Use this factory method to create a new instance of
          * this fragment using the provided parameters.

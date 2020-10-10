@@ -1,11 +1,15 @@
 package com.xxh.ringbones
 
 
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.AttributeSet
+import android.view.View
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.snackbar.Snackbar
+import com.xxh.ringbones.utils.KotlinUtils
 
 class MainActivity : AppCompatActivity() {
 
@@ -17,6 +21,17 @@ class MainActivity : AppCompatActivity() {
         val topAppBar = findViewById<MaterialToolbar>(R.id.topAppBar)
         MainActivity.jumpToOtherActivity(this,topAppBar)
 
+
+    }
+
+    override fun onCreateView(
+        parent: View?,
+        name: String,
+        context: Context,
+        attrs: AttributeSet
+    ): View? {
+        KotlinUtils.check(this)
+        return super.onCreateView(parent, name, context, attrs)
     }
 
     companion object{

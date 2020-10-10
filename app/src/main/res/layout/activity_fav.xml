@@ -9,11 +9,17 @@
 
     <include layout="@layout/topbar" />
 
-    <TextView
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/favorite"
-        android:gravity="center"
-        android:textSize="24dp"/>
+        tools:listitem="@layout/ringbox" />
+
+<!--    <TextView-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="@string/favorite"-->
+<!--        android:gravity="center"-->
+<!--        android:textSize="24dp"/>-->
 
 </LinearLayout>
