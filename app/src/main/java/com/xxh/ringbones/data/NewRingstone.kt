@@ -15,9 +15,10 @@ data class NewRingstone(
     @ColumnInfo(name = "url")
     val url: String,
     @ColumnInfo(name = "tag")
-    val tag: String = "test"
-) {
+    val tag: String = "test",
     @PrimaryKey
     var ringtoneId: String = UUID.randomUUID().toString()
+) {
+
 
 }

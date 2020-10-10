@@ -54,7 +54,7 @@ class MainFragment : Fragment() {
 
     private lateinit var ringtonesArray: MutableList<NewRingstone>
 
-    private lateinit var ringtoneViewModel: RingtoneViewModel
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,12 +65,7 @@ class MainFragment : Fragment() {
 
         this.ringtonesArray = prepareRingtonesData(requireContext(), "rings/Airtel.json")
 
-        this.ringtoneViewModel = ViewModelProvider(this.requireActivity()).get(RingtoneViewModel::class.java)
-        ringtoneViewModel.allRingtones.observe(this, Observer { ringtone ->
-            ringtone?.let {
 
-            }
-        })
     }
 
 

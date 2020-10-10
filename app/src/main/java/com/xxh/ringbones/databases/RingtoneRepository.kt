@@ -12,4 +12,9 @@ class RingtoneRepository(private val ringtoneDao: RingtoneDao) {
         ringtoneDao.insertAll(newRingstone)
     }
 
+    fun getRingtoneByTitle(title: String): NewRingstone{
+        val ringtone = ringtoneDao.loadRingtoneByTitle(title)
+        return ringtone
+    }
+
 }

@@ -10,20 +10,27 @@ import com.xxh.ringbones.databases.RingtoneRoomDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class RingtoneViewModel(application: Application) : AndroidViewModel(application){
+class RingtoneViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: RingtoneRepository
 
     val allRingtones: LiveData<List<NewRingstone>>
 
+
     init {
-        val ringtoneDao = RingtoneRoomDatabase.getDatabase(application,viewModelScope).ringtoneDao()
+        val ringtoneDao =
+            RingtoneRoomDatabase.getDatabase(application, viewModelScope).ringtoneDao()
         repository = RingtoneRepository(ringtoneDao)
         allRingtones = repository.allRingtones
     }
 
-    fun insert(newRingstone: NewRingstone) = viewModelScope.launch(Dispatchers.IO){
+    fun insert(newRingstone: NewRingstone) = viewModelScope.launch(Dispatchers.IO) {
         repository.insert(newRingstone)
+    }
+
+    fun getRingtoneByTitle(title: String): NewRingstone {
+        val ringtone = repository.getRingtoneByTitle(title)
+        return ringtone
     }
 
 }
