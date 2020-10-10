@@ -16,15 +16,11 @@ class RingtoneViewModel(application: Application) : AndroidViewModel(application
 
     val allRingtones: LiveData<List<NewRingstone>>
 
-//    val anotherRingtones: List<NewRingstone>
-
-
     init {
         val ringtoneDao =
             RingtoneRoomDatabase.getDatabase(application, viewModelScope).ringtoneDao()
         repository = RingtoneRepository(ringtoneDao)
         allRingtones = repository.allRingtones
-//        anotherRingtones = repository.anotherRingtones
     }
 
     fun insert(newRingstone: NewRingstone) = viewModelScope.launch(Dispatchers.IO) {

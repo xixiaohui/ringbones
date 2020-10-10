@@ -53,11 +53,11 @@ class FavActivity : AppCompatActivity() {
             Log.i(TAG, "有写入权限")
             this.ringtoneViewModel = ViewModelProvider(this).get(RingtoneViewModel::class.java)
 
-//            ringtoneViewModel.allRingtones.observe(this, Observer { ringtones ->
-//                ringtones?.let {
-//                    adapter.setRingtones(it)
-//                }
-//            })
+            ringtoneViewModel.allRingtones.observe(this, Observer { ringtones ->
+                ringtones?.let {
+                    adapter.setRingtones(it)
+                }
+            })
 
         }
     }
