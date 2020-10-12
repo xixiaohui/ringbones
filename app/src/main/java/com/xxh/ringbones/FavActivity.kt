@@ -44,7 +44,9 @@ class FavActivity : AppCompatActivity() {
 
         val adapter = RingtoneListAdapter(this.baseContext)
         recyclerView.adapter = adapter
+
         recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.setItemViewCacheSize(500)
 
         val permission: Boolean = ContextCompat.checkSelfPermission(this,
             Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED

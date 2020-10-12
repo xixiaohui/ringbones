@@ -41,4 +41,5 @@ file:///storage/emulated/0/MIUI/.ringtone/MoneyHeist.mp3
 
 如何把外部存储卡里的音乐文件加入多媒体库！
 
-test=content://media/external/audio/media/2156, test (3)=content://media/external/audio/media/2154, test (2)=content://media/external/audio/media/2153, New Ringtone Mp3 2020.mp3=content://media/external/audio/media/2143, test (1)=content://media/external/audio/media/2152, MiRemix.ogg=content://media/internal/audio/media/464
+安卓体系结构组件有哪些？
+Android Architecture Components.

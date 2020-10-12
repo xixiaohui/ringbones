@@ -21,5 +21,6 @@ data class NewRingstone(
 
 ) {
 
+    @ColumnInfo(name="id")
     var ringtoneId: String = UUID.randomUUID().toString()
 }

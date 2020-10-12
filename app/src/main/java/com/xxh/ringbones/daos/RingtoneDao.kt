@@ -16,7 +16,7 @@ interface RingtoneDao{
     @Query("SELECT * FROM ringtone Where  title = :title")
     fun loadRingtoneByTitle(title: String): NewRingstone
 
-    @Query("SELECT * FROM ringtone where ringtoneId IN (:ringtoneIds)")
+    @Query("SELECT * FROM ringtone where id IN (:ringtoneIds)")
     fun loadRingtoneByIds(ringtoneIds: List<String>): List<NewRingstone>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)

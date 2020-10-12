@@ -18,12 +18,12 @@ class RingtoneViewModel(application: Application) : AndroidViewModel(application
 
     init {
         val ringtoneDao =
-            RingtoneRoomDatabase.getDatabase(application, viewModelScope).ringtoneDao()
+            RingtoneRoomDatabase.getDatabase(application).ringtoneDao()
         repository = RingtoneRepository(ringtoneDao)
         allRingtones = repository.allRingtones
     }
 
-    fun insert(newRingstone: NewRingstone) = viewModelScope.launch(Dispatchers.IO) {
+    fun insert(newRingstone: NewRingstone) {
         repository.insert(newRingstone)
     }
 
