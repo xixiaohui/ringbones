@@ -8,11 +8,9 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.xxh.ringbones.daos.RingtoneDao
 import com.xxh.ringbones.data.NewRingstone
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 
-@Database(entities = [NewRingstone::class], version = 3)
+@Database(entities = [NewRingstone::class], version = 6,exportSchema = false)
 abstract class RingtoneRoomDatabase : RoomDatabase() {
 
     abstract fun ringtoneDao(): RingtoneDao
@@ -62,19 +60,20 @@ abstract class RingtoneRoomDatabase : RoomDatabase() {
                 // Start the app with a clean database every time.
                 // Not needed if you only populate the database
                 // when it is first created
-                mDao.deleteAll()
-                var newRingstone = NewRingstone("Astronomia Mp3 Tone","2020 ringtone",
-                    "https://www.tonesmp3.com/ringtones/astronomia-mp3-tone.mp3")
 
-                var newRingstone1 = NewRingstone("Reliance Jio Phone","2020 ringtone",
-                    "https://www.tonesmp3.com/ringtones/reliance-jio-phone.mp3")
-
-                var newRingstone2 = NewRingstone("Senorita Saxophone","2020 ringtone",
-                    "https://www.tonesmp3.com/ringtones/senorita-saxophone.mp3")
-
-                mDao.insert(newRingstone)
-                mDao.insert(newRingstone1)
-                mDao.insert(newRingstone2)
+//                mDao.deleteAll()
+//                var newRingstone = NewRingstone("Astronomia Mp3 Tone","2020 ringtone",
+//                    "https://www.tonesmp3.com/ringtones/astronomia-mp3-tone.mp3")
+//
+//                var newRingstone1 = NewRingstone("Reliance Jio Phone","2020 ringtone",
+//                    "https://www.tonesmp3.com/ringtones/reliance-jio-phone.mp3")
+//
+//                var newRingstone2 = NewRingstone("Senorita Saxophone","2020 ringtone",
+//                    "https://www.tonesmp3.com/ringtones/senorita-saxophone.mp3")
+//
+//                mDao.insert(newRingstone)
+//                mDao.insert(newRingstone1)
+//                mDao.insert(newRingstone2)
 
                 return null
             }

@@ -14,22 +14,27 @@ class RingtoneViewModel(application: Application) : AndroidViewModel(application
 
     private val repository: RingtoneRepository
 
-    val allRingtones: LiveData<List<NewRingstone>>
+    private val allRingtones: LiveData<List<NewRingstone>>
 
     init {
-        val ringtoneDao =
-            RingtoneRoomDatabase.getDatabase(application).ringtoneDao()
-        repository = RingtoneRepository(ringtoneDao)
-        allRingtones = repository.allRingtones
+
+        repository = RingtoneRepository(application)
+        allRingtones = repository.getAllRingtones()
     }
+
 
     fun insert(newRingstone: NewRingstone) {
         repository.insert(newRingstone)
     }
 
-    fun getRingtoneByTitle(title: String): NewRingstone {
-        val ringtone = repository.getRingtoneByTitle(title)
-        return ringtone
+    fun delete(newRingstone: NewRingstone){
+        repository.delete(newRingstone)
     }
+
+    fun getAllRingtones():LiveData<List<NewRingstone>>{
+        return allRingtones
+    }
+
+
 
 }

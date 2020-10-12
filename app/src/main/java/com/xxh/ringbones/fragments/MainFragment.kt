@@ -30,6 +30,7 @@ import com.xxh.ringbones.utils.LocalJsonResolutionUtils
 import com.xxh.ringbones.utils.MyMediaPlayerManager
 import com.xxh.ringbones.utils.RingtoneAction
 import org.json.JSONArray
+import java.util.*
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -92,7 +93,7 @@ class MainFragment : Fragment() {
             adapter = ListAdapter(ringtonesArray,
                 { ringtone, holder, position -> ringstoneItemClicked(ringtone, holder, position) },
                 { ringtone, url -> setRingtone(ringtone, url) },
-                { clickFavButton() })
+                { ringtone,select -> clickFavButton(ringtone,select) })
 
 //            { ringtone, holder, position ->
 //                ringstoneItemClicked(ringtone, holder, position)
@@ -126,7 +127,7 @@ class MainFragment : Fragment() {
 
     }
 
-    private fun clickFavButton() {
+    private fun clickFavButton(ringtone: NewRingstone, select: Boolean) {
 
     }
 
@@ -228,7 +229,7 @@ class MainFragment : Fragment() {
             clickPlayListener: (NewRingstone, RingstoneHolder, Int) -> Unit,
             position: Int,
             clickSetListener: (NewRingstone, url: String) -> Unit,
-            clickFavListener: () -> Unit
+            clickFavListener: (NewRingstone,select: Boolean) -> Unit
         ) {
             mTitle?.text = ringstone.title
             mTag?.text = ringstone.des
@@ -254,12 +255,11 @@ class MainFragment : Fragment() {
                 if (mHeart!!.tag == "unSelect") {
                     mHeart!!.tag = "Select"
                     mHeart!!.setImageResource(R.drawable.heart)
-
-                    clickFavListener()
                 } else {
                     mHeart!!.tag = "unSelect"
                     mHeart!!.setImageResource(R.drawable.emptyheart)
                 }
+                clickFavListener(ringstone,mHeart!!.tag == "Select")
             }
 
             mPlay?.setOnClickListener {
@@ -303,7 +303,7 @@ class MainFragment : Fragment() {
         private val data: MutableList<NewRingstone>,
         private val clickPlayListener: (NewRingstone, RingstoneHolder, Int) -> Unit,
         private val clickSetListener: (NewRingstone, url: String) -> Unit,
-        private val clickFavListener: () -> Unit
+        private val clickFavListener: (NewRingstone,select: Boolean) -> Unit
 
     ) :
         RecyclerView.Adapter<RingstoneHolder>() {
@@ -372,6 +372,9 @@ class MainFragment : Fragment() {
                     jsonObject.toString(),
                     NewRingstone::class.java
                 )
+                newRingstone.tag="test"
+                newRingstone.ringtoneId= UUID.randomUUID().toString()
+
                 ringtonesArray.add(newRingstone)
             }
             return ringtonesArray

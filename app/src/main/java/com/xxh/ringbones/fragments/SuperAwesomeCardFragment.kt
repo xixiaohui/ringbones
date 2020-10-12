@@ -23,18 +23,27 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.ProgressBar
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.room.Room
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.google.gson.Gson
 import com.xxh.ringbones.R
+import com.xxh.ringbones.daos.RingtoneDao
 import com.xxh.ringbones.data.NewRingstone
+import com.xxh.ringbones.databases.RingtoneRepository
+import com.xxh.ringbones.databases.RingtoneRoomDatabase
 import com.xxh.ringbones.databinding.FragmentSuperAwesomeCardBinding
+import com.xxh.ringbones.models.RingtoneViewModel
 import com.xxh.ringbones.utils.*
 import java.io.File
 import java.io.RandomAccessFile
@@ -65,11 +74,11 @@ class SuperAwesomeCardFragment : Fragment() {
     private var playView: ImageView? = null
     private var oldViewHolder: MainFragment.RingstoneHolder? = null
 
-    var localBroadcastManager: LocalBroadcastManager? = null
     var myBroadcastReceiver: MyBroadcastReceiver? = null
 
+//    private lateinit var ringtoneViewModel: RingtoneViewModel
 
-
+    private lateinit var ringtoneViewModel: RingtoneViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,7 +99,7 @@ class SuperAwesomeCardFragment : Fragment() {
 
         valueAnimator = ValueAnimator.ofInt(0, screen_width)
 
-
+        //通知用于下载
         myBroadcastReceiver = MyBroadcastReceiver()
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(
             myBroadcastReceiver!!,
@@ -98,12 +107,16 @@ class SuperAwesomeCardFragment : Fragment() {
         )
 
         activityForSetRingtone = this.requireActivity()
+
+        this.ringtoneViewModel = ViewModelProvider(this.requireActivity()).get(RingtoneViewModel::class.java)
+
+
     }
 
     @RequiresApi(Build.VERSION_CODES.KITKAT)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         // Inflate the layout for this fragment
         binding = FragmentSuperAwesomeCardBinding.inflate(inflater)
@@ -119,19 +132,25 @@ class SuperAwesomeCardFragment : Fragment() {
                     ringstoneItemClicked(ringstone, holder, position)
                 },
                 { ringstone, url -> setRingtone(ringstone, url) },
-                {clickFavButton()})
+                { ringtone, select -> clickFavButton(ringtone, select) })
             setItemViewCacheSize(1000)
         }
 
         return binding.root
     }
 
-    private fun clickFavButton() {
-//        RingtoneAction.playDefaultRingtone(this.requireActivity())
-//        var path = RingtoneAction.getCurrentRingtoneFilePathFromUri(this.requireContext())
-//        Log.i("clickFavButton","file path is = $path")
+    private fun clickFavButton(newRingstone: NewRingstone, select: Boolean) {
+        //选中就插入
+        if (select) {
 
+//            var newRingstone2 = NewRingstone(newRingstone.title,newRingstone.des,newRingstone.url)
+//            this.ringtoneViewModel.insert(newRingstone2)
 
+            this.ringtoneViewModel.insert(newRingstone)
+
+        } else {
+//            ringtoneViewModel.delete(newRingstone)
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.KITKAT)
@@ -165,7 +184,6 @@ class SuperAwesomeCardFragment : Fragment() {
     }
 
 
-
     fun downloadFile(activity: Activity, ringstone: NewRingstone) {
         val filename = Utils.getFileNameFromUrl(ringstone.url)
         Log.i(TAG, filename)
@@ -188,10 +206,10 @@ class SuperAwesomeCardFragment : Fragment() {
             Log.i(TAG, "获得了写入权限")
 
             val filename = Utils.getFileNameFromUrl(ringstone.url)
-            if (!RingtoneAction.fileIsExistsInRingtonesHolder(filename)){
+            if (!RingtoneAction.fileIsExistsInRingtonesHolder(filename)) {
                 startDownloadService(activity, ringstone)
-            }else{
-                RingtoneAction.setMyRingtoneWithFileName(activityForSetRingtone,filename)
+            } else {
+                RingtoneAction.setMyRingtoneWithFileName(activityForSetRingtone, filename)
             }
 
         } else {
@@ -244,7 +262,7 @@ class SuperAwesomeCardFragment : Fragment() {
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
-        grantResults: IntArray
+        grantResults: IntArray,
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == CODE_WRITE_SETTINGS_PERMISSION &&
@@ -292,7 +310,7 @@ class SuperAwesomeCardFragment : Fragment() {
     private fun ringstoneItemClicked(
         ringstone: NewRingstone,
         holder: MainFragment.RingstoneHolder,
-        position: Int
+        position: Int,
     ) {
 
         val url = ringstone.url
@@ -356,7 +374,7 @@ class SuperAwesomeCardFragment : Fragment() {
         imageView: ImageView,
         progressBar: ProgressBar?,
         url: String,
-        holder: MainFragment.RingstoneHolder
+        holder: MainFragment.RingstoneHolder,
     ) {
         imageView.tag = "Loading"
         progressBar?.visibility = View.VISIBLE
@@ -478,7 +496,6 @@ class SuperAwesomeCardFragment : Fragment() {
         override fun onReceive(context: Context?, intent: Intent?) {
 
 
-
             when (intent!!.action) {
                 ACTION_INTENTSERVICE_STATUS -> {
                     Log.i(TAG, "SuperAwesomeCardFragment.ACTION_INTENTSERVICE_STATUS")
@@ -486,22 +503,27 @@ class SuperAwesomeCardFragment : Fragment() {
                 ACTION_THREAD_STATUS -> {
                     var filename = intent!!.getStringExtra(MyIntentService.FILENAME)
                     Log.i(TAG, filename)
-                    var status = intent!!.getIntExtra(MyIntentService.STATUS,0)
+                    var status = intent!!.getIntExtra(MyIntentService.STATUS, 0)
                     Log.i(TAG, "status = $status")
 
-                    when(status){
-                        DownloadManager.STATUS_SUCCESSFUL->{
+                    when (status) {
+                        DownloadManager.STATUS_SUCCESSFUL -> {
 
-                            Snackbar.make(SuperAwesomeCardFragment.rootView,"Download successful.",Snackbar.LENGTH_LONG).show()
+                            Snackbar.make(SuperAwesomeCardFragment.rootView,
+                                "Download successful.",
+                                Snackbar.LENGTH_LONG).show()
 
 //                            val path = RingtoneAction.combine(filename)
 //                            RingtoneAction.setMyRingtone(activityForSetRingtone,path)
-                            RingtoneAction.setMyRingtoneWithFileName(activityForSetRingtone,filename)
+                            RingtoneAction.setMyRingtoneWithFileName(activityForSetRingtone,
+                                filename)
 
                         }
-                        DownloadManager.STATUS_FAILED ->{
+                        DownloadManager.STATUS_FAILED -> {
 
-                            Snackbar.make(SuperAwesomeCardFragment.rootView,"Download failed.",Snackbar.LENGTH_LONG).show()
+                            Snackbar.make(SuperAwesomeCardFragment.rootView,
+                                "Download failed.",
+                                Snackbar.LENGTH_LONG).show()
                         }
                     }
 
@@ -519,6 +541,8 @@ class SuperAwesomeCardFragment : Fragment() {
 
         lateinit var rootView: FrameLayout
         private lateinit var activityForSetRingtone: Activity
+
+        val EXTRA_REPLY = "com.xxh.ringbones.REPLY"
 
         val ringFileList = arrayOf(
             "2020", "Airtel", "Alarm", "Animal", "Arabic",
@@ -551,5 +575,11 @@ class SuperAwesomeCardFragment : Fragment() {
                     putInt(ARG_PARAM1, position)
                 }
             }
+    }
+
+    fun test(newRingstone: NewRingstone){
+        val replyIntent = Intent()
+        replyIntent.putExtra(EXTRA_REPLY, Gson().toJson(newRingstone))
+        this.requireActivity().setResult(AppCompatActivity.RESULT_OK, replyIntent)
     }
 }
