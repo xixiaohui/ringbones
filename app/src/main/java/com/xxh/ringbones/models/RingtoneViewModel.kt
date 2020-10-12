@@ -35,6 +35,10 @@ class RingtoneViewModel(application: Application) : AndroidViewModel(application
         return allRingtones
     }
 
+    fun deleteAll(){
+        repository
+    }
+
 
 
 }

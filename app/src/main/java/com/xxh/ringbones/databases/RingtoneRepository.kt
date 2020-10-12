@@ -37,6 +37,7 @@ class RingtoneRepository(application: Application) {
         deleteAsyncTask(ringtoneDao).execute(newRingstone)
     }
 
+
     private class insertAsyncTask(val dao: RingtoneDao) : AsyncTask<NewRingstone, Void, Void>() {
         private var mAsyncTaskDao: RingtoneDao? = null
 
