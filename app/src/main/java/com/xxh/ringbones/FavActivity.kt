@@ -22,6 +22,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.gson.Gson
+import com.xxh.ringbones.adapter.RingstoneHolder
+import com.xxh.ringbones.adapter.RingtoneListAdapter
 import com.xxh.ringbones.data.NewRingstone
 import com.xxh.ringbones.databinding.ActivityFavBinding
 import com.xxh.ringbones.fragments.MainFragment
@@ -33,42 +35,43 @@ import androidx.activity.viewModels as viewModels
 class FavActivity : AppCompatActivity() {
     private val TAG = "FavActivity"
 
-
     private lateinit var binding: ActivityFavBinding
-
+    lateinit var ringtoneViewModel: RingtoneViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = ActivityFavBinding.inflate(layoutInflater)
-//        setContentView(R.layout.activity_fav)
         setContentView(binding.root)
 
         val topAppBar = findViewById<MaterialToolbar>(R.id.topAppBar)
         MainActivity.jumpToOtherActivity(this, topAppBar)
 
-//        val recyclerView = findViewById<RecyclerView>(R.id.recyclerview)
         val recyclerView = binding.recyclerview
 
-        val adapter = RingtoneListAdapter()
-        recyclerView.adapter = adapter
 
+        val adapter = RingtoneListAdapter(null,
+            { ringstone, holder, position ->
+                ringstoneItemClicked(ringstone, holder, position)
+            },
+            { ringstone, url -> setRingtone(ringstone, url) },
+            { ringtone, select -> clickFavButton(ringtone, select) })
+
+        recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.setItemViewCacheSize(500)
 
         val permission: Boolean = ContextCompat.checkSelfPermission(this,
             Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-
         if (permission) {
             Log.i(TAG, "有写入权限")
             ringtoneViewModel = ViewModelProvider(this).get(RingtoneViewModel::class.java)
 
             ringtoneViewModel.getAllRingtones().observe(this, Observer { ringtones ->
-                ringtones?.let {
-                    adapter.setRingtones(it)
+                ringtones?.let {rings ->
+                    adapter.setRingtones(rings.filter { it.isFav })
                 }
             })
-
         }
 
 //        findViewById<FloatingActionButton>(R.id.fab).setOnClickListener { view ->
@@ -78,6 +81,26 @@ class FavActivity : AppCompatActivity() {
 //                "https://www.tonesmp3.com/ringtones/senorita-saxophone.mp3")
 //            this.ringtoneViewModel.insert(newRingstone)
 //        }
+
+    }
+
+    private fun clickFavButton(ringtone: NewRingstone, select: Boolean) {
+        if (!select) {
+//            ringtoneViewModel.delete(ringtone)
+            ringtone.isFav = select
+            ringtoneViewModel.update(ringtone)
+        }
+    }
+
+    private fun setRingtone(ringstone: NewRingstone, url: String) {
+
+    }
+
+    private fun ringstoneItemClicked(
+        ringstone: NewRingstone,
+        holder: RingstoneHolder,
+        position: Int,
+    ) {
 
     }
 
@@ -91,58 +114,15 @@ class FavActivity : AppCompatActivity() {
             ringtoneViewModel.insert(ringtone)
 
         } else {
-            Toast.makeText(
-                applicationContext,
-                R.string.empty_not_saved,
-                Toast.LENGTH_LONG
-            ).show()
+
         }
     }
 
-    class RingtoneListAdapter() :
-        RecyclerView.Adapter<RingtoneListAdapter.RingtoneViewHolder>() {
-
-
-        private var ringtones = emptyList<NewRingstone>() // Cached copy of words
-
-        inner class RingtoneViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-            val titleTextView: TextView = itemView.findViewById(R.id.ringtone_share_card)
-            val tagTextView: TextView = itemView.findViewById(R.id.ringtone_share_tag)
-        }
-
-        internal fun setRingtones(ringtones: List<NewRingstone>) {
-            this.ringtones = ringtones
-            notifyDataSetChanged()
-        }
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RingtoneViewHolder {
-//            val itemView = inflater.inflate(R.layout.ringbox, parent, false)
-//            return RingtoneViewHolder(itemView)
-
-            val v = LayoutInflater.from(parent.context).inflate(R.layout.ringbox, parent, false)
-            return RingtoneViewHolder(v)
-        }
-
-        override fun onBindViewHolder(holder: RingtoneViewHolder, position: Int) {
-            val current = ringtones[position]
-            holder.titleTextView.text = current.title
-            holder.tagTextView.text = current.des
-
-            holder.titleTextView.setOnClickListener {
-                ringtoneViewModel.delete(current)
-            }
-        }
-
-        override fun getItemCount(): Int {
-            return ringtones.size
-        }
-
-    }
 
     companion object {
         val NEW_WORD_ACTIVITY_REQUEST_CODE = 1
 
-        lateinit var ringtoneViewModel: RingtoneViewModel
+
     }
 
 

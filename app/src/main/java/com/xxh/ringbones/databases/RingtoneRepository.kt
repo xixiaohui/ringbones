@@ -28,6 +28,11 @@ class RingtoneRepository(application: Application) {
         insertAsyncTask(ringtoneDao).execute(newRingstone)
     }
 
+    fun insertRingtoneList(ringtones: List<NewRingstone>) {
+        insertRingtoneListAsyncTask(ringtoneDao).execute(ringtones)
+    }
+
+
     fun getRingtoneByTitle(title: String): NewRingstone {
         val ringtone = ringtoneDao.loadRingtoneByTitle(title)
         return ringtone
@@ -35,6 +40,43 @@ class RingtoneRepository(application: Application) {
 
     fun delete(newRingstone: NewRingstone){
         deleteAsyncTask(ringtoneDao).execute(newRingstone)
+    }
+
+    fun update(newRingstone: NewRingstone){
+        updateAsyncTask(ringtoneDao).execute(newRingstone)
+    }
+
+    private class updateAsyncTask(val dao: RingtoneDao) : AsyncTask<NewRingstone, Void, Void>() {
+        private var mAsyncTaskDao: RingtoneDao? = null
+
+        init {
+            mAsyncTaskDao = dao
+        }
+
+        override fun doInBackground(vararg params: NewRingstone): Void? {
+            mAsyncTaskDao!!.update(params[0])
+            return null
+        }
+    }
+
+
+    private class insertRingtoneListAsyncTask(val dao: RingtoneDao) : AsyncTask<List<NewRingstone>, Void, Void>() {
+        private var mAsyncTaskDao: RingtoneDao? = null
+
+        init {
+            mAsyncTaskDao = dao
+        }
+
+        override fun doInBackground(vararg params: List<NewRingstone>): Void? {
+
+            val ringtones = params[0]
+
+            ringtones.forEach{
+                mAsyncTaskDao!!.insert(it)
+            }
+
+            return null
+        }
     }
 
 

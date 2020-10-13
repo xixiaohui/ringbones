@@ -7,9 +7,8 @@ import com.xxh.ringbones.data.NewRingstone
 @Dao
 interface RingtoneDao{
 
-    @Query("SELECT * FROM ringtone")
+    @Query("SELECT * FROM ringtone ORDER BY id ASC")
     fun getAll(): LiveData<List<NewRingstone>>
-
 
     @Query("SELECT * FROM ringtone Where  title = :title")
     fun loadRingtoneByTitle(title: String): NewRingstone
@@ -25,6 +24,9 @@ interface RingtoneDao{
 
     @Delete
     fun delete(newRingstone: NewRingstone)
+
+    @Update
+    fun update(newRingstone: NewRingstone)
 
     @Query("DELETE FROM ringtone")
     fun deleteAll()

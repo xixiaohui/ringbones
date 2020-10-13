@@ -9,6 +9,7 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.ProgressBar
 import com.xxh.ringbones.R
+import com.xxh.ringbones.adapter.RingstoneHolder
 import com.xxh.ringbones.fragments.MainFragment
 import com.xxh.ringbones.fragments.PlayFragment
 
@@ -120,7 +121,7 @@ class MyMediaPlayerManager() {
         }
     }
 
-    class MediaTaskSecond(private val holder: MainFragment.RingstoneHolder) :
+    class MediaTaskSecond(private val holder: RingstoneHolder) :
         AsyncTask<String, Integer, MediaPlayer>() {
 
         var mProgressBar: ProgressBar? = null
@@ -168,6 +169,4 @@ class MyMediaPlayerManager() {
             mPlay!!.tag = "select"
         }
     }
-
-
 }

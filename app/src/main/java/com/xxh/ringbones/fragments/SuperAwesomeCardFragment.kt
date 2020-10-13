@@ -38,6 +38,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.xxh.ringbones.R
+import com.xxh.ringbones.adapter.RingstoneHolder
+import com.xxh.ringbones.adapter.RingtoneListAdapter
 import com.xxh.ringbones.daos.RingtoneDao
 import com.xxh.ringbones.data.NewRingstone
 import com.xxh.ringbones.databases.RingtoneRepository
@@ -45,8 +47,10 @@ import com.xxh.ringbones.databases.RingtoneRoomDatabase
 import com.xxh.ringbones.databinding.FragmentSuperAwesomeCardBinding
 import com.xxh.ringbones.models.RingtoneViewModel
 import com.xxh.ringbones.utils.*
+import org.json.JSONArray
 import java.io.File
 import java.io.RandomAccessFile
+import java.util.*
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -72,13 +76,17 @@ class SuperAwesomeCardFragment : Fragment() {
     private var currentUrl = ""
     private lateinit var recyclerView: RecyclerView
     private var playView: ImageView? = null
-    private var oldViewHolder: MainFragment.RingstoneHolder? = null
+    private var oldViewHolder: RingstoneHolder? = null
 
     var myBroadcastReceiver: MyBroadcastReceiver? = null
 
 //    private lateinit var ringtoneViewModel: RingtoneViewModel
 
     private lateinit var ringtoneViewModel: RingtoneViewModel
+
+    private lateinit var keyword: String
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,10 +95,11 @@ class SuperAwesomeCardFragment : Fragment() {
         }
         mediaHolder = MediaHolder(requireContext())
 
-        this.ringtonesArray = MainFragment.prepareRingtonesData(
+        this.ringtonesArray = prepareRingtonesData(
             requireContext(),
             "rings/${ringFileList[position!!]}.json"
         )
+        keyword = ringFileList[position!!]
 
         var wm = this.requireActivity().windowManager
         var outMetrics: DisplayMetrics = DisplayMetrics()
@@ -105,10 +114,7 @@ class SuperAwesomeCardFragment : Fragment() {
             myBroadcastReceiver!!,
             IntentFilter(SuperAwesomeCardFragment.ACTION_THREAD_STATUS)
         )
-
         activityForSetRingtone = this.requireActivity()
-
-        this.ringtoneViewModel = ViewModelProvider(this.requireActivity()).get(RingtoneViewModel::class.java)
 
 
     }
@@ -123,11 +129,10 @@ class SuperAwesomeCardFragment : Fragment() {
         rootView = binding.root
 
         recyclerView = binding.root.findViewById<RecyclerView>(R.id.ring_list)
-
         recyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext())
             setHasFixedSize(true)
-            adapter = MainFragment.ListAdapter(ringtonesArray,
+            adapter = RingtoneListAdapter(null,
                 { ringstone, holder, position ->
                     ringstoneItemClicked(ringstone, holder, position)
                 },
@@ -136,21 +141,34 @@ class SuperAwesomeCardFragment : Fragment() {
             setItemViewCacheSize(1000)
         }
 
+        this.ringtoneViewModel =
+            ViewModelProvider(this.requireActivity()).get(RingtoneViewModel::class.java)
+
+        val adapter = recyclerView.adapter as RingtoneListAdapter
+        ringtoneViewModel.getAllRingtones().observe(this.requireActivity(), Observer { ringtones ->
+
+            ringtones?.let { rings ->
+                val desRingtones = rings.filter { it.des.startsWith(keyword) }
+                adapter.setRingtones(desRingtones)
+            }
+        })
+
+
+
         return binding.root
     }
 
     private fun clickFavButton(newRingstone: NewRingstone, select: Boolean) {
+        val id = newRingstone.ringtoneId
+        Log.i(TAG, "newRingstone.ringtoneId =$id")
         //选中就插入
         if (select) {
-
-//            var newRingstone2 = NewRingstone(newRingstone.title,newRingstone.des,newRingstone.url)
-//            this.ringtoneViewModel.insert(newRingstone2)
-
-            this.ringtoneViewModel.insert(newRingstone)
-
+//            this.ringtoneViewModel.insert(newRingstone)
         } else {
 //            ringtoneViewModel.delete(newRingstone)
         }
+        newRingstone.isFav = select
+        ringtoneViewModel.update(newRingstone)
     }
 
     @RequiresApi(Build.VERSION_CODES.KITKAT)
@@ -220,15 +238,14 @@ class SuperAwesomeCardFragment : Fragment() {
                     intent,
                     CODE_WRITE_SETTINGS_PERMISSION
                 )
-//                startActivity(intent)
-                Log.i(TAG, "youDesirePermissionCode....1")
+
             } else {
                 ActivityCompat.requestPermissions(
                     activity,
                     arrayOf(Manifest.permission.WRITE_SETTINGS),
                     CODE_WRITE_SETTINGS_PERMISSION
                 )
-                Log.i(TAG, "youDesirePermissionCode....2")
+
             }
         }
     }
@@ -254,10 +271,11 @@ class SuperAwesomeCardFragment : Fragment() {
                 this.requireContext()
             )
         ) {
-            Log.d(TAG, "MainActivity.CODE_WRITE_SETTINGS_PERMISSION success..1")
+
 
         }
     }
+
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -268,7 +286,7 @@ class SuperAwesomeCardFragment : Fragment() {
         if (requestCode == CODE_WRITE_SETTINGS_PERMISSION &&
             grantResults[0] == PackageManager.PERMISSION_GRANTED
         ) {
-            Log.d(TAG, "MainActivity.CODE_WRITE_SETTINGS_PERMISSION success..2")
+
         }
     }
 
@@ -309,7 +327,7 @@ class SuperAwesomeCardFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.KITKAT)
     private fun ringstoneItemClicked(
         ringstone: NewRingstone,
-        holder: MainFragment.RingstoneHolder,
+        holder: RingstoneHolder,
         position: Int,
     ) {
 
@@ -374,7 +392,7 @@ class SuperAwesomeCardFragment : Fragment() {
         imageView: ImageView,
         progressBar: ProgressBar?,
         url: String,
-        holder: MainFragment.RingstoneHolder,
+        holder: RingstoneHolder,
     ) {
         imageView.tag = "Loading"
         progressBar?.visibility = View.VISIBLE
@@ -435,9 +453,7 @@ class SuperAwesomeCardFragment : Fragment() {
             }
 
             override fun onAnimationEnd(animation: Animator?) {
-//                backgroundView!!.visibility = View.INVISIBLE
                 backgroundView!!.layoutParams.width = 0
-
             }
 
             override fun onAnimationCancel(animation: Animator?) {
@@ -454,15 +470,13 @@ class SuperAwesomeCardFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
-//        Log.i(TAG,"onResume")
-
         mediaHolder!!.resume()
+
+        this.recyclerView.adapter!!.notifyDataSetChanged()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-//        Log.i(TAG,"onDestroy")
-
         mediaHolder!!.release()
 
         LocalBroadcastManager.getInstance(requireContext())
@@ -472,14 +486,13 @@ class SuperAwesomeCardFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.KITKAT)
     override fun onPause() {
         super.onPause()
-//        Log.i(TAG,"onPause")
-
         if (mediaHolder!!.isPlaying()) {
             this.playView!!.tag = "Pause"
             this.playView!!.setImageResource(R.drawable.ic_play)
             mediaHolder!!.pause()
             valueAnimator.pause()
         }
+        this.recyclerView.adapter!!.notifyDataSetChanged()
     }
 
     override fun onStop() {
@@ -575,9 +588,36 @@ class SuperAwesomeCardFragment : Fragment() {
                     putInt(ARG_PARAM1, position)
                 }
             }
+
+        fun prepareRingtonesData(context: Context, fileName: String): MutableList<NewRingstone> {
+            var ringtonesArray = mutableListOf<NewRingstone>()
+
+            val jsonString = LocalJsonResolutionUtils.getJson(
+                context,
+                fileName
+            )
+
+            val jsonArray: JSONArray = LocalJsonResolutionUtils.getJsonArray(jsonString)
+
+            val len = jsonArray.length() - 1
+
+            for (i in 0..len) {
+                var jsonObject = jsonArray.getJSONObject(i)
+                var newRingstone = LocalJsonResolutionUtils.jsonToObject(
+                    jsonObject.toString(),
+                    NewRingstone::class.java
+                )
+                newRingstone.tag = "test"
+//                newRingstone.ringtoneId = UUID.randomUUID().toString()
+                newRingstone.ringtoneId = 0
+
+                ringtonesArray.add(newRingstone)
+            }
+            return ringtonesArray
+        }
     }
 
-    fun test(newRingstone: NewRingstone){
+    fun test(newRingstone: NewRingstone) {
         val replyIntent = Intent()
         replyIntent.putExtra(EXTRA_REPLY, Gson().toJson(newRingstone))
         this.requireActivity().setResult(AppCompatActivity.RESULT_OK, replyIntent)

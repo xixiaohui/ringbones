@@ -17,7 +17,6 @@ class RingtoneViewModel(application: Application) : AndroidViewModel(application
     private val allRingtones: LiveData<List<NewRingstone>>
 
     init {
-
         repository = RingtoneRepository(application)
         allRingtones = repository.getAllRingtones()
     }
@@ -25,6 +24,10 @@ class RingtoneViewModel(application: Application) : AndroidViewModel(application
 
     fun insert(newRingstone: NewRingstone) {
         repository.insert(newRingstone)
+    }
+
+    fun insertRingtoneList(ringtones: List<NewRingstone>){
+        repository.insertRingtoneList(ringtones)
     }
 
     fun delete(newRingstone: NewRingstone){
@@ -39,6 +42,10 @@ class RingtoneViewModel(application: Application) : AndroidViewModel(application
         repository
     }
 
+
+    fun update(newRingstone: NewRingstone){
+        repository.update(newRingstone)
+    }
 
 
 }
