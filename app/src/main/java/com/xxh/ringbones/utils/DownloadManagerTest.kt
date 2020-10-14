@@ -22,8 +22,7 @@ class DownloadManagerTest {
         fun download(
             context: Context,
             downloadUrl: String,
-            fileName: String,
-            hasExtention: Boolean = false
+            fileName: String
         ): Long? {
 
             //创建下载任务，downloadUrl就是下载链接
@@ -35,12 +34,8 @@ class DownloadManagerTest {
             }
 
             //指定下载路径和下载文件名
-            var dustFileName = "$fileName"
-            if (!hasExtention) {
-                dustFileName = "$fileName.mp3"
-            }
             request.setDestinationInExternalPublicDir(
-                Environment.DIRECTORY_RINGTONES, dustFileName
+                Environment.DIRECTORY_RINGTONES, fileName
             )
 
             //获取下载管理器
@@ -63,7 +58,7 @@ class DownloadManagerTest {
                 val mManager: DownloadManager =
                     context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
 
-                val idDownLoad:Long? = download(context,downloadUrl, fileName,hasExtention)
+                val idDownLoad:Long? = download(context,downloadUrl, fileName)
                 var query: DownloadManager.Query? = null
                 query = DownloadManager.Query()
                 var c: Cursor? = null

@@ -60,6 +60,7 @@ class KotlinUtils {
             return "$path${File.separator}$name"
         }
 
+        //包含后缀.mp3
         fun getFileNameFromUrl(url: String): String? {
 //        var filename = url.substring(url.lastIndexOf('/')+1);
             return url.substring(url.lastIndexOf("/") + 1)
