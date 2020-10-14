@@ -154,11 +154,7 @@ class SuperAwesomeCardFragment : Fragment() {
             ViewModelProvider(this.requireActivity()).get(RingtoneViewModel::class.java)
 
         val adapter = recyclerView.adapter as RingtoneListAdapter
-//        ringtoneViewModel.getAllRingtones().observe(this.requireActivity(), Observer { ringtones ->
-//            ringtones?.let { rings ->
-//                adapter.setRingtones(rings.filter { it.des.startsWith(keyword) })
-//            }
-//        })
+
         this.setAdapterData(this.ringtoneViewModel,adapter)
         return binding.root
     }
@@ -209,9 +205,6 @@ class SuperAwesomeCardFragment : Fragment() {
 
     @RequiresApi(Build.VERSION_CODES.KITKAT)
     private fun setRingtone(ringstone: NewRingstone, url: String) {
-
-//        Log.i(TAG, url)
-
         val context = requireActivity()
         if (Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(
                 context, Manifest.permission.READ_EXTERNAL_STORAGE
@@ -365,7 +358,12 @@ class SuperAwesomeCardFragment : Fragment() {
         position: Int,
     ) {
 
-        val url = ringstone.url
+        var url = ringstone.url
+        if (whichactivity == WHICHACTIVITY.DOWNLOAD_ACTIVITY.ordinal){
+            url = KotlinUtils.getRingtoneLocalPath(url)
+            Log.i(TAG,"$url")
+        }
+
         //换了一个歌曲
         if (this.currentUrl != url && this.currentUrl != "") {
             mediaHolder!!.reset(object : MediaHolder.MediaAction {

@@ -17,6 +17,7 @@ private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 
 /**
+ * 重要 不能删！！！
  * A simple [Fragment] subclass.
  * Use the [PageViewFragment.newInstance] factory method to
  * create an instance of this fragment.
@@ -34,7 +35,6 @@ class PageViewFragment : Fragment() {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
-
     }
 
     override fun onCreateView(
@@ -75,7 +75,6 @@ class PageViewFragment : Fragment() {
     }
 
     class MyPagerAdapter : FragmentPagerAdapter {
-
 
         constructor(fm: FragmentManager, behavior: Int) : super(fm, behavior) {
 

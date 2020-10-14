@@ -43,15 +43,8 @@ class KotlinUtils {
             val ringtoneHolder: File? =
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_RINGTONES)
             val ringtontlist: Array<File> = ringtoneHolder!!.listFiles()
-//            for (file in ringtontlist) {
-//                val name = file.name
-//                val path = file.absolutePath
-//                Log.i("getDownloadRingtoneList","$name  $path")
-//            }
-
             return ringtontlist
         }
-
 
         fun getDownloadRingtoneList(context: Context): MutableList<String>{
             val ringtontList: Array<File> = getDownloadRingtoneFileList(context)
@@ -62,6 +55,13 @@ class KotlinUtils {
                 names.add("$value$name")
             }
             return names
+        }
+
+        fun getRingtoneLocalPath(ringtone_url: String): String{
+
+            val name = ringtone_url.split("/").last()
+            val path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_RINGTONES).absolutePath
+            return "$path${File.separator}$name"
         }
 
     }
