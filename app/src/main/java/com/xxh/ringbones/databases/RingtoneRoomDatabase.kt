@@ -11,7 +11,7 @@ import com.xxh.ringbones.data.NewRingstone
 import com.xxh.ringbones.fragments.SuperAwesomeCardFragment
 
 
-@Database(entities = [NewRingstone::class], version = 5, exportSchema = false)
+@Database(entities = [NewRingstone::class], version = 1, exportSchema = false)
 abstract class RingtoneRoomDatabase : RoomDatabase() {
 
     abstract fun ringtoneDao(): RingtoneDao

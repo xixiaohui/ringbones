@@ -62,10 +62,6 @@ class DownloadManagerTest {
             return try {
                 val mManager: DownloadManager =
                     context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-//                val mRqRequest = DownloadManager.Request(
-//                    Uri.parse("http://" + getDownloadURL())
-//                )
-//                val idDownLoad: Long = mManager.enqueue(mRqRequest)
 
                 val idDownLoad:Long? = download(context,downloadUrl, fileName,hasExtention)
                 var query: DownloadManager.Query? = null
@@ -102,51 +98,6 @@ class DownloadManagerTest {
                 flag = false
                 flag
             }
-        }
-
-
-
-        fun onProcessLoadingState(context: Context,sendbroadcast:(String)->Unit) {
-
-            var query: DownloadManager.Query? = null
-            var c: Cursor? = null
-            val downloadManager: DownloadManager =
-                context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-            query = DownloadManager.Query()
-            if (query != null) {
-                query.setFilterByStatus(
-                    DownloadManager.STATUS_FAILED or DownloadManager.STATUS_PAUSED or DownloadManager.STATUS_SUCCESSFUL or
-                            DownloadManager.STATUS_RUNNING or DownloadManager.STATUS_PENDING
-                )
-            } else {
-                return
-            }
-
-            c = downloadManager.query(query)
-
-            if (c.moveToFirst()) {
-                var status = c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS))
-                when (status) {
-                    DownloadManager.STATUS_PAUSED -> {
-                        Log.i("onProcessLoadingState", "DownloadManager.STATUS_PAUSED")
-                    }
-                    DownloadManager.STATUS_PENDING -> {
-                        Log.i("onProcessLoadingState", "DownloadManager.STATUS_PENDING")
-                    }
-                    DownloadManager.STATUS_RUNNING -> {
-                        Log.i("onProcessLoadingState", "DownloadManager.STATUS_RUNNING")
-                    }
-                    DownloadManager.STATUS_SUCCESSFUL -> {
-                        Log.i("onProcessLoadingState", "DownloadManager.STATUS_SUCCESSFUL")
-                        sendbroadcast("DownloadManager.STATUS_SUCCESSFUL")
-                    }
-                    DownloadManager.STATUS_FAILED -> {
-                        Log.i("onProcessLoadingState", "DownloadManager.STATUS_FAILED")
-                    }
-
-                }
-            }
-
         }
     }
 

@@ -23,25 +23,18 @@ class MyIntentService(name: String? = "MyIntentService") : IntentService(name) {
 
         val url = intent!!.getStringExtra(MyIntentService.URL)
         val filename = intent!!.getStringExtra(MyIntentService.FILENAME)
+
         Log.i(TAG, "url = $url")
         Log.i(TAG, "filename = $filename")
 
-
         //下载铃声
-
-//        DownloadManagerTest.download(this.baseContext,url,filename,true)
-
         DownloadManagerTest.doInBackground(this.baseContext,
             url,
             filename,
-            true) { status,filename -> sendThreadStatus(status,filename) }
-
-//        Log.i(TAG,"onHandleIntent done!")
-//        Log.i(TAG,"===================")
-
+            true) { status, filename -> sendThreadStatus(status, filename) }
     }
 
-    private fun sendThreadStatus(status: Int,filename: String) {
+    private fun sendThreadStatus(status: Int, filename: String) {
         var intent = Intent(SuperAwesomeCardFragment.ACTION_THREAD_STATUS)
         intent.putExtra(STATUS, status)
         intent.putExtra(FILENAME, filename)

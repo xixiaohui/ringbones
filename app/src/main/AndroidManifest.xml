@@ -36,14 +36,17 @@
             </intent-filter>
         </activity>
         <activity android:name=".AboutActivity"></activity>
-        <activity android:name=".SearchActivity" />
+        <activity android:name=".SearchActivity" >
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+            <meta-data android:name="android.app.searchable"
+                android:resource="@xml/searchable"/>
+        </activity>
         <activity android:name=".SettingsActivity"/>
         <activity android:name=".DownloadActivity" />
         <activity android:name=".FavActivity" />
 
-        <service
-            android:name=".utils.DownloadServise"
-            tools:ignore="Instantiatable" />
         <service
             android:name=".utils.MyIntentService"
             tools:ignore="Instantiatable" />

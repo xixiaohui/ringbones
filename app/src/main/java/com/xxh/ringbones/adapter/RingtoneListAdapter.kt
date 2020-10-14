@@ -44,9 +44,8 @@ class RingtoneListAdapter(
         val ringstone: NewRingstone = data!![position]
         holder.bind(ringstone, clickPlayListener, position, clickSetListener, clickFavListener)
 
-        if (ringstone.isFav) {
-            holder.setFavButtonSelect()
-        }
+        holder.setFavButtonSelect(ringstone.isFav)
+
     }
 
     internal fun setRingtones(ringtones: List<NewRingstone>) {
@@ -105,9 +104,16 @@ class RingstoneHolder(itemView: View) :
         mPlay!!.setImageResource(R.drawable.ic_play)
     }
 
-    fun setFavButtonSelect(){
-        mHeart!!.tag = KotlinUtils.SELECT
-        mHeart!!.setImageResource(R.drawable.heart)
+    fun setFavButtonSelect(select: Boolean){
+
+        if(select){
+            mHeart!!.tag = KotlinUtils.SELECT
+            mHeart!!.setImageResource(R.drawable.heart)
+        }else{
+            mHeart!!.tag = KotlinUtils.UNSELECT
+            mHeart!!.setImageResource(R.drawable.emptyheart)
+        }
+
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)

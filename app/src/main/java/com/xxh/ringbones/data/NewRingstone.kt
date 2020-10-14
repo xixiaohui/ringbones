@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 import java.util.*
 
 
-@Entity(tableName = "ringtone",primaryKeys = arrayOf("title", "id"))
+@Entity(tableName = "ringtone",primaryKeys = ["title", "id"])
 data class NewRingstone(
 
     @ColumnInfo(name = "title")
@@ -24,9 +24,7 @@ data class NewRingstone(
     @ColumnInfo
     var isFav: Boolean = false,
 
-
     @ColumnInfo(name = "id")
-//    var ringtoneId: String = UUID.randomUUID().toString()
     var ringtoneId: Int = 0,
 ) {
 
