@@ -6,12 +6,8 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Environment
-import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.Observer
-import com.xxh.ringbones.data.NewRingstone
-import com.xxh.ringbones.models.RingtoneViewModel
 import java.io.File
 
 class KotlinUtils {
@@ -64,5 +60,9 @@ class KotlinUtils {
             return "$path${File.separator}$name"
         }
 
+        fun getFileNameFromUrl(url: String): String? {
+//        var filename = url.substring(url.lastIndexOf('/')+1);
+            return url.substring(url.lastIndexOf("/") + 1)
+        }
     }
 }

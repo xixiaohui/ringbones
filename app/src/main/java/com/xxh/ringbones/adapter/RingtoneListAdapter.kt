@@ -45,7 +45,8 @@ class RingtoneListAdapter(
         holder.bind(ringstone, clickPlayListener, position, clickSetListener, clickFavListener)
 
         holder.setFavButtonSelect(ringstone.isFav)
-
+        holder.setBackgroundVisibility(View.INVISIBLE)
+        holder.setPlayerButtonPlay()
     }
 
     internal fun setRingtones(ringtones: List<NewRingstone>) {
@@ -165,8 +166,9 @@ class RingstoneHolder(itemView: View) :
                 .setPositiveButton(it.context.resources.getString(R.string.ok)) { dialog, which ->
                     // Respond to positive button press
                     var url = ringstone.url
-                    var title = ringstone.title
-                    DownloadManagerTest.download(it.context, url, title)
+
+                    var title = KotlinUtils.getFileNameFromUrl(ringstone.url)
+                    DownloadManagerTest.download(it.context, url, title!!)
                 }
                 .show()
         }

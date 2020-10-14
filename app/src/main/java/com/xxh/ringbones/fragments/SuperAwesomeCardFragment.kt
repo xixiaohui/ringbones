@@ -172,9 +172,14 @@ class SuperAwesomeCardFragment : Fragment() {
             }
             WHICHACTIVITY.FAV_ACTVITY.ordinal->{
                 ringtoneViewModel.getAllRingtones().observe(this.requireActivity(), Observer { ringtones ->
+
+
+
                     ringtones?.let { rings ->
                         adapter.setRingtones(rings.filter { it.isFav })
                     }
+
+                    recoveryUiState()
                 })
             }
             WHICHACTIVITY.DOWNLOAD_ACTIVITY.ordinal ->{
@@ -231,12 +236,7 @@ class SuperAwesomeCardFragment : Fragment() {
     }
 
 
-    fun downloadFile(activity: Activity, ringstone: NewRingstone) {
-        val filename = Utils.getFileNameFromUrl(ringstone.url)
-        Log.i(TAG, filename)
-        val url = ringstone.url
-        DownloadManagerTest.download(activity.baseContext, url, filename, true)
-    }
+
 
     @RequiresApi(Build.VERSION_CODES.KITKAT)
     fun myDesirePermissionCode(activity: Activity, ringstone: NewRingstone) {
@@ -252,8 +252,8 @@ class SuperAwesomeCardFragment : Fragment() {
             //do your code
             Log.i(TAG, "获得了写入权限")
 
-            val filename = Utils.getFileNameFromUrl(ringstone.url)
-            if (!RingtoneAction.fileIsExistsInRingtonesHolder(filename)) {
+            val filename = KotlinUtils.getFileNameFromUrl(ringstone.url)
+            if (!RingtoneAction.fileIsExistsInRingtonesHolder(filename!!)) {
                 startDownloadService(activity, ringstone)
             } else {
                 RingtoneAction.setMyRingtoneWithFileName(activityForSetRingtone, filename)
@@ -282,7 +282,7 @@ class SuperAwesomeCardFragment : Fragment() {
     private fun startDownloadService(activity: Activity, ringstone: NewRingstone) {
         var intent = Intent(activity, MyIntentService(ringstone.title)::class.java)
 
-        val filename = Utils.getFileNameFromUrl(ringstone.url)
+        val filename = KotlinUtils.getFileNameFromUrl(ringstone.url)
         intent.putExtra(MyIntentService.URL, ringstone.url)
         intent.putExtra(MyIntentService.FILENAME, filename)
 
@@ -347,6 +347,18 @@ class SuperAwesomeCardFragment : Fragment() {
         }
     }
 
+
+    fun recoveryUiState(){
+        mediaHolder!!.reset(object : MediaHolder.MediaAction {
+            override fun doAction() {
+                valueAnimator.removeAllListeners()
+                valueAnimator.cancel()
+            }
+        })
+        if(this.oldViewHolder !=null){
+            this.oldViewHolder!!.reset()
+        }
+    }
     /**
      * 状态：  Normal / Loading / Play / Pause / End
      *
@@ -366,14 +378,10 @@ class SuperAwesomeCardFragment : Fragment() {
 
         //换了一个歌曲
         if (this.currentUrl != url && this.currentUrl != "") {
-            mediaHolder!!.reset(object : MediaHolder.MediaAction {
-                override fun doAction() {
-                    valueAnimator.removeAllListeners()
-                    valueAnimator.cancel()
-                }
-            })
+
+            recoveryUiState()
             this.currentUrl = url
-            this.oldViewHolder!!.reset()
+
             this.ringstoneItemClicked(ringstone, holder, position)
             return
         }

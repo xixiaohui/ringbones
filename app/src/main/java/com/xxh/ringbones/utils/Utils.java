@@ -38,12 +38,11 @@ public class Utils {
 
 
     //https://www.tonesmp3.com/ringtones/bulati-hai-magar-jaane-ka-nahin.mp3
-    public static String getFileNameFromUrl(String url) {
-//        var filename = url.substring(url.lastIndexOf('/')+1);
-
-        String filename = url.substring(url.lastIndexOf("/") + 1);
-        return filename;
-    }
+//    public static String getFileNameFromUrl(String url) {
+//
+//        String filename = url.substring(url.lastIndexOf("/") + 1);
+//        return filename;
+//    }
 
 
 
