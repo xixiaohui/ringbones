@@ -117,6 +117,11 @@ class RingstoneHolder(itemView: View) :
 
     }
 
+    fun setButtonToNull(){
+        mSet!!.tag = KotlinUtils.UNSELECT
+        mSet!!.setImageResource(R.drawable.notification)
+    }
+
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     fun bind(
         ringstone: NewRingstone,
