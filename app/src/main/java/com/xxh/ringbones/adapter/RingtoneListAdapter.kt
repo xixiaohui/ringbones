@@ -14,7 +14,7 @@ import com.xxh.ringbones.R
 import com.xxh.ringbones.data.NewRingstone
 
 import com.xxh.ringbones.utils.DownloadManagerTest
-import com.xxh.ringbones.utils.KotlinUtils
+import com.xxh.ringbones.utils.RingtoneActionUtils
 
 class RingtoneListAdapter(
     private var data: MutableList<NewRingstone>?,
@@ -108,17 +108,17 @@ class RingstoneHolder(itemView: View) :
     fun setFavButtonSelect(select: Boolean){
 
         if(select){
-            mHeart!!.tag = KotlinUtils.SELECT
+            mHeart!!.tag = RingtoneActionUtils.SELECT
             mHeart!!.setImageResource(R.drawable.heart)
         }else{
-            mHeart!!.tag = KotlinUtils.UNSELECT
+            mHeart!!.tag = RingtoneActionUtils.UNSELECT
             mHeart!!.setImageResource(R.drawable.emptyheart)
         }
 
     }
 
     fun setButtonToNull(){
-        mSet!!.tag = KotlinUtils.UNSELECT
+        mSet!!.tag = RingtoneActionUtils.UNSELECT
         mSet!!.setImageResource(R.drawable.notification)
     }
 
@@ -134,27 +134,27 @@ class RingstoneHolder(itemView: View) :
         mTag?.text = ringstone.des
 
         mSet?.setOnClickListener {
-            if (mSet!!.tag == KotlinUtils.UNSELECT) {
+            if (mSet!!.tag == RingtoneActionUtils.UNSELECT) {
                 var url = ringstone.url
                 clickSetListener(ringstone, url)
 
-                mSet!!.tag = KotlinUtils.SELECT
+                mSet!!.tag = RingtoneActionUtils.SELECT
                 mSet!!.setImageResource(R.drawable.ring)
             } else {
-                mSet!!.tag = KotlinUtils.UNSELECT
+                mSet!!.tag = RingtoneActionUtils.UNSELECT
                 mSet!!.setImageResource(R.drawable.notification)
             }
         }
 
         mHeart?.setOnClickListener {
-            if (mHeart!!.tag == KotlinUtils.UNSELECT) {
-                mHeart!!.tag = KotlinUtils.SELECT
+            if (mHeart!!.tag == RingtoneActionUtils.UNSELECT) {
+                mHeart!!.tag = RingtoneActionUtils.SELECT
                 mHeart!!.setImageResource(R.drawable.heart)
             } else {
-                mHeart!!.tag = KotlinUtils.UNSELECT
+                mHeart!!.tag = RingtoneActionUtils.UNSELECT
                 mHeart!!.setImageResource(R.drawable.emptyheart)
             }
-            clickFavListener(ringstone, mHeart!!.tag == KotlinUtils.SELECT)
+            clickFavListener(ringstone, mHeart!!.tag == RingtoneActionUtils.SELECT)
         }
 
         mPlay?.setOnClickListener {
@@ -172,7 +172,7 @@ class RingstoneHolder(itemView: View) :
                     // Respond to positive button press
                     var url = ringstone.url
 
-                    var title = KotlinUtils.getFileNameFromUrl(ringstone.url)
+                    var title = RingtoneActionUtils.getFileNameFromUrl(ringstone.url)
                     DownloadManagerTest.download(it.context, url, title!!)
                 }
                 .show()

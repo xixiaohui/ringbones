@@ -239,67 +239,6 @@ public final class RingtoneUtils {
         }
     }
 
-//    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-//    public static Uri addCustomExternalRingtone(@NonNull final Context mContext, @NonNull final Uri fileUri, final int type)
-//            throws FileNotFoundException, IllegalArgumentException, IOException {
-////        this.fileUri = fileUri;
-////        this.type = type;
-//        if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-//            throw new IOException("External storage is not mounted. Unable to install ringtones.");
-//        }
-//
-//        // Sanity-check: are we actually being asked to install an audio file?
-//        final String mimeType = mContext.getContentResolver().getType(fileUri);
-//        if(mimeType == null ||
-//                !(mimeType.startsWith("audio/") || mimeType.equals("application/ogg"))) {
-//            throw new IllegalArgumentException("Ringtone file must have MIME type \"audio/*\"."
-//                    + " Given file has MIME type \"" + mimeType + "\"");
-//        }
-//
-//        // Choose a directory to save the ringtone. Only one type of installation at a time is
-//        // allowed. Throws IllegalArgumentException if anything else is given.
-//        final String subdirectory = getExternalDirectoryForType(type);
-//
-//        // Find a filename. Throws FileNotFoundException if none can be found.
-//        final File outFile = Utils.getUniqueExternalFile(mContext, subdirectory,
-//                Utils.buildValidFatFilename(Utils.getFileDisplayNameFromUri(mContext, fileUri)),
-//                mimeType);
-//
-//        // Copy contents to external ringtone storage. Throws IOException if the copy fails.
-//        try (final InputStream input = mContext.getContentResolver().openInputStream(fileUri);
-//             final OutputStream output = new FileOutputStream(outFile)) {
-//            FileUtils.copy(input, output);
-//        }
-//
-//        // Tell MediaScanner about the new file. Wait for it to assign a {@link Uri}.
-//        return scanFile(mContext, outFile);
-//    }
-//
-//    public static final String SCAN_FILE_CALL = "scan_file";
-//
-//    public static final String EXTRA_ORIGINATED_FROM_SHELL =
-//            "android.intent.extra.originated_from_shell";
-//
-//    public static final String AUTHORITY = "media";
-//
-//    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-//    public static Uri scanFile(Context context, File file) {
-//        return scan(context, SCAN_FILE_CALL, file, false);
-//    }
-//
-//    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-//    private static Uri scan(Context context, String method, File file,
-//                            boolean originatedFromShell) {
-//        final ContentResolver resolver = context.getContentResolver();
-//        try (ContentProviderClient client = resolver.acquireContentProviderClient(AUTHORITY)) {
-//            final Bundle in = new Bundle();
-//            in.putParcelable(Intent.EXTRA_STREAM, Uri.fromFile(file));
-//            in.putBoolean(EXTRA_ORIGINATED_FROM_SHELL, originatedFromShell);
-//            final Bundle out = client.call(method, null, in);
-//            return out.getParcelable(Intent.EXTRA_STREAM);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
+
+
 }

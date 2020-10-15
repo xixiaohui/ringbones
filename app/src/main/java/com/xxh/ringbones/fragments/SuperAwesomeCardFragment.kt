@@ -11,8 +11,6 @@ import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
-import android.os.IBinder
 import android.provider.Settings
 import android.util.DisplayMetrics
 import android.util.Log
@@ -33,24 +31,16 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.room.Room
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.xxh.ringbones.R
 import com.xxh.ringbones.adapter.RingstoneHolder
 import com.xxh.ringbones.adapter.RingtoneListAdapter
-import com.xxh.ringbones.daos.RingtoneDao
 import com.xxh.ringbones.data.NewRingstone
-import com.xxh.ringbones.databases.RingtoneRepository
-import com.xxh.ringbones.databases.RingtoneRoomDatabase
 import com.xxh.ringbones.databinding.FragmentSuperAwesomeCardBinding
 import com.xxh.ringbones.models.RingtoneViewModel
 import com.xxh.ringbones.utils.*
 import org.json.JSONArray
-import java.io.File
-import java.io.RandomAccessFile
-import java.util.*
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -183,7 +173,7 @@ class SuperAwesomeCardFragment : Fragment() {
                 })
             }
             WHICHACTIVITY.DOWNLOAD_ACTIVITY.ordinal ->{
-                val names = KotlinUtils.getDownloadRingtoneList(context = this.requireContext())
+                val names = RingtoneActionUtils.getDownloadRingtoneList(context = this.requireContext())
                 ringtoneViewModel.getAllRingtones().observe(this.requireActivity(), Observer { ringtones ->
                     ringtones?.let { rings ->
                         adapter.setRingtones(rings.filter { it.url in names })
@@ -252,11 +242,11 @@ class SuperAwesomeCardFragment : Fragment() {
             //do your code
             Log.i(TAG, "获得了写入权限")
 
-            val filename = KotlinUtils.getFileNameFromUrl(ringstone.url)
-            if (!RingtoneAction.fileIsExistsInRingtonesHolder(filename!!)) {
+            val filename = RingtoneActionUtils.getFileNameFromUrl(ringstone.url)
+            if (!RingtoneActionUtils.fileIsExistsInRingtonesHolder(filename!!)) {
                 startDownloadService(activity, ringstone)
             } else {
-                RingtoneAction.setMyRingtoneWithFileName(activityForSetRingtone, filename)
+                RingtoneActionUtils.setMyRingtoneWithFileName(activityForSetRingtone, filename)
             }
 
         } else {
@@ -282,7 +272,7 @@ class SuperAwesomeCardFragment : Fragment() {
     private fun startDownloadService(activity: Activity, ringstone: NewRingstone) {
         var intent = Intent(activity, MyIntentService(ringstone.title)::class.java)
 
-        val filename = KotlinUtils.getFileNameFromUrl(ringstone.url)
+        val filename = RingtoneActionUtils.getFileNameFromUrl(ringstone.url)
         intent.putExtra(MyIntentService.URL, ringstone.url)
         intent.putExtra(MyIntentService.FILENAME, filename)
 
@@ -372,7 +362,7 @@ class SuperAwesomeCardFragment : Fragment() {
 
         var url = ringstone.url
         if (whichactivity == WHICHACTIVITY.DOWNLOAD_ACTIVITY.ordinal){
-            url = KotlinUtils.getRingtoneLocalPath(url)
+            url = RingtoneActionUtils.getRingtoneLocalPath(url)
             Log.i(TAG,"$url")
         }
 
@@ -563,7 +553,7 @@ class SuperAwesomeCardFragment : Fragment() {
                                 "Download successful.",
                                 Snackbar.LENGTH_LONG).show()
 
-                            RingtoneAction.setMyRingtoneWithFileName(activityForSetRingtone,
+                            RingtoneActionUtils.setMyRingtoneWithFileName(activityForSetRingtone,
                                 filename)
 
                         }

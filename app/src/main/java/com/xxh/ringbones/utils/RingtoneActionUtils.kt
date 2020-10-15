@@ -1,7 +1,9 @@
 package com.xxh.ringbones.utils
 
+import android.Manifest
 import android.app.Activity
 import android.content.*
+import android.content.pm.PackageManager
 import android.content.res.AssetFileDescriptor
 import android.database.Cursor
 import android.media.RingtoneManager
@@ -15,6 +17,8 @@ import android.text.TextUtils
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.loader.content.CursorLoader
 import androidx.viewbinding.ViewBinding
 import com.google.android.material.snackbar.Snackbar
@@ -25,11 +29,12 @@ import java.nio.channels.FileChannel
 import java.nio.file.Files
 
 
-class RingtoneAction {
+class RingtoneActionUtils {
 
     companion object {
         val TAG = "RingtoneAction"
-
+        val SELECT: String = "Select"
+        val UNSELECT: String = "unSelect"
 
 
         @RequiresApi(Build.VERSION_CODES.KITKAT)
@@ -181,280 +186,7 @@ class RingtoneAction {
         8、getExternalCacheDir().getAbsolutePath() = /storage/emulated/0/Android/data/packname/cache
         这个方法是获取某个应用在外部存储中的cache路径
          */
-//        fun getExternalHolder(context: Context) {
-//
-//            val path = Environment.getExternalStorageDirectory().absolutePath
-//            val path2 = Environment.getDataDirectory().absolutePath
-//            val path3 = context.getExternalFilesDir("")!!.absolutePath
-//            val path4 = context.externalCacheDir!!.absolutePath
-//            val path5 = Environment.getExternalStoragePublicDirectory("").absolutePath
-//
-//            val path6 = context.filesDir.absolutePath
-//            val path7 = context.getExternalFilesDir("")!!.absolutePath
-//            Log.e(TAG, path)
-//            Log.e(TAG, path2)
-//            Log.e(TAG, path3)
-//            Log.e(TAG, path4)
-//            Log.e(TAG, path5)
-//            Log.e(TAG, path6)
-//            Log.e(TAG, path7)
-//
-//        }
-//
-//        fun getFilePath(context: Context, dir: String): String? {
-//            var directoryPath: String? = ""
-//            directoryPath =
-//                if (MEDIA_MOUNTED == Environment.getExternalStorageState()) { //判断外部存储是否可用
-//                    context.getExternalFilesDir(dir)!!.absolutePath
-//                } else { //没外部存储就使用内部存储
-//                    context.filesDir.toString() + File.separator.toString() + dir
-//                }
-//
-//            val file = File(directoryPath)
-//            if (!file.exists()) { //判断文件目录是否存在
-//                file.mkdirs()
-//            }
-//            return directoryPath
-//        }
-//
-//
-//        fun getFileList() {
-//
-//
-//            var downloadDir: File? = null
-//            var ringtoneDir: File? = null
-//
-//            val sdCardExist =
-//                Environment.getExternalStorageState() == MEDIA_MOUNTED // 判断sd卡是否存在
-//
-//            if (sdCardExist) {
-////                downloadDir = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS)
-////                ringtoneDir =
-//
-////                copyTest()
-//                test(DIRECTORY_RINGTONES)
-//
-//
-//            }
-//
-//        }
-//
-//        fun getUri(activity: Activity, title: String?): Uri? {
-//            var ringtoneTitle = title
-//            val parcialUri = Uri.parse("content://media/external/audio/media")
-//            var finalSuccessfulUri: Uri? = null
-//            val rm = RingtoneManager(activity.applicationContext)
-//            val cursor = rm.cursor
-//            cursor.moveToFirst()
-//
-//            while (!cursor.isAfterLast) {
-//                if (ringtoneTitle!!.compareTo(
-//                        cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.TITLE)),
-//                        ignoreCase = true
-//                    ) == 0
-//                ) {
-//                    val ringtoneID =
-//                        cursor.getInt(cursor.getColumnIndex(MediaStore.MediaColumns._ID))
-//                    finalSuccessfulUri = Uri.withAppendedPath(parcialUri, "" + ringtoneID)
-//
-//                    return finalSuccessfulUri
-//                }
-//                cursor.moveToNext()
-//            }
-//            return finalSuccessfulUri
-//
-//        }
-//
-//        fun setRawFileToRingtone(context: Context) {
-//            val name = "LaAfareyeFi"
-//            val file = File(getExternalStorageDirectory(), "/Ringtones/")
-//            if (!file.exists()) {
-//                file.mkdirs()
-//            }
-//
-//            val path = getExternalStorageDirectory()
-//                .absolutePath + "/Ringtones/"
-//            val f = File("$path/", "$name.mp3")
-//            val mUri = Uri.parse(
-//                ("android.resource://"
-//                        + context.packageName) + "/raw/" + name
-//            )
-//            val mCr: ContentResolver = context.contentResolver
-//            val soundFile: AssetFileDescriptor?
-//            soundFile = try {
-//                mCr.openAssetFileDescriptor(mUri, "r")
-//            } catch (e: FileNotFoundException) {
-//                null
-//            }
-//
-//            try {
-//                val readData = ByteArray(1024)
-//                val fis = soundFile!!.createInputStream()
-//                val fos = FileOutputStream(f)
-//                var i = fis.read(readData)
-//                while (i != -1) {
-//                    fos.write(readData, 0, i)
-//                    i = fis.read(readData)
-//                }
-//                fos.close()
-//            } catch (io: IOException) {
-//            }
-//
-//            val values = ContentValues()
-//            values.put(MediaStore.MediaColumns.DATA, f.absolutePath)
-//            values.put(MediaStore.MediaColumns.TITLE, name)
-//            values.put(MediaStore.MediaColumns.MIME_TYPE, "audio/mp3")
-//            values.put(MediaStore.MediaColumns.SIZE, f.length())
-//            values.put(MediaStore.Audio.Media.ARTIST, R.string.app_name)
-//            values.put(MediaStore.Audio.Media.IS_RINGTONE, true)
-//            values.put(MediaStore.Audio.Media.IS_NOTIFICATION, true)
-//            values.put(MediaStore.Audio.Media.IS_ALARM, true)
-//            values.put(MediaStore.Audio.Media.IS_MUSIC, true)
-//
-//            val uri = MediaStore.Audio.Media.getContentUriForPath(f.absolutePath)
-//            val newUri = mCr.insert(uri, values)
-//
-//            try {
-//                RingtoneManager.setActualDefaultRingtoneUri(
-//                    context,
-//                    RingtoneManager.TYPE_RINGTONE, newUri
-//                )
-//                Settings.System.putString(mCr, Settings.System.RINGTONE, newUri.toString())
-//            } catch (t: Throwable) {
-//            }
-//        }
-//
-//        fun sendBroadcastTest(context: Context, path: String?, filename: String) {
-//            context.sendBroadcast(
-//                Intent(
-//                    Intent.ACTION_MEDIA_MOUNTED, Uri.parse(
-//                        "file://" + path + filename.toString() + ".mp3"
-//                                + getExternalStorageDirectory()
-//                    )
-//                )
-//            )
-//        }
-//
-//        fun getLocalRingtone(context: Context) {
-//            var localringtonguri = RingtoneManager.getActualDefaultRingtoneUri(
-//                context,
-//                RingtoneManager.TYPE_RINGTONE
-//            )
-//
-//            Log.i(TAG, localringtonguri.toString())
-//            Log.i(TAG, localringtonguri.path)
-//        }
 
-
-//        fun getFilesAllName(path: String?): List<String>? {
-//            val file = File(path)
-//            val files = file.listFiles()
-//            if (files == null) {
-//                Log.e("error", "空目录")
-//                return null
-//            }
-//            val s: MutableList<String> = ArrayList()
-//            for (i in files.indices) {
-//                s.add(files[i].absolutePath)
-//            }
-//            return s
-//        }
-//
-//        fun test(type: String) {
-//
-//            var sdDir: File? = Environment.getExternalStoragePublicDirectory(type)
-//            Log.e(TAG, sdDir.toString())
-//
-////            FileUtils.createDir(sdDir!!.path + File.separator + "first")
-//
-//            val s = getFilesAllName(sdDir!!.path)
-//            if (s == null) {
-//                Log.e("error", "空目录")
-//            } else {
-//                s!!.forEach {
-//                    Log.i(TAG, it)
-//                }
-//            }
-//        }
-//
-//        fun copyTest() {
-//            var downloadDir: File? = null
-//            var ringtoneDir: File? = null
-//
-//            downloadDir = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS)
-//            ringtoneDir =
-//                Environment.getExternalStoragePublicDirectory(DIRECTORY_RINGTONES) // 获取根目录
-//            var srcPath = downloadDir.path + File.separator + "test.mp3"
-//            var destPath = ringtoneDir.path + File.separator + "test.mp3"
-//            copyFile(srcPath, destPath)
-//            Log.i(TAG, "拷贝结束")
-//        }
-
-        /**
-         * srcPath : 当前文件夹
-         * destPath : 目标文件夹
-         */
-//        fun copyFile(srcPath: String, destPath: String) {
-//            val fileSrc: File = File(srcPath)
-//            val fileDest: File = File(destPath)
-//            fileSrc.copyTo(fileDest)
-//        }
-
-//        @Throws(IOException::class)
-//        fun copy(src: File?, dst: File?) {
-//            FileInputStream(src).use { `in` ->
-//                FileOutputStream(dst).use { out ->
-//                    // Transfer bytes from in to out
-//                    val buf = ByteArray(1024)
-//                    var len: Int
-//                    while (`in`.read(buf).also { len = it } > 0) {
-//                        out.write(buf, 0, len)
-//                    }
-//                }
-//            }
-//        }
-//
-//        @Throws(IOException::class)
-//        fun copySecond(src: File?, dst: File?) {
-//            val inStream = FileInputStream(src)
-//            val outStream = FileOutputStream(dst)
-//            val inChannel: FileChannel = inStream.channel
-//            val outChannel: FileChannel = outStream.channel
-//            inChannel.transferTo(0, inChannel.size(), outChannel)
-//            inStream.close()
-//            outStream.close()
-//        }
-//
-//        @RequiresApi(api = Build.VERSION_CODES.O)
-//        @Throws(IOException::class)
-//        fun copyThird(origin: File, dest: File) {
-//            Files.copy(origin.toPath(), dest.toPath())
-//        }
-
-
-        /**
-         * 跳转
-         */
-//        fun jumpToRingtonePicker() {
-//            val intent = Intent(RingtoneManager.ACTION_RINGTONE_PICKER)
-////            intent.putExtra(
-////                RingtoneManager.EXTRA_RINGTONE_TYPE,
-////                RingtoneManager.TYPE_NOTIFICATION
-////            )
-////
-////            val uri: String = myPrefs.beepUri().get()
-////
-////            if (uri !== "") {
-////                Log.i("Log", "uri is $uri")
-////                RingtoneManager.setActualDefaultRingtoneUri(
-////                    getActivity(),
-////                    RingtoneManager.TYPE_NOTIFICATION,
-////                    Uri.parse(uri)
-////                )
-////            }
-//
-//            startActivityForResult(intent, 1)
-//        }
 
 
 
@@ -521,17 +253,7 @@ class RingtoneAction {
             return result
         }
 
-//        fun changeMod(destFile: File){
-//            try {
-//                val command = "chmod 777 " + destFile.absolutePath
-//                Log.i("zyl", "command = $command")
-//                val runtime = Runtime.getRuntime()
-//                val proc = runtime.exec(command)
-//            } catch (e: IOException) {
-//                Log.i("zyl", "chmod fail!!!!")
-//                e.printStackTrace()
-//            }
-//        }
+
 
         fun getImageFilePathFromUri(context: Context, uri: Uri?): String? {
             if (null == uri) return null
@@ -647,6 +369,57 @@ class RingtoneAction {
             }
 
             return path
+        }
+
+
+
+        /**
+         * 检测权限
+         */
+        fun check(activity: Activity) {
+
+            if (Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(
+                    activity, Manifest.permission.WRITE_EXTERNAL_STORAGE
+                )
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    activity,
+                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE), 1
+                );
+            }
+        }
+
+        fun getDownloadRingtoneFileList(context: Context): Array<File> {
+            val ringtoneHolder: File? =
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_RINGTONES)
+            val ringtontlist: Array<File> = ringtoneHolder!!.listFiles()
+            return ringtontlist
+        }
+
+        fun getDownloadRingtoneList(context: Context): MutableList<String>{
+            val ringtontList: Array<File> = getDownloadRingtoneFileList(context)
+            val names = mutableListOf<String>()
+            ringtontList.forEach {
+                val value = "https://www.tonesmp3.com/ringtones/"
+                val name = it.name
+                names.add("$value$name")
+            }
+            return names
+        }
+
+        fun getRingtoneLocalPath(ringtone_url: String): String{
+
+            val name = ringtone_url.split("/").last()
+            val path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_RINGTONES).absolutePath
+            return "$path${File.separator}$name"
+        }
+
+        //包含后缀.mp3
+        fun getFileNameFromUrl(url: String): String? {
+//        var filename = url.substring(url.lastIndexOf('/')+1);
+            return url.substring(url.lastIndexOf("/") + 1)
         }
 
     }

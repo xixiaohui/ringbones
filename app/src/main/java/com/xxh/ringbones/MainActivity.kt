@@ -8,7 +8,7 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.appbar.MaterialToolbar
-import com.xxh.ringbones.utils.KotlinUtils
+import com.xxh.ringbones.utils.RingtoneActionUtils
 
 class MainActivity : AppCompatActivity() {
 
@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
         context: Context,
         attrs: AttributeSet,
     ): View? {
-        KotlinUtils.check(this)
+        RingtoneActionUtils.check(this)
         return super.onCreateView(parent, name, context, attrs)
     }
 

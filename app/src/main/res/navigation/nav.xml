@@ -5,35 +5,6 @@
     android:id="@+id/nav"
     app:startDestination="@id/pageViewFragment">
     <fragment
-        android:id="@+id/mainFragment"
-        android:name="com.xxh.ringbones.fragments.MainFragment"
-        android:label="fragment_main"
-        tools:layout="@layout/fragment_main" >
-        <action
-            android:id="@+id/action_mainFragment_to_downloadFragment"
-            app:destination="@id/downloadFragment" />
-        <action
-            android:id="@+id/action_mainFragment_to_playFragment"
-            app:destination="@id/playFragment" />
-        <action
-            android:id="@+id/action_mainFragment_to_pageViewFragment"
-            app:destination="@id/pageViewFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/downloadFragment"
-        android:name="com.xxh.ringbones.fragments.DownloadFragment"
-        android:label="fragment_download"
-        tools:layout="@layout/fragment_download" >
-        <action
-            android:id="@+id/action_downloadFragment_to_mainFragment"
-            app:destination="@id/mainFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/playFragment"
-        android:name="com.xxh.ringbones.fragments.PlayFragment"
-        android:label="fragment_play"
-        tools:layout="@layout/fragment_play" />
-    <fragment
         android:id="@+id/pageViewFragment"
         android:name="com.xxh.ringbones.fragments.PageViewFragment"
         android:label="fragment_page_view"
