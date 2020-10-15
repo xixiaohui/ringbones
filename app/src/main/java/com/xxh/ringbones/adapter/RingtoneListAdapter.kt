@@ -11,16 +11,16 @@ import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.xxh.ringbones.R
-import com.xxh.ringbones.data.NewRingstone
+import com.xxh.ringbones.data.Ringtone
 
 import com.xxh.ringbones.utils.DownloadManagerTest
 import com.xxh.ringbones.utils.RingtoneActionUtils
 
 class RingtoneListAdapter(
-    private var data: MutableList<NewRingstone>?,
-    private val clickPlayListener: (NewRingstone, RingstoneHolder, Int) -> Unit,
-    private val clickSetListener: (NewRingstone, url: String) -> Unit,
-    private val clickFavListener: (NewRingstone, select: Boolean) -> Unit
+    private var data: MutableList<Ringtone>?,
+    private val clickPlayListener: (Ringtone, RingstoneHolder, Int) -> Unit,
+    private val clickSetListener: (Ringtone, url: String) -> Unit,
+    private val clickFavListener: (Ringtone, select: Boolean) -> Unit,
 ) :
     RecyclerView.Adapter<RingstoneHolder>() {
     private val TAG: String = "RingtoneListAdapter"
@@ -41,16 +41,17 @@ class RingtoneListAdapter(
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onBindViewHolder(holder: RingstoneHolder, position: Int) {
-        val ringstone: NewRingstone = data!![position]
-        holder.bind(ringstone, clickPlayListener, position, clickSetListener, clickFavListener)
+        val ringtone: Ringtone = data!![position]
+        holder.bind(ringtone, clickPlayListener, position, clickSetListener, clickFavListener)
 
-        holder.setFavButtonSelect(ringstone.isFav)
-        holder.setBackgroundVisibility(View.INVISIBLE)
-        holder.setPlayerButtonPlay()
+        holder.setFavButtonSelect(ringtone.isFav)
+        holder.setRingtoneButtonSelect(ringtone.isRingtone)
+//        holder.setBackgroundVisibility(View.INVISIBLE)
+//        holder.setPlayerButtonPlay()
     }
 
-    internal fun setRingtones(ringtones: List<NewRingstone>) {
-        this.data = ringtones as MutableList<NewRingstone>
+    internal fun setRingtones(ringtones: List<Ringtone>) {
+        this.data = ringtones as MutableList<Ringtone>
         notifyDataSetChanged()
     }
 }
@@ -93,89 +94,98 @@ class RingstoneHolder(itemView: View) :
     /**
      * value : View.INVISIBLE | View.VISIBLE
      */
-    fun setBackgroundVisibility(value: Int) {
+    private fun setBackgroundVisibility(value: Int) {
         mView!!.visibility = value
     }
 
-    fun setBackgroundWidth(value: Int) {
+    private fun setBackgroundWidth(value: Int) {
         mView!!.layoutParams.width = value
     }
 
-    fun setPlayerButtonPlay() {
+    private fun setPlayerButtonPlay() {
         mPlay!!.setImageResource(R.drawable.ic_play)
     }
 
-    fun setFavButtonSelect(select: Boolean){
-
-        if(select){
+    fun setFavButtonSelect(select: Boolean) {
+        if (select) {
             mHeart!!.tag = RingtoneActionUtils.SELECT
             mHeart!!.setImageResource(R.drawable.heart)
-        }else{
+        } else {
             mHeart!!.tag = RingtoneActionUtils.UNSELECT
             mHeart!!.setImageResource(R.drawable.emptyheart)
         }
-
     }
 
-    fun setButtonToNull(){
-        mSet!!.tag = RingtoneActionUtils.UNSELECT
-        mSet!!.setImageResource(R.drawable.notification)
+    fun setRingtoneButtonSelect(select: Boolean) {
+        if (select) {
+            mSet!!.tag = RingtoneActionUtils.SELECT
+            mSet!!.setImageResource(R.drawable.ring)
+        } else {
+            mSet!!.tag = RingtoneActionUtils.UNSELECT
+            mSet!!.setImageResource(R.drawable.notification)
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     fun bind(
-        ringstone: NewRingstone,
-        clickPlayListener: (NewRingstone, RingstoneHolder, Int) -> Unit,
+        ringtone: Ringtone,
+        clickPlayListener: (Ringtone, RingstoneHolder, Int) -> Unit,
         position: Int,
-        clickSetListener: (NewRingstone, url: String) -> Unit,
-        clickFavListener: (NewRingstone, select: Boolean) -> Unit,
+        clickSetListener: (Ringtone, url: String) -> Unit,
+        clickFavListener: (Ringtone, select: Boolean) -> Unit,
     ) {
-        mTitle?.text = ringstone.title
-        mTag?.text = ringstone.des
+        mTitle?.text = ringtone.title
+        mTag?.text = ringtone.des
 
         mSet?.setOnClickListener {
             if (mSet!!.tag == RingtoneActionUtils.UNSELECT) {
-                var url = ringstone.url
-                clickSetListener(ringstone, url)
-
                 mSet!!.tag = RingtoneActionUtils.SELECT
-                mSet!!.setImageResource(R.drawable.ring)
+//                mSet!!.setImageResource(R.drawable.ring)
             } else {
                 mSet!!.tag = RingtoneActionUtils.UNSELECT
-                mSet!!.setImageResource(R.drawable.notification)
+//                mSet!!.setImageResource(R.drawable.notification)
             }
+            clickSetListener(ringtone, ringtone.url)
         }
 
         mHeart?.setOnClickListener {
             if (mHeart!!.tag == RingtoneActionUtils.UNSELECT) {
                 mHeart!!.tag = RingtoneActionUtils.SELECT
-                mHeart!!.setImageResource(R.drawable.heart)
+//                mHeart!!.setImageResource(R.drawable.heart)
             } else {
                 mHeart!!.tag = RingtoneActionUtils.UNSELECT
-                mHeart!!.setImageResource(R.drawable.emptyheart)
+//                mHeart!!.setImageResource(R.drawable.emptyheart)
             }
-            clickFavListener(ringstone, mHeart!!.tag == RingtoneActionUtils.SELECT)
+            clickFavListener(ringtone, mHeart!!.tag == RingtoneActionUtils.SELECT)
         }
 
         mPlay?.setOnClickListener {
-            clickPlayListener(ringstone, this, position)
+            clickPlayListener(ringtone, this, position)
         }
 
         mDownload?.setOnClickListener {
-            MaterialAlertDialogBuilder(it.context)
-                .setTitle(mDownload!!.context.getString(R.string.hi))
-                .setMessage(mDownload!!.context.getString(R.string.download_tips))
-                .setNegativeButton(it.context.resources.getString(R.string.cancel)) { dialog, which ->
-                    // Respond to negative button press
-                }
-                .setPositiveButton(it.context.resources.getString(R.string.ok)) { dialog, which ->
-                    // Respond to positive button press
-                    var url = ringstone.url
 
-                    var title = RingtoneActionUtils.getFileNameFromUrl(ringstone.url)
-                    DownloadManagerTest.download(it.context, url, title!!)
-                }
-                .show()
+            if (RingtoneActionUtils.isRingtoneInSdcard(it.context,ringtone)){
+                MaterialAlertDialogBuilder(it.context)
+                    .setTitle(mDownload!!.context.getString(R.string.hi))
+                    .setMessage(mDownload!!.context.getString(R.string.download_tips_already_have)).show()
+            }else{
+                MaterialAlertDialogBuilder(it.context)
+                    .setTitle(mDownload!!.context.getString(R.string.hi))
+                    .setMessage(mDownload!!.context.getString(R.string.download_tips))
+                    .setNegativeButton(it.context.resources.getString(R.string.cancel)) { dialog, which ->
+                        // Respond to negative button press
+                    }
+                    .setPositiveButton(it.context.resources.getString(R.string.ok)) { dialog, which ->
+                        // Respond to positive button press
+                        var url = ringtone.url
+                        var title = RingtoneActionUtils.getFileNameFromUrl(ringtone.url)
+                        DownloadManagerTest.download(it.context, url, title!!)
+                    }
+                    .show()
+            }
+
+
         }
     }
 
@@ -189,7 +199,4 @@ class RingstoneHolder(itemView: View) :
         this.getProgressBar()!!.visibility = View.INVISIBLE
     }
 
-    fun isLoading(): Boolean {
-        return this.getPlay()!!.tag == "Loading"
-    }
 }

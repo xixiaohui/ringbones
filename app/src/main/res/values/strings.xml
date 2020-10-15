@@ -55,4 +55,6 @@
     <string name="login_failed">"Login failed"</string>
     <string name="empty_not_saved">。。。。。。。。</string>
     <string name="search_hint">search</string>
+    <string name="myringtones">My Ringtones History</string>
+    <string name="download_tips_already_have">You already have this ringtone.</string>
 </resources>

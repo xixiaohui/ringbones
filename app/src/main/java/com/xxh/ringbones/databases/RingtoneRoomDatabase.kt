@@ -7,11 +7,11 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.xxh.ringbones.daos.RingtoneDao
-import com.xxh.ringbones.data.NewRingstone
+import com.xxh.ringbones.data.Ringtone
 import com.xxh.ringbones.fragments.SuperAwesomeCardFragment
 
 
-@Database(entities = [NewRingstone::class], version = 1, exportSchema = false)
+@Database(entities = [Ringtone::class], version = 2, exportSchema = false)
 abstract class RingtoneRoomDatabase : RoomDatabase() {
 
     abstract fun ringtoneDao(): RingtoneDao

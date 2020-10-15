@@ -3,18 +3,14 @@ package com.xxh.ringbones.models
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.viewModelScope
-import com.xxh.ringbones.data.NewRingstone
+import com.xxh.ringbones.data.Ringtone
 import com.xxh.ringbones.databases.RingtoneRepository
-import com.xxh.ringbones.databases.RingtoneRoomDatabase
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class RingtoneViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: RingtoneRepository
 
-    private val allRingtones: LiveData<List<NewRingstone>>
+    private val allRingtones: LiveData<List<Ringtone>>
 
     init {
         repository = RingtoneRepository(application)
@@ -22,19 +18,19 @@ class RingtoneViewModel(application: Application) : AndroidViewModel(application
     }
 
 
-    fun insert(newRingstone: NewRingstone) {
-        repository.insert(newRingstone)
+    fun insert(ringtone: Ringtone) {
+        repository.insert(ringtone)
     }
 
-    fun insertRingtoneList(ringtones: List<NewRingstone>){
+    fun insertRingtoneList(ringtones: List<Ringtone>){
         repository.insertRingtoneList(ringtones)
     }
 
-    fun delete(newRingstone: NewRingstone){
-        repository.delete(newRingstone)
+    fun delete(ringtone: Ringtone){
+        repository.delete(ringtone)
     }
 
-    fun getAllRingtones():LiveData<List<NewRingstone>>{
+    fun getAllRingtones():LiveData<List<Ringtone>>{
         return allRingtones
     }
 
@@ -43,8 +39,12 @@ class RingtoneViewModel(application: Application) : AndroidViewModel(application
     }
 
 
-    fun update(newRingstone: NewRingstone){
-        repository.update(newRingstone)
+    fun update(ringtone: Ringtone){
+        repository.update(ringtone)
+    }
+
+    fun updateByTitle(filename: String,isSelect: Boolean){
+        repository.updateByTitle(filename,isSelect)
     }
 
 

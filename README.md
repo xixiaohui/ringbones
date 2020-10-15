@@ -45,8 +45,9 @@ file:///storage/emulated/0/MIUI/.ringtone/MoneyHeist.mp3
 Android Architecture Components.
 
 1.自增排序
-2.下载好了之后再播放进度
+2.下载好了之后再播放进度 y
 3.设置铃声的图标 不能同时设置很多铃声
+
 4.铃声设置记录 我的设置记录
 5.播放列表 已下载的铃声 自动播放列表
 6.

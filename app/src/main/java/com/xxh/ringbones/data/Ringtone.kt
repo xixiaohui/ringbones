@@ -9,20 +9,26 @@ import java.util.*
 
 
 @Entity(tableName = "ringtone",primaryKeys = ["title", "id"])
-data class NewRingstone(
+data class Ringtone(
 
     @ColumnInfo(name = "title")
     val title: String,
+
     @ColumnInfo(name = "des")
     val des: String,
+
     @ColumnInfo(name = "url")
     val url: String,
 
     @ColumnInfo(name = "tag")
     var tag: String = "test",
 
-    @ColumnInfo
+    @ColumnInfo(name="isFav")
     var isFav: Boolean = false,
+
+    //是否被设置过铃声
+    @ColumnInfo(name="isRingtone")
+    var isRingtone: Boolean = false,
 
     @ColumnInfo(name = "id")
     var ringtoneId: Int = 0,

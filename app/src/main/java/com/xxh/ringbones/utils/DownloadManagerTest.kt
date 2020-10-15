@@ -51,7 +51,8 @@ class DownloadManagerTest {
         fun doInBackground(context: Context,
                            downloadUrl: String,
                            fileName: String,
-                           hasExtention: Boolean = false,sendBroadcast: (Int,String) -> Unit): Boolean? {
+                           title: String,
+                           sendBroadcast: (Int,String,String) -> Unit): Boolean? {
             var flag = true
             var downloading = true
             return try {
@@ -76,13 +77,13 @@ class DownloadManagerTest {
                             Log.i("FLAG", "done")
                             downloading = false
                             flag = true
-                            sendBroadcast(DownloadManager.STATUS_SUCCESSFUL,fileName)
+                            sendBroadcast(DownloadManager.STATUS_SUCCESSFUL,fileName,title)
                             break
                         }
                         if (status == DownloadManager.STATUS_FAILED) {
                             Log.i("FLAG", "Fail")
                             downloading = false
-                            sendBroadcast(DownloadManager.STATUS_FAILED,"Download Fail! Filename = $fileName ")
+                            sendBroadcast(DownloadManager.STATUS_FAILED,fileName,title)
                             flag = false
                             break
                         }

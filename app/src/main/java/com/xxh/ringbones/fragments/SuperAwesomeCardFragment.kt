@@ -36,7 +36,7 @@ import com.google.gson.Gson
 import com.xxh.ringbones.R
 import com.xxh.ringbones.adapter.RingstoneHolder
 import com.xxh.ringbones.adapter.RingtoneListAdapter
-import com.xxh.ringbones.data.NewRingstone
+import com.xxh.ringbones.data.Ringtone
 import com.xxh.ringbones.databinding.FragmentSuperAwesomeCardBinding
 import com.xxh.ringbones.models.RingtoneViewModel
 import com.xxh.ringbones.utils.*
@@ -49,11 +49,12 @@ private const val POSITON = "position"
 private const val WHTICH = "which_activity"
 private const val SEARCH = "search"
 
-enum class WHICHACTIVITY{
+enum class WHICHACTIVITY {
     MAIN_ACTIVITY,
     FAV_ACTVITY,
     DOWNLOAD_ACTIVITY,
-    SEARCH_ACTIVITY
+    SEARCH_ACTIVITY,
+    RINGTONE_ACTIVITY
 }
 
 /**
@@ -83,7 +84,6 @@ class SuperAwesomeCardFragment : Fragment() {
     var myBroadcastReceiver: MyBroadcastReceiver? = null
 
 
-    private lateinit var ringtoneViewModel: RingtoneViewModel
     private lateinit var keyword: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -140,66 +140,78 @@ class SuperAwesomeCardFragment : Fragment() {
             setItemViewCacheSize(1000)
         }
 
-        this.ringtoneViewModel =
+        ringtoneViewModel =
             ViewModelProvider(this.requireActivity()).get(RingtoneViewModel::class.java)
 
         val adapter = recyclerView.adapter as RingtoneListAdapter
 
-        this.setAdapterData(this.ringtoneViewModel,adapter)
+        this.setAdapterData(ringtoneViewModel, adapter)
         return binding.root
     }
 
 
-    private fun setAdapterData(ringtoneViewModel: RingtoneViewModel,adapter: RingtoneListAdapter){
+    private fun setAdapterData(ringtoneViewModel: RingtoneViewModel, adapter: RingtoneListAdapter) {
 
-        when(whichactivity){
-            WHICHACTIVITY.MAIN_ACTIVITY.ordinal->{
-                ringtoneViewModel.getAllRingtones().observe(this.requireActivity(), Observer { ringtones ->
-                    ringtones?.let { rings ->
-                        adapter.setRingtones(rings.filter { it.des.startsWith(keyword) })
-                    }
-                })
+        when (whichactivity) {
+            WHICHACTIVITY.MAIN_ACTIVITY.ordinal -> {
+                ringtoneViewModel.getAllRingtones()
+                    .observe(this.requireActivity(), Observer { ringtones ->
+                        ringtones?.let { rings ->
+                            adapter.setRingtones(rings.filter { it.des.startsWith(keyword) })
+                        }
+                    })
             }
-            WHICHACTIVITY.FAV_ACTVITY.ordinal->{
-                ringtoneViewModel.getAllRingtones().observe(this.requireActivity(), Observer { ringtones ->
+            WHICHACTIVITY.FAV_ACTVITY.ordinal -> {
+                ringtoneViewModel.getAllRingtones()
+                    .observe(this.requireActivity(), Observer { ringtones ->
 
 
+                        ringtones?.let { rings ->
+                            adapter.setRingtones(rings.filter { it.isFav })
+                        }
 
-                    ringtones?.let { rings ->
-                        adapter.setRingtones(rings.filter { it.isFav })
-                    }
-
-                    recoveryUiState()
-                })
+                        recoveryUiState()
+                    })
             }
-            WHICHACTIVITY.DOWNLOAD_ACTIVITY.ordinal ->{
-                val names = RingtoneActionUtils.getDownloadRingtoneList(context = this.requireContext())
-                ringtoneViewModel.getAllRingtones().observe(this.requireActivity(), Observer { ringtones ->
-                    ringtones?.let { rings ->
-                        adapter.setRingtones(rings.filter { it.url in names })
-                    }
-                })
+            WHICHACTIVITY.DOWNLOAD_ACTIVITY.ordinal -> {
+                val names =
+                    RingtoneActionUtils.getDownloadRingtoneList(context = this.requireContext())
+                ringtoneViewModel.getAllRingtones()
+                    .observe(this.requireActivity(), Observer { ringtones ->
+                        ringtones?.let { rings ->
+                            adapter.setRingtones(rings.filter { it.url in names })
+                        }
+                    })
             }
-            WHICHACTIVITY.SEARCH_ACTIVITY.ordinal->{
-                ringtoneViewModel.getAllRingtones().observe(this.requireActivity(), Observer { ringtones ->
-                    ringtones?.let { rings ->
-                        adapter.setRingtones(rings.filter { it.title.contains(this.searchKeyWords!!) })
-                    }
-                })
+            WHICHACTIVITY.SEARCH_ACTIVITY.ordinal -> {
+                ringtoneViewModel.getAllRingtones()
+                    .observe(this.requireActivity(), Observer { ringtones ->
+                        ringtones?.let { rings ->
+                            adapter.setRingtones(rings.filter { it.title.contains(this.searchKeyWords!!) })
+                        }
+                    })
+            }
+            WHICHACTIVITY.RINGTONE_ACTIVITY.ordinal -> {
+                ringtoneViewModel.getAllRingtones()
+                    .observe(this.requireActivity(), Observer { ringtones ->
+                        ringtones?.let { rings ->
+                            adapter.setRingtones(rings.filter { it.isRingtone })
+                        }
+                    })
             }
         }
 
 
     }
 
-    private fun clickFavButton(newRingstone: NewRingstone, select: Boolean) {
+    private fun clickFavButton(ringtone: Ringtone, select: Boolean) {
 
-        newRingstone.isFav = select
-        ringtoneViewModel.update(newRingstone)
+        ringtone.isFav = select
+        ringtoneViewModel.update(ringtone)
     }
 
     @RequiresApi(Build.VERSION_CODES.KITKAT)
-    private fun setRingtone(ringstone: NewRingstone, url: String) {
+    private fun setRingtone(ringtone: Ringtone, url: String) {
         val context = requireActivity()
         if (Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(
                 context, Manifest.permission.READ_EXTERNAL_STORAGE
@@ -222,14 +234,12 @@ class SuperAwesomeCardFragment : Fragment() {
             );
         }
 
-        myDesirePermissionCode(context, ringstone)
+        myDesirePermissionCode(context, ringtone)
     }
 
 
-
-
     @RequiresApi(Build.VERSION_CODES.KITKAT)
-    fun myDesirePermissionCode(activity: Activity, ringstone: NewRingstone) {
+    fun myDesirePermissionCode(activity: Activity, ringtone: Ringtone) {
         val permission: Boolean = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             Settings.System.canWrite(activity)
         } else {
@@ -242,11 +252,14 @@ class SuperAwesomeCardFragment : Fragment() {
             //do your code
             Log.i(TAG, "获得了写入权限")
 
-            val filename = RingtoneActionUtils.getFileNameFromUrl(ringstone.url)
+            val filename = RingtoneActionUtils.getFileNameFromUrl(ringtone.url)
             if (!RingtoneActionUtils.fileIsExistsInRingtonesHolder(filename!!)) {
-                startDownloadService(activity, ringstone)
+                startDownloadService(activity, ringtone)
             } else {
                 RingtoneActionUtils.setMyRingtoneWithFileName(activityForSetRingtone, filename)
+                //数据库更新
+                ringtone.isRingtone = true
+                ringtoneViewModel.update(ringtone)
             }
 
         } else {
@@ -269,12 +282,13 @@ class SuperAwesomeCardFragment : Fragment() {
         }
     }
 
-    private fun startDownloadService(activity: Activity, ringstone: NewRingstone) {
-        var intent = Intent(activity, MyIntentService(ringstone.title)::class.java)
+    private fun startDownloadService(activity: Activity, ringtone: Ringtone) {
+        var intent = Intent(activity, MyIntentService(ringtone.title)::class.java)
 
-        val filename = RingtoneActionUtils.getFileNameFromUrl(ringstone.url)
-        intent.putExtra(MyIntentService.URL, ringstone.url)
+        val filename = RingtoneActionUtils.getFileNameFromUrl(ringtone.url)
+        intent.putExtra(MyIntentService.URL, ringtone.url)
         intent.putExtra(MyIntentService.FILENAME, filename)
+        intent.putExtra(MyIntentService.TITLE, ringtone.title)
 
         activity.baseContext.startService(intent)
     }
@@ -338,32 +352,36 @@ class SuperAwesomeCardFragment : Fragment() {
     }
 
 
-    fun recoveryUiState(){
+    private fun recoveryUiState() {
         mediaHolder!!.reset(object : MediaHolder.MediaAction {
             override fun doAction() {
                 valueAnimator.removeAllListeners()
                 valueAnimator.cancel()
             }
         })
-        if(this.oldViewHolder !=null){
+        if (this.oldViewHolder != null) {
             this.oldViewHolder!!.reset()
         }
     }
+
     /**
      * 状态：  Normal / Loading / Play / Pause / End
      *
      */
     @RequiresApi(Build.VERSION_CODES.KITKAT)
     private fun ringstoneItemClicked(
-        ringstone: NewRingstone,
+        ringtone: Ringtone,
         holder: RingstoneHolder,
         position: Int,
     ) {
 
-        var url = ringstone.url
-        if (whichactivity == WHICHACTIVITY.DOWNLOAD_ACTIVITY.ordinal){
+        var url = ringtone.url
+        if (whichactivity == WHICHACTIVITY.DOWNLOAD_ACTIVITY.ordinal || RingtoneActionUtils.isRingtoneInSdcard(
+                requireContext(),
+                ringtone)
+        ) {
             url = RingtoneActionUtils.getRingtoneLocalPath(url)
-            Log.i(TAG,"$url")
+            Log.i(TAG, "$url")
         }
 
         //换了一个歌曲
@@ -372,7 +390,7 @@ class SuperAwesomeCardFragment : Fragment() {
             recoveryUiState()
             this.currentUrl = url
 
-            this.ringstoneItemClicked(ringstone, holder, position)
+            this.ringstoneItemClicked(ringtone, holder, position)
             return
         }
 
@@ -545,6 +563,7 @@ class SuperAwesomeCardFragment : Fragment() {
                     Log.i(TAG, filename)
                     var status = intent!!.getIntExtra(MyIntentService.STATUS, 0)
                     Log.i(TAG, "status = $status")
+                    var title = intent!!.getStringExtra(MyIntentService.TITLE)
 
                     when (status) {
                         DownloadManager.STATUS_SUCCESSFUL -> {
@@ -556,6 +575,7 @@ class SuperAwesomeCardFragment : Fragment() {
                             RingtoneActionUtils.setMyRingtoneWithFileName(activityForSetRingtone,
                                 filename)
 
+                            ringtoneViewModel.updateByTitle(title, true)
                         }
                         DownloadManager.STATUS_FAILED -> {
 
@@ -580,8 +600,9 @@ class SuperAwesomeCardFragment : Fragment() {
         lateinit var rootView: FrameLayout
         private lateinit var activityForSetRingtone: Activity
 
-        val EXTRA_REPLY = "com.xxh.ringbones.REPLY"
+        lateinit var ringtoneViewModel: RingtoneViewModel
 
+        val EXTRA_REPLY = "com.xxh.ringbones.REPLY"
         val ringFileList = arrayOf(
             "2020", "Airtel", "Alarm", "Animal", "Arabic",
             "Attitude", "Bengali", "BGM", "Bhojpuri", "Blackberry",
@@ -607,17 +628,17 @@ class SuperAwesomeCardFragment : Fragment() {
          */
         // TODO: Rename and change types and number of parameters
         @JvmStatic
-        fun newInstance(position: Int,whichActivity: Int,search: String = "2020") =
+        fun newInstance(position: Int, whichActivity: Int, search: String = "2020") =
             SuperAwesomeCardFragment().apply {
                 arguments = Bundle().apply {
                     putInt(POSITON, position)
-                    putInt(WHTICH,whichActivity)
-                    putString(SEARCH,search)
+                    putInt(WHTICH, whichActivity)
+                    putString(SEARCH, search)
                 }
             }
 
-        fun prepareRingtonesData(context: Context, fileName: String): MutableList<NewRingstone> {
-            var ringtonesArray = mutableListOf<NewRingstone>()
+        fun prepareRingtonesData(context: Context, fileName: String): MutableList<Ringtone> {
+            var ringtonesArray = mutableListOf<Ringtone>()
 
             val jsonString = LocalJsonResolutionUtils.getJson(
                 context,
@@ -632,7 +653,7 @@ class SuperAwesomeCardFragment : Fragment() {
                 var jsonObject = jsonArray.getJSONObject(i)
                 var newRingstone = LocalJsonResolutionUtils.jsonToObject(
                     jsonObject.toString(),
-                    NewRingstone::class.java
+                    Ringtone::class.java
                 )
                 newRingstone.tag = "test"
 //                newRingstone.ringtoneId = UUID.randomUUID().toString()
@@ -644,9 +665,9 @@ class SuperAwesomeCardFragment : Fragment() {
         }
     }
 
-    fun test(newRingstone: NewRingstone) {
+    fun test(ringtone: Ringtone) {
         val replyIntent = Intent()
-        replyIntent.putExtra(EXTRA_REPLY, Gson().toJson(newRingstone))
+        replyIntent.putExtra(EXTRA_REPLY, Gson().toJson(ringtone))
         this.requireActivity().setResult(AppCompatActivity.RESULT_OK, replyIntent)
     }
 }

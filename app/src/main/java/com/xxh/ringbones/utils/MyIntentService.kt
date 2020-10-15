@@ -2,11 +2,21 @@ package com.xxh.ringbones.utils
 
 import android.app.IntentService
 import android.content.Intent
+import android.icu.text.CaseMap
 import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.xxh.ringbones.data.Ringtone
 import com.xxh.ringbones.fragments.SuperAwesomeCardFragment
 
-class MyIntentService(name: String? = "MyIntentService") : IntentService(name) {
+class MyIntentService(name: String? = "MyIntentService") :
+    IntentService(name) {
+
+//    var ringtone: Ringtone? = null
+//
+//    constructor(ringtone: Ringtone, name: String? = "MyIntentService") : this(name) {
+//
+//        this.ringtone = ringtone
+//    }
 
     private val TAG = "MyIntentService"
 
@@ -15,6 +25,7 @@ class MyIntentService(name: String? = "MyIntentService") : IntentService(name) {
         val URL = "url"
         val FILENAME = "filename"
         val STATUS = "status"
+        val TITLE = "title"
     }
 
     override fun onHandleIntent(intent: Intent?) {
@@ -23,6 +34,7 @@ class MyIntentService(name: String? = "MyIntentService") : IntentService(name) {
 
         val url = intent!!.getStringExtra(MyIntentService.URL)
         val filename = intent!!.getStringExtra(MyIntentService.FILENAME)
+        val title = intent!!.getStringExtra(MyIntentService.TITLE)
 
         Log.i(TAG, "url = $url")
         Log.i(TAG, "filename = $filename")
@@ -30,13 +42,19 @@ class MyIntentService(name: String? = "MyIntentService") : IntentService(name) {
         //下载铃声
         DownloadManagerTest.doInBackground(this.baseContext,
             url,
-            filename) { status, filename -> sendThreadStatus(status, filename) }
+            filename, title) { status, filename, title ->
+            sendThreadStatus(status,
+                filename,
+                title)
+        }
     }
 
-    private fun sendThreadStatus(status: Int, filename: String) {
+    private fun sendThreadStatus(status: Int, filename: String, title: String) {
         var intent = Intent(SuperAwesomeCardFragment.ACTION_THREAD_STATUS)
         intent.putExtra(STATUS, status)
         intent.putExtra(FILENAME, filename)
+        intent.putExtra(TITLE, title)
+
         LocalBroadcastManager.getInstance(this.baseContext).sendBroadcast(intent)
     }
 

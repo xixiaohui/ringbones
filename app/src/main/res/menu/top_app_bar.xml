@@ -26,6 +26,11 @@
         app:showAsAction="never" >
     </item>
     <item
+        android:id="@+id/top_myringtones"
+        android:title="@string/myringtones"
+        app:showAsAction="never" >
+    </item>
+    <item
         android:id="@+id/top_about_us"
         android:title="@string/about_us"
         app:showAsAction="never" >

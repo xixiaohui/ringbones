@@ -8,7 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.xxh.ringbones.data.NewRingstone
+import com.xxh.ringbones.data.Ringtone
 import com.xxh.ringbones.databinding.FragmentMainBinding
 
 
@@ -32,7 +32,7 @@ class MainFragment : Fragment() {
     private lateinit var binding: FragmentMainBinding
     private lateinit var navController: NavController
 
-    private lateinit var ringtonesArray: MutableList<NewRingstone>
+    private lateinit var ringtonesArray: MutableList<Ringtone>
 
 
     override fun onCreate(savedInstanceState: Bundle?) {

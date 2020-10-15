@@ -65,6 +65,13 @@ class MainActivity : AppCompatActivity() {
                         activity.startActivity(intent)
                         true
                     }
+                    R.id.top_myringtones -> {
+                        val intent = Intent(activity, RingtonesActivity::class.java)
+                        intent.flags =
+                            Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NO_HISTORY
+                        activity.startActivity(intent)
+                        true
+                    }
                     R.id.top_setting -> {
                         val intent = Intent(activity, SettingsActivity::class.java)
                         intent.flags =

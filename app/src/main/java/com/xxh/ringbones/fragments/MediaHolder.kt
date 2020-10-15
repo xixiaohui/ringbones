@@ -26,6 +26,8 @@ class MediaHolder {
     }
 
     fun reset(action: MediaAction) {
+
+        mediaPlayer.pause()
         mediaPlayer.reset()
         action.doAction()
     }
@@ -45,11 +47,11 @@ class MediaHolder {
         mediaPlayer.prepareAsync()
 
         mediaPlayer.setOnPreparedListener {
-            action.doAction()
             //播放
             this.play()
             //设置循环播放
 //            this.mediaPlayer.isLooping = true
+            action.doAction()
         }
     }
 

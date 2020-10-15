@@ -23,6 +23,7 @@ import androidx.loader.content.CursorLoader
 import androidx.viewbinding.ViewBinding
 import com.google.android.material.snackbar.Snackbar
 import com.xxh.ringbones.R
+import com.xxh.ringbones.data.Ringtone
 import com.xxh.ringbones.fragments.SuperAwesomeCardFragment
 import java.io.*
 import java.nio.channels.FileChannel
@@ -420,6 +421,12 @@ class RingtoneActionUtils {
         fun getFileNameFromUrl(url: String): String? {
 //        var filename = url.substring(url.lastIndexOf('/')+1);
             return url.substring(url.lastIndexOf("/") + 1)
+        }
+
+        fun isRingtoneInSdcard(context: Context,ringtone: Ringtone): Boolean{
+            val names = getDownloadRingtoneList(context)
+            val url = ringtone.url
+            return url in names
         }
 
     }
