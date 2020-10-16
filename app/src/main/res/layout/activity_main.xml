@@ -27,6 +27,8 @@
             app:title="@string/APP_NAME" />
     </com.google.android.material.appbar.AppBarLayout>
 
+    <!--  测试用  ads:adUnitId="ca-app-pub-3940256099942544/6300978111"
+      发布用  ads:adUnitId="ca-app-pub-1941973989297560/1496249659"-->
     <fragment
         android:id="@+id/nav_host_fragment"
         android:name="androidx.navigation.fragment.NavHostFragment"
@@ -36,15 +38,12 @@
         app:layout_constraintBottom_toTopOf="@+id/ad_view"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/appBarLayout"
         app:layout_constraintVertical_bias="0.0"
         app:navGraph="@navigation/nav"
         tools:ignore="NotSibling" />
 
-<!--  测试用  ads:adUnitId="ca-app-pub-3940256099942544/6300978111"
-      发布用  ads:adUnitId="ca-app-pub-1941973989297560/1496249659"-->
     <com.google.android.gms.ads.AdView
         android:id="@+id/ad_view"
         android:layout_width="wrap_content"
@@ -57,5 +56,7 @@
         ads:layout_constraintBottom_toBottomOf="parent"
         ads:layout_constraintEnd_toEndOf="parent"
         ads:layout_constraintStart_toStartOf="parent" />
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

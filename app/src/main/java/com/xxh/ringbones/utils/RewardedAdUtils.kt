@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Message
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.LoadAdError
@@ -14,24 +15,27 @@ import com.google.android.gms.ads.rewarded.RewardedAdCallback
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import com.xxh.ringbones.MainActivity
 import com.xxh.ringbones.SHOW_REWARDED_AD
+import com.xxh.ringbones.fragments.SuperAwesomeCardFragment
 
 class RewardedAdUtils {
 
-    companion object{
+    companion object {
 
         //发布用
         const val REWARADED_ADS_ID_RELEASE = "ca-app-pub-1941973989297560/8803059887"
+
         //测试用
         const val REWARADED_ADS_ID_TEST = "ca-app-pub-3940256099942544/5224354917"
 
         const val REWARADED_ADS_ID_USE = REWARADED_ADS_ID_TEST
 
-        fun initRewardedAd(activity: Activity): RewardedAd{
+        fun initRewardedAd(activity: Activity): RewardedAd {
             val rewardedAd = RewardedAd(activity, REWARADED_ADS_ID_USE)
-            val adLoadCallback = object: RewardedAdLoadCallback() {
+            val adLoadCallback = object : RewardedAdLoadCallback() {
                 override fun onRewardedAdLoaded() {
                     // Ad successfully loaded.
                 }
+
                 override fun onRewardedAdFailedToLoad(adError: LoadAdError) {
                     // Ad failed to load.
                 }
@@ -44,12 +48,12 @@ class RewardedAdUtils {
          * 初始化奖励广告
          */
 
-         fun createAndLoadRewardedAd(activity: Activity,handler: Handler): RewardedAd {
+        fun createAndLoadRewardedAd(activity: Activity, handler: Handler): RewardedAd {
             val rewardedAd = RewardedAd(activity, REWARADED_ADS_ID_USE)
             val adLoadCallback = object : RewardedAdLoadCallback() {
                 override fun onRewardedAdLoaded() {
                     // Ad successfully loaded.
-                    Log.d("TAG", "on Rewarded Ad Opened.")
+                    Log.d("TAG", "on Rewarded Ad Loaded.")
 
                     val message: Message = Message.obtain()
                     message.what = SHOW_REWARDED_AD
@@ -57,6 +61,8 @@ class RewardedAdUtils {
                     bundle.putString("url", MainActivity.url)
                     message.data = bundle
                     handler.sendMessage(message)
+
+
                 }
 
                 override fun onRewardedAdFailedToLoad(adError: LoadAdError) {
@@ -71,14 +77,19 @@ class RewardedAdUtils {
         /**
          * 实际开始下载的奖励
          */
-        fun startDownloadRingtone(activity: Activity,url: String) {
+        fun startDownloadRingtone(activity: Activity, url: String) {
             var title = RingtoneActionUtils.getFileNameFromUrl(url)
             DownloadManagerTest.download(activity, url, title!!)
         }
 
-       fun showRewardedAd(activity: Activity,rewardedAd: RewardedAd, url: String, doAction: (String) -> Unit) {
+        fun showRewardedAd(
+            activity: AppCompatActivity,
+            rewardedAd: RewardedAd,
+            url: String,
+            doAction: (String) -> Unit,
+        ) {
             if (rewardedAd.isLoaded) {
-                val activityContext: Activity = activity
+                val activityContext: AppCompatActivity = activity
                 val adCallback = object : RewardedAdCallback() {
                     override fun onUserEarnedReward(p0: RewardItem) {
                         doAction(url)
@@ -87,6 +98,13 @@ class RewardedAdUtils {
                     override fun onRewardedAdOpened() {
                         super.onRewardedAdOpened()
                         Log.d("TAG", "on Rewarded Ad Opened.")
+
+                        val  fragments= activity.supportFragmentManager.fragments
+                        fragments.forEach{
+                            if (it is SuperAwesomeCardFragment){
+                                it.setLoadingInVisible()
+                            }
+                        }
                     }
 
                     override fun onRewardedAdClosed() {

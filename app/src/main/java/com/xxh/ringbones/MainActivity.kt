@@ -19,8 +19,10 @@ import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdCallback
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.snackbar.Snackbar
 import com.xxh.ringbones.data.Ringtone
 import com.xxh.ringbones.databases.RingtoneRoomDatabase
+import com.xxh.ringbones.databinding.ActivityMainBinding
 import com.xxh.ringbones.fragments.SuperAwesomeCardFragment
 import com.xxh.ringbones.models.RingtoneViewModel
 import com.xxh.ringbones.utils.DownloadManagerTest
@@ -34,16 +36,17 @@ const val SHOW_REWARDED_AD = 101
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var ad_view: AdView
+    private lateinit var binding: ActivityMainBinding
 
+    private lateinit var ad_view: AdView
     var handler: Handler? = null
     var mRewardedAd: RewardedAd? = null
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         initBannerAds()
         mRewardedAd = RewardedAdUtils.initRewardedAd(this)
@@ -75,9 +78,6 @@ class MainActivity : AppCompatActivity() {
         ad_view.loadAd(adRequest)
     }
 
-
-
-
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -90,7 +90,7 @@ class MainActivity : AppCompatActivity() {
 
                     if (RingtoneActionUtils.checkPermission(this)) {
                         RingtoneActionUtils.createDir(RingtoneRoomDatabase.databaseHolderName)
-                        Log.i("", "create创建成功")
+                        Log.i("", "create success")
                     }
 
                     val fragment = this.supportFragmentManager.fragments
@@ -102,7 +102,7 @@ class MainActivity : AppCompatActivity() {
                     }
                 } else {
                     //申请失败
-
+                    Snackbar.make(binding.root,"Failed to request permission.",Snackbar.LENGTH_LONG).show()
                 }
             }
         }
@@ -130,8 +130,6 @@ class MainActivity : AppCompatActivity() {
 
         lateinit var url: String
 
-
-
         fun jumpToOtherActivity(activity: AppCompatActivity, topAppBar: MaterialToolbar) {
             topAppBar.setOnClickListener {
                 activity.finish()
@@ -139,7 +137,6 @@ class MainActivity : AppCompatActivity() {
             topAppBar.setOnMenuItemClickListener { menuItem ->
                 when (menuItem.itemId) {
                     R.id.top_favorite -> {
-//                    Snackbar.make(topAppBar, "点我喜欢", Snackbar.LENGTH_LONG).show()
                         val intent = Intent(activity, FavActivity::class.java)
                         intent.flags =
                             Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NO_HISTORY
@@ -147,7 +144,6 @@ class MainActivity : AppCompatActivity() {
                         true
                     }
                     R.id.top_download -> {
-//                    Snackbar.make(topAppBar, "点我下载", Snackbar.LENGTH_LONG).show()
                         val intent = Intent(activity, DownloadActivity::class.java)
                         intent.flags =
                             Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NO_HISTORY
@@ -155,7 +151,6 @@ class MainActivity : AppCompatActivity() {
                         true
                     }
                     R.id.top_search -> {
-//                    Snackbar.make(topAppBar, "点我搜索", Snackbar.LENGTH_LONG).show()
                         val intent = Intent(activity, SearchActivity::class.java)
                         intent.flags =
                             Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NO_HISTORY

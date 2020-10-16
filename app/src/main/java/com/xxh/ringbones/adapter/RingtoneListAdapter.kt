@@ -169,27 +169,6 @@ class RingstoneHolder(itemView: View) :
 
             clickDownloadListener(ringtone)
 
-//            if (RingtoneActionUtils.isRingtoneInSdcard(it.context,ringtone)){
-//                MaterialAlertDialogBuilder(it.context)
-//                    .setTitle(mDownload!!.context.getString(R.string.hi))
-//                    .setMessage(mDownload!!.context.getString(R.string.download_tips_already_have)).show()
-//            }else{
-//                MaterialAlertDialogBuilder(it.context)
-//                    .setTitle(mDownload!!.context.getString(R.string.hi))
-//                    .setMessage(mDownload!!.context.getString(R.string.download_tips))
-//                    .setNegativeButton(it.context.resources.getString(R.string.cancel)) { dialog, which ->
-//                        // Respond to negative button press
-//                    }
-//                    .setPositiveButton(it.context.resources.getString(R.string.ok)) { dialog, which ->
-//                        // Respond to positive button press
-//                        var url = ringtone.url
-//                        var title = RingtoneActionUtils.getFileNameFromUrl(ringtone.url)
-//                        DownloadManagerTest.download(it.context, url, title!!)
-//                    }
-//                    .show()
-//            }
-
-
         }
     }
 

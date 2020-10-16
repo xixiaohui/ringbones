@@ -24,6 +24,7 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
@@ -142,7 +143,6 @@ class SuperAwesomeCardFragment : Fragment() {
         if (DBHelper.exist(this.requireContext(), RingtoneRoomDatabase.databaseName)) {
             setDatabase()
         }
-
         return binding.root
     }
 
@@ -261,6 +261,9 @@ class SuperAwesomeCardFragment : Fragment() {
                         val activity = this.requireActivity() as SearchActivity
                         activity.handler!!.sendMessage(message)
                     }
+
+                    setLoadingVisible()
+
                 }
                 .show()
         }
@@ -646,13 +649,12 @@ class SuperAwesomeCardFragment : Fragment() {
 
 
 
-
     companion object {
         val CODE_WRITE_SETTINGS_PERMISSION = 10
         val ACTION_THREAD_STATUS = "action_thread_status"
         val ACTION_INTENTSERVICE_STATUS = "action_intentservice_status"
 
-        lateinit var rootView: FrameLayout
+        lateinit var rootView: ConstraintLayout
         private lateinit var activityForSetRingtone: Activity
 
         lateinit var ringtoneViewModel: RingtoneViewModel
@@ -673,15 +675,6 @@ class SuperAwesomeCardFragment : Fragment() {
             "Vivo", "Warning", "Xiaomi"
         )
 
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment SuperAwesomeCardFragment.
-         */
-        // TODO: Rename and change types and number of parameters
         @JvmStatic
         fun newInstance(position: Int, whichActivity: Int, search: String = "2020") =
             SuperAwesomeCardFragment().apply {
@@ -718,6 +711,16 @@ class SuperAwesomeCardFragment : Fragment() {
             }
             return ringtonesArray
         }
+
+
+    }
+
+    fun setLoadingVisible(){
+        binding.adsLoading.visibility = View.VISIBLE
+    }
+
+    fun setLoadingInVisible(){
+        binding.adsLoading.visibility = View.INVISIBLE
     }
 
     fun test(ringtone: Ringtone) {
