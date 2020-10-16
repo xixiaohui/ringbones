@@ -29,7 +29,9 @@
         android:usesCleartextTraffic="true"
         android:hardwareAccelerated="true">
 
-        <!-- Sample AdMob App ID: ca-app-pub-3940256099942544~3347511713 -->
+        <!-- Sample Test AdMob App ID: ca-app-pub-3940256099942544~3347511713
+        Release AdMob App ID: ca-app-pub-1941973989297560~6230040895-->
+
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-3940256099942544~3347511713"/>

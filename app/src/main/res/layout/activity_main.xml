@@ -43,6 +43,8 @@
         app:navGraph="@navigation/nav"
         tools:ignore="NotSibling" />
 
+<!--  测试用  ads:adUnitId="ca-app-pub-3940256099942544/6300978111"
+      发布用  ads:adUnitId="ca-app-pub-1941973989297560/1496249659"-->
     <com.google.android.gms.ads.AdView
         android:id="@+id/ad_view"
         android:layout_width="wrap_content"
