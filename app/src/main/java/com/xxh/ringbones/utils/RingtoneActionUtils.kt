@@ -2,32 +2,29 @@ package com.xxh.ringbones.utils
 
 import android.Manifest
 import android.app.Activity
-import android.content.*
+import android.content.ContentResolver
+import android.content.ContentUris
+import android.content.ContentValues
+import android.content.Context
 import android.content.pm.PackageManager
-import android.content.res.AssetFileDescriptor
 import android.database.Cursor
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
-import android.os.Environment.*
+import android.os.Environment.getExternalStorageDirectory
 import android.provider.MediaStore
-import android.provider.Settings
-import android.text.TextUtils
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.loader.content.CursorLoader
-import androidx.viewbinding.ViewBinding
 import com.google.android.material.snackbar.Snackbar
 import com.xxh.ringbones.R
 import com.xxh.ringbones.data.Ringtone
 import com.xxh.ringbones.fragments.SuperAwesomeCardFragment
-import java.io.*
-import java.nio.channels.FileChannel
-import java.nio.file.Files
+import java.io.File
 
 
 class RingtoneActionUtils {
@@ -39,9 +36,9 @@ class RingtoneActionUtils {
 
 
         @RequiresApi(Build.VERSION_CODES.KITKAT)
-        fun setMyRingtoneWithFileName(activity: Activity, filename: String){
+        fun setMyRingtoneWithFileName(activity: Activity, filename: String) {
             val path = combine(filename)
-            setMyRingtone(activity,path)
+            setMyRingtone(activity, path)
         }
 
         /**
@@ -100,15 +97,17 @@ class RingtoneActionUtils {
                 insertedUri
             )
 
-            Snackbar.make(SuperAwesomeCardFragment.rootView,"The ringtone is set successfully!",Snackbar.LENGTH_LONG).show()
+            Snackbar.make(SuperAwesomeCardFragment.rootView,
+                "The ringtone is set successfully!",
+                Snackbar.LENGTH_LONG).show()
         }
 
-        fun setRingtongByID(context: Context, id: Long, internal: Boolean){
+        fun setRingtongByID(context: Context, id: Long, internal: Boolean) {
             val external_content_uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
             val internal_content_uri = MediaStore.Audio.Media.INTERNAL_CONTENT_URI
 
-            var  current_uri = external_content_uri
-            if(internal){
+            var current_uri = external_content_uri
+            if (internal) {
                 current_uri = internal_content_uri
             }
             val insertedUri = ContentUris.withAppendedId(current_uri, id)
@@ -163,10 +162,6 @@ class RingtoneActionUtils {
         }
 
 
-
-
-
-
         /**
          * 1、Environment.getDataDirectory() = /data
         这个方法是获取内部存储的根路径
@@ -189,8 +184,6 @@ class RingtoneActionUtils {
          */
 
 
-
-
         fun getAllRingtonesAvailable(activity: Activity) {
             var cursor = RingtoneManager(activity.applicationContext).cursor
             while (cursor.moveToNext()) {
@@ -210,7 +203,7 @@ class RingtoneActionUtils {
             }
         }
 
-        fun getAllRingtoneList(context: Context): Array<Uri?>?{
+        fun getAllRingtoneList(context: Context): Array<Uri?>? {
             val ringtoneMgr = RingtoneManager(context)
             ringtoneMgr.setType(RingtoneManager.TYPE_RINGTONE)
             val alarmsCursor = ringtoneMgr.cursor
@@ -234,9 +227,10 @@ class RingtoneActionUtils {
             val list: MutableMap<String, String> = HashMap()
             while (cursor.moveToNext()) {
                 val notificationTitle = cursor.getString(RingtoneManager.TITLE_COLUMN_INDEX)
-                val notificationUri = cursor.getString(RingtoneManager.URI_COLUMN_INDEX) + "/" + cursor.getString(
-                    RingtoneManager.ID_COLUMN_INDEX
-                )
+                val notificationUri =
+                    cursor.getString(RingtoneManager.URI_COLUMN_INDEX) + "/" + cursor.getString(
+                        RingtoneManager.ID_COLUMN_INDEX
+                    )
                 list[notificationTitle] = notificationUri
             }
             return list
@@ -253,7 +247,6 @@ class RingtoneActionUtils {
             cursor.close()
             return result
         }
-
 
 
         fun getImageFilePathFromUri(context: Context, uri: Uri?): String? {
@@ -286,9 +279,9 @@ class RingtoneActionUtils {
         /**
          * 获取当前铃声的文件地址
          */
-        fun getCurrentRingtoneFilePathFromUri(context: Context): String?{
+        fun getCurrentRingtoneFilePathFromUri(context: Context): String? {
             var uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
-            var path = getMediaFilePathFromUri(context,uri)
+            var path = getMediaFilePathFromUri(context, uri)
             return path
         }
 
@@ -322,7 +315,7 @@ class RingtoneActionUtils {
         /**
          * 播放当前音乐
          */
-        fun playDefaultRingtone(activity: Activity){
+        fun playDefaultRingtone(activity: Activity) {
             val ringtone = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
             val r = RingtoneManager.getRingtone(activity.baseContext, ringtone)
             r.play()
@@ -343,20 +336,22 @@ class RingtoneActionUtils {
             return true
         }
 
-        fun fileIsExistsInRingtonesHolder(fileName: String): Boolean{
-            val file = File(getExternalStorageDirectory(), File.separator+Environment.DIRECTORY_RINGTONES+File.separator)
+        fun fileIsExistsInRingtonesHolder(fileName: String): Boolean {
+            val file = File(getExternalStorageDirectory(),
+                File.separator + Environment.DIRECTORY_RINGTONES + File.separator)
             if (!file.exists()) {
                 file.mkdirs()
             }
             val root = getExternalStorageDirectory()
-            val path = "$root" +  File.separator+Environment.DIRECTORY_RINGTONES+File.separator + fileName
+            val path =
+                "$root" + File.separator + Environment.DIRECTORY_RINGTONES + File.separator + fileName
             return fileIsExists(path)
         }
 
         /**
          * 获取音频文件路径
          */
-         fun combine(filename: String = "first"): String {
+        fun combine(filename: String = "first"): String {
 //        return "storage/emulated/0/MIUI/.ringtone/$filename.mp3"
             var path = ""
             var sdDir: File? = null
@@ -372,8 +367,35 @@ class RingtoneActionUtils {
             return path
         }
 
+        const val FLAG_SUCCESS = 1 //创建成功
+        const val FLAG_EXISTS = 2 //已存在
+        const val FLAG_FAILED = 3 //创建失败
 
+        /**
+         * 创建 文件夹
+         * @param dirPath 文件夹路径
+         * @return 结果码
+         */
+        fun createDir(dirPath: String) {
+            val file = File(dirPath)
+            if (!file.exists()){
+                file.mkdirs()
+            }
+        }
 
+        fun checkPermission(activity: Activity): Boolean {
+            val permission = ContextCompat.checkSelfPermission(
+                activity,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
+                activity,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            ) == PackageManager.PERMISSION_GRANTED
+
+            return permission
+        }
+
+        val WRITE_EXTERNAL_STORAGE_REQUEST_CODE = 100
         /**
          * 检测权限
          */
@@ -387,8 +409,9 @@ class RingtoneActionUtils {
                 ActivityCompat.requestPermissions(
                     activity,
                     arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE), 1
-                );
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                    WRITE_EXTERNAL_STORAGE_REQUEST_CODE
+                )
             }
         }
 
@@ -399,7 +422,7 @@ class RingtoneActionUtils {
             return ringtontlist
         }
 
-        fun getDownloadRingtoneList(context: Context): MutableList<String>{
+        fun getDownloadRingtoneList(context: Context): MutableList<String> {
             val ringtontList: Array<File> = getDownloadRingtoneFileList(context)
             val names = mutableListOf<String>()
             ringtontList.forEach {
@@ -410,10 +433,11 @@ class RingtoneActionUtils {
             return names
         }
 
-        fun getRingtoneLocalPath(ringtone_url: String): String{
+        fun getRingtoneLocalPath(ringtone_url: String): String {
 
             val name = ringtone_url.split("/").last()
-            val path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_RINGTONES).absolutePath
+            val path =
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_RINGTONES).absolutePath
             return "$path${File.separator}$name"
         }
 
@@ -423,12 +447,36 @@ class RingtoneActionUtils {
             return url.substring(url.lastIndexOf("/") + 1)
         }
 
-        fun isRingtoneInSdcard(context: Context,ringtone: Ringtone): Boolean{
+        fun isRingtoneInSdcard(context: Context, ringtone: Ringtone): Boolean {
             val names = getDownloadRingtoneList(context)
             val url = ringtone.url
             return url in names
         }
 
     }
+
+//    fun onSuccess(i: Int, json: String?) {
+//        Log.i("Channel", "onSuccess")
+//        val message: Message = Message.obtain()
+//        message.what = 0
+//        val bundle = Bundle()
+//        bundle.putString("json", json)
+//        message.setData(bundle)
+//        myHandler.sendMessage(message)
+//    }
+//
+//    //这里处理传过来的数据
+//    private val myHandler: Handler = object : Handler() {
+//        fun handleMessage(msg: Message) {
+//            when (msg.what) {
+//                0 -> {
+//                    val bundle: Bundle = msg.getData()
+//                    System.out.println(bundle.getString("json", ""))
+//                }
+//                else -> {
+//                }
+//            }
+//        }
+//    }
 
 }

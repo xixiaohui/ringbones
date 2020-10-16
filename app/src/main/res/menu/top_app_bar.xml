@@ -20,11 +20,11 @@
         android:title="@string/search"
         app:showAsAction="never" >
     </item>
-    <item
-        android:id="@+id/top_setting"
-        android:title="@string/setting"
-        app:showAsAction="never" >
-    </item>
+<!--    <item-->
+<!--        android:id="@+id/top_setting"-->
+<!--        android:title="@string/setting"-->
+<!--        app:showAsAction="never" >-->
+<!--    </item>-->
     <item
         android:id="@+id/top_myringtones"
         android:title="@string/myringtones"

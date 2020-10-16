@@ -27,7 +27,7 @@
     <string name="more">more</string>
     <string name="search">Search</string>
     <string name="setting">Setting</string>
-    <string name="about_us">About Us</string>
+    <string name="about_us">About Musix</string>
     <string name="title_activity_settings">SettingsActivity</string>
 
     <!-- Preference Titles -->
@@ -57,4 +57,7 @@
     <string name="search_hint">search</string>
     <string name="myringtones">My Ringtones History</string>
     <string name="download_tips_already_have">You already have this ringtone.</string>
+    <string name="about_musix">Musix Ringtones is a collection of the most popular ringtones for Android phone. More than 500 popular ringtones in Musix Ringtones. You can set them as your ringtone, message, alarm, notifications.</string>
+    <string name="about_version">Version: 2.0</string>
+    <string name="about_author">Gmail:whywinxxh@gmail.com</string>
 </resources>

@@ -11,6 +11,8 @@ import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Message
 import android.provider.Settings
 import android.util.DisplayMetrics
 import android.util.Log
@@ -33,10 +35,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
+import com.xxh.ringbones.MainActivity
 import com.xxh.ringbones.R
 import com.xxh.ringbones.adapter.RingstoneHolder
 import com.xxh.ringbones.adapter.RingtoneListAdapter
 import com.xxh.ringbones.data.Ringtone
+import com.xxh.ringbones.databases.RingtoneRoomDatabase
 import com.xxh.ringbones.databinding.FragmentSuperAwesomeCardBinding
 import com.xxh.ringbones.models.RingtoneViewModel
 import com.xxh.ringbones.utils.*
@@ -71,8 +75,7 @@ class SuperAwesomeCardFragment : Fragment() {
     private var searchKeyWords: String? = null
     private lateinit var binding: FragmentSuperAwesomeCardBinding
 
-//    private lateinit var ringtonesArray: MutableList<NewRingstone>
-
+    //    private lateinit var ringtonesArray: MutableList<Ringtone>
     private var mediaHolder: MediaHolder? = null
     private lateinit var valueAnimator: ValueAnimator
     private var screen_width: Int = 0
@@ -83,8 +86,8 @@ class SuperAwesomeCardFragment : Fragment() {
 
     var myBroadcastReceiver: MyBroadcastReceiver? = null
 
-
     private lateinit var keyword: String
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -95,10 +98,15 @@ class SuperAwesomeCardFragment : Fragment() {
         }
         mediaHolder = MediaHolder(requireContext())
 
-//        this.ringtonesArray = prepareRingtonesData(
-//            requireContext(),
-//            "rings/${ringFileList[position!!]}.json"
-//        )
+//        if (!DBHelper.exist(this.requireContext(),RingtoneRoomDatabase.databaseName)){
+//            this.ringtonesArray = prepareRingtonesData(
+//                requireContext(),
+//                "rings/${ringFileList[position!!]}.json"
+//            )
+//        }else{
+//            this.ringtonesArray = mutableListOf()
+//        }
+
         keyword = ringFileList[position!!]
 
         var wm = this.requireActivity().windowManager
@@ -115,6 +123,7 @@ class SuperAwesomeCardFragment : Fragment() {
             IntentFilter(SuperAwesomeCardFragment.ACTION_THREAD_STATUS)
         )
         activityForSetRingtone = this.requireActivity()
+
 
     }
 
@@ -140,13 +149,22 @@ class SuperAwesomeCardFragment : Fragment() {
             setItemViewCacheSize(1000)
         }
 
+        if (DBHelper.exist(this.requireContext(), RingtoneRoomDatabase.databaseName)) {
+            setDatabase()
+        }
+
+        return binding.root
+    }
+
+    fun setDatabase() {
+        if(!RingtoneActionUtils.checkPermission(this.requireActivity())){
+            return
+        }
         ringtoneViewModel =
             ViewModelProvider(this.requireActivity()).get(RingtoneViewModel::class.java)
-
         val adapter = recyclerView.adapter as RingtoneListAdapter
-
         this.setAdapterData(ringtoneViewModel, adapter)
-        return binding.root
+
     }
 
 
@@ -589,6 +607,20 @@ class SuperAwesomeCardFragment : Fragment() {
                 }
             }
         }
+
+    }
+
+
+    var mHandler: Handler = object : Handler() {
+        override fun handleMessage(msg: Message) {
+            super.handleMessage(msg)
+
+        }
+    }
+
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
 
     }
 
