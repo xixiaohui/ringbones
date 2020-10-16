@@ -26,25 +26,32 @@
         android:roundIcon="@mipmap/logo"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:usesCleartextTraffic="true">
+        android:usesCleartextTraffic="true"
+        android:hardwareAccelerated="true">
+
+        <!-- Sample AdMob App ID: ca-app-pub-3940256099942544~3347511713 -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-3940256099942544~3347511713"/>
+
+
         <activity android:name=".SplashActivity"
             android:label="@string/app_name">
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
         </activity>
         <activity android:name=".RingtonesActivity" />
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+            android:hardwareAccelerated="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".AboutActivity" />
-        <activity android:name=".SearchActivity">
+        <activity android:name=".AboutActivity"
+            android:hardwareAccelerated="true"/>
+        <activity android:name=".SearchActivity"
+            android:hardwareAccelerated="true">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
@@ -53,9 +60,12 @@
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
         </activity>
-        <activity android:name=".SettingsActivity" />
-        <activity android:name=".DownloadActivity" />
-        <activity android:name=".FavActivity" />
+        <activity android:name=".SettingsActivity"
+            android:hardwareAccelerated="true"/>
+        <activity android:name=".DownloadActivity"
+            android:hardwareAccelerated="true"/>
+        <activity android:name=".FavActivity"
+            android:hardwareAccelerated="true"/>
 
         <service
             android:name=".utils.MyIntentService"

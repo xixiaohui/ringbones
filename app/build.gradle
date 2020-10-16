@@ -13,8 +13,9 @@ android {
         targetSdkVersion 29
         versionCode 3
         versionName "1.2"
-
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        multiDexEnabled true
     }
     signingConfigs {
         he {
@@ -94,5 +95,8 @@ dependencies {
     // Lifecycles only (without ViewModel or LiveData)
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$rootProject.lifecycle_version"
 
+    //admob
+    implementation 'com.google.android.gms:play-services-ads:19.3.0'
+    implementation 'com.android.support:multidex:1.0.3'
 
 }

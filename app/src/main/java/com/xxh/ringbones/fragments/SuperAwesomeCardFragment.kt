@@ -611,18 +611,18 @@ class SuperAwesomeCardFragment : Fragment() {
     }
 
 
-    var mHandler: Handler = object : Handler() {
-        override fun handleMessage(msg: Message) {
-            super.handleMessage(msg)
-
-        }
-    }
-
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-
-    }
+//    var mHandler: Handler = object : Handler() {
+//        override fun handleMessage(msg: Message) {
+//            super.handleMessage(msg)
+//
+//        }
+//    }
+//
+//
+//    override fun onAttach(context: Context) {
+//        super.onAttach(context)
+//
+//    }
 
     companion object {
         val CODE_WRITE_SETTINGS_PERMISSION = 10

@@ -11,37 +11,52 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.RequestConfiguration
 import com.google.android.material.appbar.MaterialToolbar
 import com.xxh.ringbones.databases.RingtoneRoomDatabase
 import com.xxh.ringbones.fragments.SuperAwesomeCardFragment
 import com.xxh.ringbones.models.RingtoneViewModel
 import com.xxh.ringbones.utils.RingtoneActionUtils
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var ad_view: AdView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_main)
+
+        initBannerAds()
+
         val topAppBar = findViewById<MaterialToolbar>(R.id.topAppBar)
         MainActivity.jumpToOtherActivity(this, topAppBar)
 
         RingtoneActionUtils.check(this)
-
     }
 
-    override fun onCreateView(
-        parent: View?,
-        name: String,
-        context: Context,
-        attrs: AttributeSet,
-    ): View? {
-        return super.onCreateView(parent, name, context, attrs)
-    }
+    private fun initBannerAds(){
+        MobileAds.initialize(this){}
 
-    fun setHandler(handler: Handler) {
+        // Set your test devices. Check your logcat output for the hashed device ID to
+        // get test ads on a physical device. e.g.
+        // "Use RequestConfiguration.Builder().setTestDeviceIds(Arrays.asList("ABCDEF012345"))
+        // to get test ads on this device."
+        MobileAds.setRequestConfiguration(
+            RequestConfiguration.Builder()
+                .setTestDeviceIds(listOf("EC1CBD9E13BA2947C85666D17681B601"))
+                .build()
+        )
+        // Create an ad request.
+        val adRequest = AdRequest.Builder().build()
 
+        // Start loading the ad in the background.
+        ad_view = findViewById<AdView>(R.id.ad_view)
+        ad_view.loadAd(adRequest)
     }
 
 
@@ -75,6 +90,23 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Called when leaving the activity
+    public override fun onPause() {
+        ad_view.pause()
+        super.onPause()
+    }
+
+    // Called when returning to the activity
+    public override fun onResume() {
+        super.onResume()
+        ad_view.resume()
+    }
+
+    // Called before the activity is destroyed
+    public override fun onDestroy() {
+        ad_view.destroy()
+        super.onDestroy()
+    }
 
     companion object {
 
