@@ -13,9 +13,8 @@ android {
         targetSdkVersion 29
         versionCode 3
         versionName "1.2"
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-
         multiDexEnabled true
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     signingConfigs {
         he {
@@ -97,6 +96,7 @@ dependencies {
 
     //admob
     implementation 'com.google.android.gms:play-services-ads:19.3.0'
+
     implementation 'com.android.support:multidex:1.0.3'
 
 }

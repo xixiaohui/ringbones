@@ -21,6 +21,7 @@ class RingtoneListAdapter(
     private val clickPlayListener: (Ringtone, RingstoneHolder, Int) -> Unit,
     private val clickSetListener: (Ringtone, url: String) -> Unit,
     private val clickFavListener: (Ringtone, select: Boolean) -> Unit,
+    private val clickDownloadListener: (Ringtone)->Unit,
 ) :
     RecyclerView.Adapter<RingstoneHolder>() {
     private val TAG: String = "RingtoneListAdapter"
@@ -42,7 +43,7 @@ class RingtoneListAdapter(
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onBindViewHolder(holder: RingstoneHolder, position: Int) {
         val ringtone: Ringtone = data!![position]
-        holder.bind(ringtone, clickPlayListener, position, clickSetListener, clickFavListener)
+        holder.bind(ringtone, clickPlayListener, position, clickSetListener, clickFavListener,clickDownloadListener)
 
         holder.setFavButtonSelect(ringtone.isFav)
         holder.setRingtoneButtonSelect(ringtone.isRingtone)
@@ -133,6 +134,7 @@ class RingstoneHolder(itemView: View) :
         position: Int,
         clickSetListener: (Ringtone, url: String) -> Unit,
         clickFavListener: (Ringtone, select: Boolean) -> Unit,
+        clickDownloadListener: (Ringtone)->Unit
     ) {
         mTitle?.text = ringtone.title
         mTag?.text = ringtone.des
@@ -165,25 +167,27 @@ class RingstoneHolder(itemView: View) :
 
         mDownload?.setOnClickListener {
 
-            if (RingtoneActionUtils.isRingtoneInSdcard(it.context,ringtone)){
-                MaterialAlertDialogBuilder(it.context)
-                    .setTitle(mDownload!!.context.getString(R.string.hi))
-                    .setMessage(mDownload!!.context.getString(R.string.download_tips_already_have)).show()
-            }else{
-                MaterialAlertDialogBuilder(it.context)
-                    .setTitle(mDownload!!.context.getString(R.string.hi))
-                    .setMessage(mDownload!!.context.getString(R.string.download_tips))
-                    .setNegativeButton(it.context.resources.getString(R.string.cancel)) { dialog, which ->
-                        // Respond to negative button press
-                    }
-                    .setPositiveButton(it.context.resources.getString(R.string.ok)) { dialog, which ->
-                        // Respond to positive button press
-                        var url = ringtone.url
-                        var title = RingtoneActionUtils.getFileNameFromUrl(ringtone.url)
-                        DownloadManagerTest.download(it.context, url, title!!)
-                    }
-                    .show()
-            }
+            clickDownloadListener(ringtone)
+
+//            if (RingtoneActionUtils.isRingtoneInSdcard(it.context,ringtone)){
+//                MaterialAlertDialogBuilder(it.context)
+//                    .setTitle(mDownload!!.context.getString(R.string.hi))
+//                    .setMessage(mDownload!!.context.getString(R.string.download_tips_already_have)).show()
+//            }else{
+//                MaterialAlertDialogBuilder(it.context)
+//                    .setTitle(mDownload!!.context.getString(R.string.hi))
+//                    .setMessage(mDownload!!.context.getString(R.string.download_tips))
+//                    .setNegativeButton(it.context.resources.getString(R.string.cancel)) { dialog, which ->
+//                        // Respond to negative button press
+//                    }
+//                    .setPositiveButton(it.context.resources.getString(R.string.ok)) { dialog, which ->
+//                        // Respond to positive button press
+//                        var url = ringtone.url
+//                        var title = RingtoneActionUtils.getFileNameFromUrl(ringtone.url)
+//                        DownloadManagerTest.download(it.context, url, title!!)
+//                    }
+//                    .show()
+//            }
 
 
         }

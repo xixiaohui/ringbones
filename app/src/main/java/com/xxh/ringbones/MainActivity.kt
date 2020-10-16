@@ -1,30 +1,44 @@
 package com.xxh.ringbones
 
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
+import android.os.Message
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.MobileAds
-import com.google.android.gms.ads.RequestConfiguration
+import com.google.android.gms.ads.*
+import com.google.android.gms.ads.rewarded.RewardItem
+import com.google.android.gms.ads.rewarded.RewardedAd
+import com.google.android.gms.ads.rewarded.RewardedAdCallback
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import com.google.android.material.appbar.MaterialToolbar
+import com.xxh.ringbones.data.Ringtone
 import com.xxh.ringbones.databases.RingtoneRoomDatabase
 import com.xxh.ringbones.fragments.SuperAwesomeCardFragment
 import com.xxh.ringbones.models.RingtoneViewModel
+import com.xxh.ringbones.utils.DownloadManagerTest
+import com.xxh.ringbones.utils.MyRewardedAdHandler
+import com.xxh.ringbones.utils.RewardedAdUtils
 import com.xxh.ringbones.utils.RingtoneActionUtils
 import kotlinx.android.synthetic.main.activity_main.*
+
+const val LOAD_REWARDED_AD = 100
+const val SHOW_REWARDED_AD = 101
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var ad_view: AdView
+
+    var handler: Handler? = null
+    var mRewardedAd: RewardedAd? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,6 +46,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         initBannerAds()
+        mRewardedAd = RewardedAdUtils.initRewardedAd(this)
+        handler = MyRewardedAdHandler(this, mRewardedAd!!)
 
         val topAppBar = findViewById<MaterialToolbar>(R.id.topAppBar)
         MainActivity.jumpToOtherActivity(this, topAppBar)
@@ -39,8 +55,8 @@ class MainActivity : AppCompatActivity() {
         RingtoneActionUtils.check(this)
     }
 
-    private fun initBannerAds(){
-        MobileAds.initialize(this){}
+    private fun initBannerAds() {
+        MobileAds.initialize(this) {}
 
         // Set your test devices. Check your logcat output for the hashed device ID to
         // get test ads on a physical device. e.g.
@@ -58,6 +74,8 @@ class MainActivity : AppCompatActivity() {
         ad_view = findViewById<AdView>(R.id.ad_view)
         ad_view.loadAd(adRequest)
     }
+
+
 
 
     override fun onRequestPermissionsResult(
@@ -109,6 +127,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
+
+        lateinit var url: String
+
+
 
         fun jumpToOtherActivity(activity: AppCompatActivity, topAppBar: MaterialToolbar) {
             topAppBar.setOnClickListener {

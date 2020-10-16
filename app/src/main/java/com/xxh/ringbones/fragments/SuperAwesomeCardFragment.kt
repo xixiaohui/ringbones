@@ -33,10 +33,17 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.ads.AdError
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.rewarded.RewardItem
+import com.google.android.gms.ads.rewarded.RewardedAd
+import com.google.android.gms.ads.rewarded.RewardedAdCallback
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
-import com.xxh.ringbones.MainActivity
-import com.xxh.ringbones.R
+import com.xxh.ringbones.*
 import com.xxh.ringbones.adapter.RingstoneHolder
 import com.xxh.ringbones.adapter.RingtoneListAdapter
 import com.xxh.ringbones.data.Ringtone
@@ -47,12 +54,13 @@ import com.xxh.ringbones.utils.*
 import org.json.JSONArray
 
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+const val AD_UNIT_ID = "ca-app-pub-3940256099942544/5224354917"
+
+
+
 private const val POSITON = "position"
 private const val WHTICH = "which_activity"
 private const val SEARCH = "search"
-
 enum class WHICHACTIVITY {
     MAIN_ACTIVITY,
     FAV_ACTVITY,
@@ -61,21 +69,13 @@ enum class WHICHACTIVITY {
     RINGTONE_ACTIVITY
 }
 
-/**
- * A simple [Fragment] subclass.
- * Use the [SuperAwesomeCardFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class SuperAwesomeCardFragment : Fragment() {
     private val TAG: String = "SuperAwesomeCardFragment"
 
-    // TODO: Rename and change types of parameters
     private var position: Int? = null
     private var whichactivity: Int? = null
     private var searchKeyWords: String? = null
     private lateinit var binding: FragmentSuperAwesomeCardBinding
-
-    //    private lateinit var ringtonesArray: MutableList<Ringtone>
     private var mediaHolder: MediaHolder? = null
     private lateinit var valueAnimator: ValueAnimator
     private var screen_width: Int = 0
@@ -83,10 +83,9 @@ class SuperAwesomeCardFragment : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private var playView: ImageView? = null
     private var oldViewHolder: RingstoneHolder? = null
-
     var myBroadcastReceiver: MyBroadcastReceiver? = null
-
     private lateinit var keyword: String
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -96,17 +95,9 @@ class SuperAwesomeCardFragment : Fragment() {
             whichactivity = it.getInt(WHTICH)
             searchKeyWords = it.getString(SEARCH)
         }
+
+
         mediaHolder = MediaHolder(requireContext())
-
-//        if (!DBHelper.exist(this.requireContext(),RingtoneRoomDatabase.databaseName)){
-//            this.ringtonesArray = prepareRingtonesData(
-//                requireContext(),
-//                "rings/${ringFileList[position!!]}.json"
-//            )
-//        }else{
-//            this.ringtonesArray = mutableListOf()
-//        }
-
         keyword = ringFileList[position!!]
 
         var wm = this.requireActivity().windowManager
@@ -123,8 +114,6 @@ class SuperAwesomeCardFragment : Fragment() {
             IntentFilter(SuperAwesomeCardFragment.ACTION_THREAD_STATUS)
         )
         activityForSetRingtone = this.requireActivity()
-
-
     }
 
     @RequiresApi(Build.VERSION_CODES.KITKAT)
@@ -145,7 +134,8 @@ class SuperAwesomeCardFragment : Fragment() {
                     ringstoneItemClicked(ringstone, holder, position)
                 },
                 { ringstone, url -> setRingtone(ringstone, url) },
-                { ringtone, select -> clickFavButton(ringtone, select) })
+                { ringtone, select -> clickFavButton(ringtone, select) },
+                {ringtone ->  clickDownloadButton(ringtone)})
             setItemViewCacheSize(1000)
         }
 
@@ -155,6 +145,8 @@ class SuperAwesomeCardFragment : Fragment() {
 
         return binding.root
     }
+
+
 
     fun setDatabase() {
         if(!RingtoneActionUtils.checkPermission(this.requireActivity())){
@@ -228,6 +220,53 @@ class SuperAwesomeCardFragment : Fragment() {
         ringtoneViewModel.update(ringtone)
     }
 
+
+
+    private fun clickDownloadButton(ringtone: Ringtone) {
+
+        val context = this.requireContext()
+        if (RingtoneActionUtils.isRingtoneInSdcard(context,ringtone)){
+            MaterialAlertDialogBuilder(context)
+                .setTitle(context.getString(R.string.hi))
+                .setMessage(context.getString(R.string.download_tips_already_have)).show()
+        }else{
+            MaterialAlertDialogBuilder(context)
+                .setTitle(context.getString(R.string.hi))
+                .setMessage(context.getString(R.string.download_tips))
+                .setNegativeButton(context.resources.getString(R.string.cancel)) { dialog, which ->
+                    // Respond to negative button press
+                }
+                .setPositiveButton(context.resources.getString(R.string.ok)) { dialog, which ->
+                    // Respond to positive button press
+
+                    val message: Message = Message.obtain()
+                    message.what = LOAD_REWARDED_AD
+                    val bundle = Bundle()
+                    bundle.putString("url", ringtone.url)
+                    message.data = bundle
+
+                    if (this.requireActivity() is MainActivity){
+                        val activity = this.requireActivity() as MainActivity
+                        activity.handler!!.sendMessage(message)
+                    }else if (this.requireActivity() is FavActivity){
+                        val activity = this.requireActivity() as FavActivity
+                        activity.handler!!.sendMessage(message)
+                    }else if (this.requireActivity() is DownloadActivity){
+                        val activity = this.requireActivity() as DownloadActivity
+                        activity.handler!!.sendMessage(message)
+                    }else if (this.requireActivity() is RingtonesActivity){
+                        val activity = this.requireActivity() as RingtonesActivity
+                        activity.handler!!.sendMessage(message)
+                    }else if (this.requireActivity() is SearchActivity){
+                        val activity = this.requireActivity() as SearchActivity
+                        activity.handler!!.sendMessage(message)
+                    }
+                }
+                .show()
+        }
+    }
+
+
     @RequiresApi(Build.VERSION_CODES.KITKAT)
     private fun setRingtone(ringtone: Ringtone, url: String) {
         val context = requireActivity()
@@ -239,7 +278,7 @@ class SuperAwesomeCardFragment : Fragment() {
             requestPermissions(
                 context,
                 arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 1
-            );
+            )
         }
         if (Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(
                 requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE
@@ -249,7 +288,7 @@ class SuperAwesomeCardFragment : Fragment() {
             requestPermissions(
                 context,
                 arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 1
-            );
+            )
         }
 
         myDesirePermissionCode(context, ringtone)
@@ -432,14 +471,14 @@ class SuperAwesomeCardFragment : Fragment() {
                     mediaHolder!!.pause()
                     valueAnimator.pause()
                     imageView.tag = "Pause"
-                    imageView?.setImageResource(R.drawable.ic_play)
+                    imageView.setImageResource(R.drawable.ic_play)
                 }
             }
             "Pause" -> {
                 mediaHolder!!.start()
                 valueAnimator.resume()
                 imageView.tag = "Play"
-                imageView?.setImageResource(R.drawable.ic_pause)
+                imageView.setImageResource(R.drawable.ic_pause)
             }
             "End" -> {
                 imageView.tag = "Play"
@@ -448,7 +487,7 @@ class SuperAwesomeCardFragment : Fragment() {
                 valueAnimator.start()
                 mediaHolder!!.seekTo(0)
                 mediaHolder!!.start()
-                imageView?.setImageResource(R.drawable.ic_pause)
+                imageView.setImageResource(R.drawable.ic_pause)
             }
         }
     }
@@ -464,7 +503,7 @@ class SuperAwesomeCardFragment : Fragment() {
 
         mediaHolder!!.setDataSource(url, object : MediaHolder.MediaAction {
             override fun doAction() {
-                imageView?.setImageResource(R.drawable.ic_pause)
+                imageView.setImageResource(R.drawable.ic_pause)
                 progressBar?.visibility = View.INVISIBLE
 
                 //设置属性动画
@@ -477,7 +516,7 @@ class SuperAwesomeCardFragment : Fragment() {
                     MediaHolder.CompletionListner {
                     override fun doAction() {
                         imageView.tag = "End"
-                        imageView?.setImageResource(R.drawable.ic_play)
+                        imageView.setImageResource(R.drawable.ic_play)
                         valueAnimator.setupStartValues()
                     }
                 })
@@ -495,9 +534,9 @@ class SuperAwesomeCardFragment : Fragment() {
             var curValue = animator.animatedValue
 
             backgroundView!!.layoutParams.width = curValue as Int
-            backgroundView!!.requestLayout()
-            if (backgroundView!!.layoutParams.width > 1) {
-                backgroundView!!.visibility = View.VISIBLE
+            backgroundView.requestLayout()
+            if (backgroundView.layoutParams.width > 1) {
+                backgroundView.visibility = View.VISIBLE
             }
         }
         setValueAnimationDuration(duration)
@@ -558,11 +597,6 @@ class SuperAwesomeCardFragment : Fragment() {
 
     }
 
-    override fun onStop() {
-        super.onStop()
-//        Log.i(TAG,"onStop")
-    }
-
 
     class MyBroadcastReceiver : BroadcastReceiver() {
 
@@ -577,11 +611,11 @@ class SuperAwesomeCardFragment : Fragment() {
                     Log.i(TAG, "SuperAwesomeCardFragment.ACTION_INTENTSERVICE_STATUS")
                 }
                 ACTION_THREAD_STATUS -> {
-                    var filename = intent!!.getStringExtra(MyIntentService.FILENAME)
+                    var filename = intent.getStringExtra(MyIntentService.FILENAME)
                     Log.i(TAG, filename)
-                    var status = intent!!.getIntExtra(MyIntentService.STATUS, 0)
+                    var status = intent.getIntExtra(MyIntentService.STATUS, 0)
                     Log.i(TAG, "status = $status")
-                    var title = intent!!.getStringExtra(MyIntentService.TITLE)
+                    var title = intent.getStringExtra(MyIntentService.TITLE)
 
                     when (status) {
                         DownloadManager.STATUS_SUCCESSFUL -> {
@@ -611,18 +645,7 @@ class SuperAwesomeCardFragment : Fragment() {
     }
 
 
-//    var mHandler: Handler = object : Handler() {
-//        override fun handleMessage(msg: Message) {
-//            super.handleMessage(msg)
-//
-//        }
-//    }
-//
-//
-//    override fun onAttach(context: Context) {
-//        super.onAttach(context)
-//
-//    }
+
 
     companion object {
         val CODE_WRITE_SETTINGS_PERMISSION = 10
