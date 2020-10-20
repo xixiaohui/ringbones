@@ -19,6 +19,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -77,7 +78,7 @@ class SuperAwesomeCardFragment : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private var playView: ImageView? = null
     private var oldViewHolder: RingstoneHolder? = null
-    var myBroadcastReceiver: MyBroadcastReceiver? = null
+
     private lateinit var keyword: String
 
 
@@ -101,11 +102,15 @@ class SuperAwesomeCardFragment : Fragment() {
         valueAnimator = ValueAnimator.ofInt(0, screen_width)
 
         //通知用于下载
-        myBroadcastReceiver = MyBroadcastReceiver()
-        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(
-            myBroadcastReceiver!!,
-            IntentFilter(SuperAwesomeCardFragment.ACTION_THREAD_STATUS)
-        )
+        if (myBroadcastReceiver == null){
+            Log.i(TAG,"myBroadcastReceiver")
+            myBroadcastReceiver = MyBroadcastReceiver()
+            LocalBroadcastManager.getInstance(requireContext()).registerReceiver(
+                myBroadcastReceiver!!,
+                IntentFilter(SuperAwesomeCardFragment.ACTION_THREAD_STATUS)
+            )
+        }
+
         activityForSetRingtone = this.requireActivity()
     }
 
@@ -116,7 +121,6 @@ class SuperAwesomeCardFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         binding = FragmentSuperAwesomeCardBinding.inflate(inflater)
-        rootView = binding.root
 
         recyclerView = binding.root.findViewById<RecyclerView>(R.id.ring_list)
         recyclerView.apply {
@@ -632,9 +636,11 @@ class SuperAwesomeCardFragment : Fragment() {
                     when (status) {
                         DownloadManager.STATUS_SUCCESSFUL -> {
 
-                            Snackbar.make(SuperAwesomeCardFragment.rootView,
-                                "Download successful.",
-                                Snackbar.LENGTH_LONG).show()
+//                            Snackbar.make(SuperAwesomeCardFragment.rootView,
+//                                "Download successful.",
+//                                Snackbar.LENGTH_LONG).show()
+                            Log.i(TAG,"ACTION_THREAD_STATUS")
+                            Toast.makeText(context,"Download successful.",Toast.LENGTH_SHORT).show()
 
                             RingtoneActionUtils.setMyRingtoneWithFileName(activityForSetRingtone,
                                 filename)
@@ -643,9 +649,11 @@ class SuperAwesomeCardFragment : Fragment() {
                         }
                         DownloadManager.STATUS_FAILED -> {
 
-                            Snackbar.make(SuperAwesomeCardFragment.rootView,
-                                "Download failed.",
-                                Snackbar.LENGTH_LONG).show()
+//                            Snackbar.make(SuperAwesomeCardFragment.rootView,
+//                                "Download failed.",
+//                                Snackbar.LENGTH_LONG).show()
+
+                            Toast.makeText(context,"Download failed.",Toast.LENGTH_LONG).show()
                         }
                     }
 
@@ -656,16 +664,26 @@ class SuperAwesomeCardFragment : Fragment() {
 
     }
 
+    fun startDownloadService(activity: Activity, ringtone: Ringtone) {
+        var intent = Intent(activity, MyIntentService(ringtone.title)::class.java)
+
+        val filename = RingtoneActionUtils.getFileNameFromUrl(ringtone.url)
+        intent.putExtra(MyIntentService.URL, ringtone.url)
+        intent.putExtra(MyIntentService.FILENAME, filename)
+        intent.putExtra(MyIntentService.TITLE, ringtone.title)
+
+        activity.baseContext.startService(intent)
+    }
 
     companion object {
         val CODE_WRITE_SETTINGS_PERMISSION = 10
         val ACTION_THREAD_STATUS = "action_thread_status"
         val ACTION_INTENTSERVICE_STATUS = "action_intentservice_status"
 
-        lateinit var rootView: ConstraintLayout
         lateinit var activityForSetRingtone: Activity
-
         lateinit var ringtoneViewModel: RingtoneViewModel
+
+        var myBroadcastReceiver: MyBroadcastReceiver? = null
 
         val EXTRA_REPLY = "com.xxh.ringbones.REPLY"
         val ringFileList = arrayOf(
@@ -719,19 +737,6 @@ class SuperAwesomeCardFragment : Fragment() {
             }
             return ringtonesArray
         }
-
-
-        fun startDownloadService(activity: Activity, ringtone: Ringtone) {
-            var intent = Intent(activity, MyIntentService(ringtone.title)::class.java)
-
-            val filename = RingtoneActionUtils.getFileNameFromUrl(ringtone.url)
-            intent.putExtra(MyIntentService.URL, ringtone.url)
-            intent.putExtra(MyIntentService.FILENAME, filename)
-            intent.putExtra(MyIntentService.TITLE, ringtone.title)
-
-            activity.baseContext.startService(intent)
-        }
-
     }
 
     fun setLoadingVisible() {

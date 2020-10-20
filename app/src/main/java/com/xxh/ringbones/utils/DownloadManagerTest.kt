@@ -22,7 +22,7 @@ class DownloadManagerTest {
         fun download(
             context: Context,
             downloadUrl: String,
-            fileName: String
+            fileName: String,
         ): Long? {
 
             //创建下载任务，downloadUrl就是下载链接
@@ -48,18 +48,20 @@ class DownloadManagerTest {
         }
 
 
-        fun doInBackground(context: Context,
-                           downloadUrl: String,
-                           fileName: String,
-                           title: String,
-                           sendBroadcast: (Int,String,String) -> Unit): Boolean? {
+        fun doInBackground(
+            context: Context,
+            downloadUrl: String,
+            fileName: String,
+            title: String,
+            sendBroadcast: (Int, String, String) -> Unit,
+        ): Boolean? {
             var flag = true
             var downloading = true
             return try {
                 val mManager: DownloadManager =
                     context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
 
-                val idDownLoad:Long? = download(context,downloadUrl, fileName)
+                val idDownLoad: Long? = download(context, downloadUrl, fileName)
                 var query: DownloadManager.Query? = null
                 query = DownloadManager.Query()
                 var c: Cursor? = null
@@ -77,13 +79,13 @@ class DownloadManagerTest {
                             Log.i("FLAG", "done")
                             downloading = false
                             flag = true
-                            sendBroadcast(DownloadManager.STATUS_SUCCESSFUL,fileName,title)
+                            sendBroadcast(DownloadManager.STATUS_SUCCESSFUL, fileName, title)
                             break
                         }
                         if (status == DownloadManager.STATUS_FAILED) {
                             Log.i("FLAG", "Fail")
                             downloading = false
-                            sendBroadcast(DownloadManager.STATUS_FAILED,fileName,title)
+                            sendBroadcast(DownloadManager.STATUS_FAILED, fileName, title)
                             flag = false
                             break
                         }

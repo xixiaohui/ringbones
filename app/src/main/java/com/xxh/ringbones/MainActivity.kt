@@ -70,7 +70,7 @@ class MainActivity : AppCompatActivity() {
         // to get test ads on this device."
         MobileAds.setRequestConfiguration(
             RequestConfiguration.Builder()
-                .setTestDeviceIds(listOf("EC1CBD9E13BA2947C85666D17681B601"))
+                .setTestDeviceIds(listOf("EC1CBD9E13BA2947C85666D17681B601","F2943A5D253923044C5806BE9E755070"))
                 .build()
         )
         // Create an ad request.

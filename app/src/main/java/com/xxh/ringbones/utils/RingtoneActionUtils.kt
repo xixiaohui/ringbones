@@ -65,7 +65,7 @@ class RingtoneActionUtils {
                 selectionArgs,
                 null
             )
-            val insertedUri: Uri
+            val insertedUri: Uri?
             insertedUri = if (cursor == null || cursor.count < 1) {
                 // not exist, insert into MediaStore
                 val cv = ContentValues()
@@ -79,27 +79,25 @@ class RingtoneActionUtils {
                 cv.put(MediaStore.Audio.Media.IS_ALARM, false)
                 cv.put(MediaStore.Audio.Media.IS_MUSIC, false)
 
-                activity.baseContext.contentResolver.insert(current_uri, cv)!!
+                activity.baseContext.contentResolver.insert(current_uri, cv)
             } else {
                 // already exist
                 cursor.moveToNext()
                 val id = cursor.getLong(0)
                 ContentUris.withAppendedId(current_uri, id)
             }
-//            RingtoneUtils.addCustomExternalRingtone(
-//                activity.baseContext,
-//                insertedUri,
-//                RingtoneManager.TYPE_RINGTONE
-//            )
+
             RingtoneManager.setActualDefaultRingtoneUri(
                 activity.baseContext,
                 RingtoneManager.TYPE_RINGTONE,
                 insertedUri
             )
 
-            Snackbar.make(SuperAwesomeCardFragment.rootView,
-                "The ringtone is set successfully!",
-                Snackbar.LENGTH_LONG).show()
+//            Snackbar.make(SuperAwesomeCardFragment.rootView,
+//                "The ringtone is set successfully!",
+//                Snackbar.LENGTH_LONG).show()
+
+            Toast.makeText(activity.baseContext,"The ringtone is set successfully!",Toast.LENGTH_LONG).show()
         }
 
         fun setRingtongByID(context: Context, id: Long, internal: Boolean) {
@@ -158,7 +156,7 @@ class RingtoneActionUtils {
                 RingtoneManager.TYPE_ALARM,
                 newUri
             )
-            Toast.makeText(activity, "设置闹钟铃声成功！", Toast.LENGTH_SHORT).show()
+            Toast.makeText(activity, "设置闹钟铃声成功！", Toast.LENGTH_LONG).show()
         }
 
 
@@ -378,7 +376,7 @@ class RingtoneActionUtils {
          */
         fun createDir(dirPath: String) {
             val file = File(dirPath)
-            if (!file.exists()){
+            if (!file.exists()) {
                 file.mkdirs()
             }
         }
@@ -396,6 +394,7 @@ class RingtoneActionUtils {
         }
 
         val WRITE_EXTERNAL_STORAGE_REQUEST_CODE = 100
+
         /**
          * 检测权限
          */
@@ -416,8 +415,14 @@ class RingtoneActionUtils {
         }
 
         fun getDownloadRingtoneFileList(context: Context): Array<File> {
-            val ringtoneHolder: File? =
+            var ringtoneHolder: File? =
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_RINGTONES)
+            if (!ringtoneHolder!!.exists()) {
+                createDir(ringtoneHolder.absolutePath)
+                ringtoneHolder =
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_RINGTONES)
+            }
+
             val ringtontlist: Array<File> = ringtoneHolder!!.listFiles()
             return ringtontlist
         }
@@ -455,28 +460,5 @@ class RingtoneActionUtils {
 
     }
 
-//    fun onSuccess(i: Int, json: String?) {
-//        Log.i("Channel", "onSuccess")
-//        val message: Message = Message.obtain()
-//        message.what = 0
-//        val bundle = Bundle()
-//        bundle.putString("json", json)
-//        message.setData(bundle)
-//        myHandler.sendMessage(message)
-//    }
-//
-//    //这里处理传过来的数据
-//    private val myHandler: Handler = object : Handler() {
-//        fun handleMessage(msg: Message) {
-//            when (msg.what) {
-//                0 -> {
-//                    val bundle: Bundle = msg.getData()
-//                    System.out.println(bundle.getString("json", ""))
-//                }
-//                else -> {
-//                }
-//            }
-//        }
-//    }
 
 }

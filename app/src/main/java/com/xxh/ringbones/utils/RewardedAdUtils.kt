@@ -1,11 +1,13 @@
 package com.xxh.ringbones.utils
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
 import android.util.Log
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.ads.AdError
@@ -39,10 +41,12 @@ class RewardedAdUtils {
             val adLoadCallback = object : RewardedAdLoadCallback() {
                 override fun onRewardedAdLoaded() {
                     // Ad successfully loaded.
+                    Toast.makeText(activity.baseContext,"Rewarded Ad Loaded.",Toast.LENGTH_SHORT).show()
                 }
 
                 override fun onRewardedAdFailedToLoad(adError: LoadAdError) {
                     // Ad failed to load.
+                    Toast.makeText(activity.baseContext,"Rewarded Ad FailedTo Load",Toast.LENGTH_SHORT).show()
                 }
             }
             rewardedAd!!.loadAd(AdRequest.Builder().build(), adLoadCallback)
@@ -76,7 +80,7 @@ class RewardedAdUtils {
                     // Ad failed to load.
                     Log.d("TAG", "on Rewarded Ad Failed To Load.")
                     hideLoading(activity)
-                    Snackbar.make(SuperAwesomeCardFragment.rootView,"Rewarded Ad Failed To Load.",Snackbar.LENGTH_LONG).show()
+                    Toast.makeText(activity.baseContext,"Rewarded Ad Failed To Load.",Toast.LENGTH_LONG).show()
                 }
             }
             rewardedAd.loadAd(AdRequest.Builder().build(), adLoadCallback)
@@ -104,7 +108,21 @@ class RewardedAdUtils {
 
 //            Log.d("TAG", "startDownloadAndSetRingtone")
 //            Log.d("TAG", ringtone!!.url)
-            SuperAwesomeCardFragment.startDownloadService(activity, ringtone!!)
+
+            startDownloadService(activity, ringtone!!)
+        }
+
+        private fun startDownloadService(activity: Activity, ringtone: Ringtone) {
+
+//            Log.i("RewardedAdUtils","startDownloadService")
+            var intent = Intent(activity, MyIntentService(ringtone.title)::class.java)
+
+            val filename = RingtoneActionUtils.getFileNameFromUrl(ringtone.url)
+            intent.putExtra(MyIntentService.URL, ringtone.url)
+            intent.putExtra(MyIntentService.FILENAME, filename)
+            intent.putExtra(MyIntentService.TITLE, ringtone.title)
+
+            activity.baseContext.startService(intent)
         }
 
         fun showRewardedAd(
@@ -144,46 +162,13 @@ class RewardedAdUtils {
             } else {
                 Log.d("TAG", "The rewarded ad wasn't loaded yet.")
                 hideLoading(activity)
-                Snackbar.make(SuperAwesomeCardFragment.rootView,"The rewarded ad wasn't loaded yet.",Snackbar.LENGTH_LONG).show()
+                Toast.makeText(activity.baseContext,"The rewarded ad wasn't loaded yet.",Toast.LENGTH_LONG).show()
+
+//                doAction(url,ringtone)
+//                Snackbar.make(SuperAwesomeCardFragment.rootView,"The rewarded ad wasn't loaded yet.",Snackbar.LENGTH_LONG).show()
             }
         }
 
-//        fun showRewardedAdForSetRingtone(
-//            activity: AppCompatActivity,
-//            rewardedAd: RewardedAd,
-//            ringtone: Ringtone,
-//            doAction: (ringtone: Ringtone) -> Unit,
-//        ) {
-//            if (rewardedAd.isLoaded) {
-//                val activityContext: AppCompatActivity = activity
-//                val adCallback = object : RewardedAdCallback() {
-//                    override fun onUserEarnedReward(p0: RewardItem) {
-//                        Log.d("TAG", "on User Earned Reward.--------------------------------")
-//                        doAction(ringtone)
-//                    }
-//
-//                    override fun onRewardedAdOpened() {
-//                        super.onRewardedAdOpened()
-//                        Log.d("TAG", "on Rewarded Ad Opened.")
-//
-//                    }
-//
-//                    override fun onRewardedAdClosed() {
-//                        super.onRewardedAdClosed()
-//                        Log.d("TAG", "on Rewarded Ad Closed.")
-//                    }
-//
-//                    override fun onRewardedAdFailedToShow(p0: AdError?) {
-//                        super.onRewardedAdFailedToShow(p0)
-//                        Log.d("TAG", "onRewardedAd Failed To Show.")
-//                    }
-//                }
-//                rewardedAd.show(activityContext, adCallback)
-//            } else {
-//                Log.d("TAG", "The rewarded ad wasn't loaded yet.")
-//
-//                Snackbar.make(SuperAwesomeCardFragment.rootView,"The rewarded ad wasn't loaded yet.",Snackbar.LENGTH_LONG).show()
-//            }
-//        }
+
     }
 }
