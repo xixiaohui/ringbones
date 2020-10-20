@@ -9,10 +9,7 @@ import android.content.*
 import android.content.pm.PackageManager
 import android.media.RingtoneManager
 import android.net.Uri
-import android.os.Build
-import android.os.Bundle
-import android.os.Handler
-import android.os.Message
+import android.os.*
 import android.provider.Settings
 import android.util.DisplayMetrics
 import android.util.Log
@@ -54,14 +51,10 @@ import com.xxh.ringbones.models.RingtoneViewModel
 import com.xxh.ringbones.utils.*
 import org.json.JSONArray
 
-
-const val AD_UNIT_ID = "ca-app-pub-3940256099942544/5224354917"
-
-
-
 private const val POSITON = "position"
 private const val WHTICH = "which_activity"
 private const val SEARCH = "search"
+
 enum class WHICHACTIVITY {
     MAIN_ACTIVITY,
     FAV_ACTVITY,
@@ -86,7 +79,6 @@ class SuperAwesomeCardFragment : Fragment() {
     private var oldViewHolder: RingstoneHolder? = null
     var myBroadcastReceiver: MyBroadcastReceiver? = null
     private lateinit var keyword: String
-
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -131,12 +123,12 @@ class SuperAwesomeCardFragment : Fragment() {
             layoutManager = LinearLayoutManager(requireContext())
             setHasFixedSize(true)
             adapter = RingtoneListAdapter(null,
-                { ringstone, holder, position ->
-                    ringstoneItemClicked(ringstone, holder, position)
+                { ringtone, holder, position ->
+                    ringstoneItemClicked(ringtone, holder, position)
                 },
-                { ringstone, url -> setRingtone(ringstone, url) },
+                { ringtone, url -> setRingtone(ringtone, url) },
                 { ringtone, select -> clickFavButton(ringtone, select) },
-                {ringtone ->  clickDownloadButton(ringtone)})
+                { ringtone -> clickDownloadButton(ringtone) })
             setItemViewCacheSize(1000)
         }
 
@@ -147,9 +139,8 @@ class SuperAwesomeCardFragment : Fragment() {
     }
 
 
-
     fun setDatabase() {
-        if(!RingtoneActionUtils.checkPermission(this.requireActivity())){
+        if (!RingtoneActionUtils.checkPermission(this.requireActivity())) {
             return
         }
         ringtoneViewModel =
@@ -221,15 +212,14 @@ class SuperAwesomeCardFragment : Fragment() {
     }
 
 
-
     private fun clickDownloadButton(ringtone: Ringtone) {
 
         val context = this.requireContext()
-        if (RingtoneActionUtils.isRingtoneInSdcard(context,ringtone)){
+        if (RingtoneActionUtils.isRingtoneInSdcard(context, ringtone)) {
             MaterialAlertDialogBuilder(context)
                 .setTitle(context.getString(R.string.hi))
                 .setMessage(context.getString(R.string.download_tips_already_have)).show()
-        }else{
+        } else {
             MaterialAlertDialogBuilder(context)
                 .setTitle(context.getString(R.string.hi))
                 .setMessage(context.getString(R.string.download_tips))
@@ -245,25 +235,24 @@ class SuperAwesomeCardFragment : Fragment() {
                     bundle.putString("url", ringtone.url)
                     message.data = bundle
 
-                    if (this.requireActivity() is MainActivity){
+                    if (this.requireActivity() is MainActivity) {
                         val activity = this.requireActivity() as MainActivity
                         activity.handler!!.sendMessage(message)
-                    }else if (this.requireActivity() is FavActivity){
+                    } else if (this.requireActivity() is FavActivity) {
                         val activity = this.requireActivity() as FavActivity
                         activity.handler!!.sendMessage(message)
-                    }else if (this.requireActivity() is DownloadActivity){
+                    } else if (this.requireActivity() is DownloadActivity) {
                         val activity = this.requireActivity() as DownloadActivity
                         activity.handler!!.sendMessage(message)
-                    }else if (this.requireActivity() is RingtonesActivity){
+                    } else if (this.requireActivity() is RingtonesActivity) {
                         val activity = this.requireActivity() as RingtonesActivity
                         activity.handler!!.sendMessage(message)
-                    }else if (this.requireActivity() is SearchActivity){
+                    } else if (this.requireActivity() is SearchActivity) {
                         val activity = this.requireActivity() as SearchActivity
                         activity.handler!!.sendMessage(message)
                     }
 
                     setLoadingVisible()
-
                 }
                 .show()
         }
@@ -313,13 +302,44 @@ class SuperAwesomeCardFragment : Fragment() {
             Log.i(TAG, "获得了写入权限")
 
             val filename = RingtoneActionUtils.getFileNameFromUrl(ringtone.url)
-            if (!RingtoneActionUtils.fileIsExistsInRingtonesHolder(filename!!)) {
-                startDownloadService(activity, ringtone)
-            } else {
+            if (RingtoneActionUtils.fileIsExistsInRingtonesHolder(filename!!)) {
                 RingtoneActionUtils.setMyRingtoneWithFileName(activityForSetRingtone, filename)
                 //数据库更新
                 ringtone.isRingtone = true
                 ringtoneViewModel.update(ringtone)
+            } else {
+                val context = this.requireContext()
+                MaterialAlertDialogBuilder(this.requireContext())
+                    .setTitle(context.getString(R.string.hi))
+                    .setMessage(context.getString(R.string.setringtone_tips))
+                    .setNegativeButton(context.resources.getString(R.string.cancel)) { dialog, which ->
+                        // Respond to negative button press
+                    }
+                    .setPositiveButton(context.resources.getString(R.string.ok)) { dialog, which ->
+
+                        val message: Message = Message.obtain()
+                        message.what = LOAD_REWARDED_AD_SETRINGTONE
+                        message.obj = ringtone
+
+                        if (this.requireActivity() is MainActivity) {
+                            val activity = this.requireActivity() as MainActivity
+                            activity.handler!!.sendMessage(message)
+                        } else if (this.requireActivity() is FavActivity) {
+                            val activity = this.requireActivity() as FavActivity
+                            activity.handler!!.sendMessage(message)
+                        } else if (this.requireActivity() is DownloadActivity) {
+                            val activity = this.requireActivity() as DownloadActivity
+                            activity.handler!!.sendMessage(message)
+                        } else if (this.requireActivity() is RingtonesActivity) {
+                            val activity = this.requireActivity() as RingtonesActivity
+                            activity.handler!!.sendMessage(message)
+                        } else if (this.requireActivity() is SearchActivity) {
+                            val activity = this.requireActivity() as SearchActivity
+                            activity.handler!!.sendMessage(message)
+                        }
+
+                        setLoadingVisible()
+                    }.show()
             }
 
         } else {
@@ -340,17 +360,6 @@ class SuperAwesomeCardFragment : Fragment() {
 
             }
         }
-    }
-
-    private fun startDownloadService(activity: Activity, ringtone: Ringtone) {
-        var intent = Intent(activity, MyIntentService(ringtone.title)::class.java)
-
-        val filename = RingtoneActionUtils.getFileNameFromUrl(ringtone.url)
-        intent.putExtra(MyIntentService.URL, ringtone.url)
-        intent.putExtra(MyIntentService.FILENAME, filename)
-        intent.putExtra(MyIntentService.TITLE, ringtone.title)
-
-        activity.baseContext.startService(intent)
     }
 
 
@@ -648,14 +657,13 @@ class SuperAwesomeCardFragment : Fragment() {
     }
 
 
-
     companion object {
         val CODE_WRITE_SETTINGS_PERMISSION = 10
         val ACTION_THREAD_STATUS = "action_thread_status"
         val ACTION_INTENTSERVICE_STATUS = "action_intentservice_status"
 
         lateinit var rootView: ConstraintLayout
-        private lateinit var activityForSetRingtone: Activity
+        lateinit var activityForSetRingtone: Activity
 
         lateinit var ringtoneViewModel: RingtoneViewModel
 
@@ -713,14 +721,25 @@ class SuperAwesomeCardFragment : Fragment() {
         }
 
 
+        fun startDownloadService(activity: Activity, ringtone: Ringtone) {
+            var intent = Intent(activity, MyIntentService(ringtone.title)::class.java)
+
+            val filename = RingtoneActionUtils.getFileNameFromUrl(ringtone.url)
+            intent.putExtra(MyIntentService.URL, ringtone.url)
+            intent.putExtra(MyIntentService.FILENAME, filename)
+            intent.putExtra(MyIntentService.TITLE, ringtone.title)
+
+            activity.baseContext.startService(intent)
+        }
+
     }
 
-    fun setLoadingVisible(){
-        binding.adsLoading.visibility = View.VISIBLE
+    fun setLoadingVisible() {
+        binding.adsLoadingBg.visibility = View.VISIBLE
     }
 
-    fun setLoadingInVisible(){
-        binding.adsLoading.visibility = View.INVISIBLE
+    fun setLoadingInVisible() {
+        binding.adsLoadingBg.visibility = View.INVISIBLE
     }
 
     fun test(ringtone: Ringtone) {

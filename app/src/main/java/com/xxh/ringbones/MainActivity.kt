@@ -34,6 +34,9 @@ import kotlinx.android.synthetic.main.activity_main.*
 const val LOAD_REWARDED_AD = 100
 const val SHOW_REWARDED_AD = 101
 
+const val LOAD_REWARDED_AD_SETRINGTONE = 102
+const val SHOW_REWARDED_AD_GETRINGTONE = 103
+
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
@@ -103,6 +106,7 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     //申请失败
                     Snackbar.make(binding.root,"Failed to request permission.",Snackbar.LENGTH_LONG).show()
+                    onRequestPermissionsResult(requestCode,permissions,grantResults)
                 }
             }
         }

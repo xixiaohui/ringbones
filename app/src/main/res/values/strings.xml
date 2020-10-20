@@ -19,7 +19,8 @@
     <string name="cancel">cancel</string>
     <string name="ok">ok</string>
     <string name="hi">Hi~</string>
-    <string name="download_tips">Watch ads and download for free!</string>
+    <string name="download_tips">Watch ads then download for free!</string>
+    <string name="setringtone_tips">Watch ads then set ringtones for free!</string>
 
     <string name="download_tips_failed">Download failed.</string>
     <string name="download_tips_success">Download success.</string>

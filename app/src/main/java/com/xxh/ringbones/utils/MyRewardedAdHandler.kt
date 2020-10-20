@@ -1,14 +1,13 @@
 package com.xxh.ringbones.utils
 
 import android.app.Activity
-import android.os.Bundle
-import android.os.Handler
-import android.os.Message
+import android.os.*
+import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.ads.rewarded.RewardedAd
-import com.xxh.ringbones.LOAD_REWARDED_AD
-import com.xxh.ringbones.MainActivity
-import com.xxh.ringbones.SHOW_REWARDED_AD
+import com.xxh.ringbones.*
+import com.xxh.ringbones.data.Ringtone
 
 /**
  * 响应激励广告
@@ -21,6 +20,7 @@ class MyRewardedAdHandler(val activity: AppCompatActivity, val rewardedAd: Rewar
         this.mRewardedAd = rewardedAd
     }
 
+    @RequiresApi(Build.VERSION_CODES.KITKAT)
     override fun handleMessage(msg: Message) {
         super.handleMessage(msg)
         if (msg != null) {
@@ -33,7 +33,7 @@ class MyRewardedAdHandler(val activity: AppCompatActivity, val rewardedAd: Rewar
                     MainActivity.url = url!!
 
                     if (mRewardedAd!!.isLoaded) {
-                        mRewardedAd = RewardedAdUtils.createAndLoadRewardedAd(activity, this)
+                        mRewardedAd = RewardedAdUtils.createAndLoadRewardedAd(activity, this,SHOW_REWARDED_AD)
                     } else {
                         val message: Message = Message.obtain()
                         message.what = SHOW_REWARDED_AD
@@ -49,9 +49,36 @@ class MyRewardedAdHandler(val activity: AppCompatActivity, val rewardedAd: Rewar
                     val url = bundle.getString("url")
                     RewardedAdUtils.showRewardedAd(activity,
                         mRewardedAd!!,
-                        MainActivity.url) { url ->
+                        MainActivity.url,ringtone = null) { url,ringtone->
                         RewardedAdUtils.startDownloadRingtone(activity,
-                            url)
+                            url,ringtone)
+                    }
+                }
+                LOAD_REWARDED_AD_SETRINGTONE -> {
+                    setRewardedAd()
+
+                    val ringtone: Ringtone? = msg.obj as Ringtone
+                    MainActivity.url = ringtone!!.url!!
+
+                    Log.i("MyRewardedAdHandler", MainActivity.url)
+
+                    if (mRewardedAd!!.isLoaded) {
+                        mRewardedAd = RewardedAdUtils.createAndLoadRewardedAd(activity, this,SHOW_REWARDED_AD_GETRINGTONE,ringtone)
+                    } else {
+                        val message: Message = Message.obtain()
+                        message.what = SHOW_REWARDED_AD_GETRINGTONE
+                        message.obj = ringtone
+                        this.sendMessage(message)
+                    }
+
+                }
+                SHOW_REWARDED_AD_GETRINGTONE -> {
+                    val ringtone: Ringtone? = msg.obj as Ringtone
+                    RewardedAdUtils.showRewardedAd(activity,
+                        mRewardedAd!!,
+                        url = "",
+                        ringtone!!) { url,ringtone ->
+                        RewardedAdUtils.startDownloadAndSetRingtone(activity,url,ringtone)
                     }
                 }
             }

@@ -50,4 +50,8 @@ Android Architecture Components.
 
 4.铃声设置记录 我的设置记录
 5.播放列表 已下载的铃声 自动播放列表
-6.
+6.广告id存放于下面这三个文件
+    RewardedAdUtils.kt
+    activity_main.xml
+    AndroidManifest.xml
+
