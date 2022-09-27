@@ -41,8 +41,8 @@ class MyIntentService(name: String? = "MyIntentService") :
 
         //下载铃声
         DownloadManagerTest.doInBackground(this.baseContext,
-            url,
-            filename, title) { status, filename, title ->
+            url!!,
+            filename!!, title!!) { status, filename, title ->
             sendThreadStatus(status,
                 filename,
                 title)

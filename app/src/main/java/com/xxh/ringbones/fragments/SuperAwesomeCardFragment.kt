@@ -568,19 +568,19 @@ class SuperAwesomeCardFragment : Fragment() {
     fun doActionWhenAnimationEnd(backgroundView: View?) {
         var animator: ValueAnimator = this.valueAnimator
         animator.addListener(object : Animator.AnimatorListener {
-            override fun onAnimationStart(animation: Animator?) {
+            override fun onAnimationStart(animation: Animator) {
 
             }
 
-            override fun onAnimationEnd(animation: Animator?) {
+            override fun onAnimationEnd(animation: Animator) {
                 backgroundView!!.layoutParams.width = 0
             }
 
-            override fun onAnimationCancel(animation: Animator?) {
+            override fun onAnimationCancel(animation: Animator) {
 
             }
 
-            override fun onAnimationRepeat(animation: Animator?) {
+            override fun onAnimationRepeat(animation: Animator) {
 
             }
 
@@ -628,7 +628,7 @@ class SuperAwesomeCardFragment : Fragment() {
                 }
                 ACTION_THREAD_STATUS -> {
                     var filename = intent.getStringExtra(MyIntentService.FILENAME)
-                    Log.i(TAG, filename)
+                    Log.i(TAG, filename!!)
                     var status = intent.getIntExtra(MyIntentService.STATUS, 0)
                     Log.i(TAG, "status = $status")
                     var title = intent.getStringExtra(MyIntentService.TITLE)
@@ -645,7 +645,7 @@ class SuperAwesomeCardFragment : Fragment() {
                             RingtoneActionUtils.setMyRingtoneWithFileName(activityForSetRingtone,
                                 filename)
 
-                            ringtoneViewModel.updateByTitle(title, true)
+                            ringtoneViewModel.updateByTitle(title!!, true)
                         }
                         DownloadManager.STATUS_FAILED -> {
 

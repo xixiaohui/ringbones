@@ -29,12 +29,12 @@ class RewardedAdUtils {
     companion object {
 
         //发布用
-        const val REWARADED_ADS_ID_RELEASE = "ca-app-pub-1941973989297560/8803059887"
+        const val REWARADED_ADS_ID_RELEASE = "ca-app-pub-9929154001666083/2178031347"
 
         //测试用
         const val REWARADED_ADS_ID_TEST = "ca-app-pub-3940256099942544/5224354917"
 
-        const val REWARADED_ADS_ID_USE = REWARADED_ADS_ID_TEST
+        const val REWARADED_ADS_ID_USE = REWARADED_ADS_ID_RELEASE
 
         fun initRewardedAd(activity: Activity): RewardedAd {
             val rewardedAd = RewardedAd(activity, REWARADED_ADS_ID_USE)

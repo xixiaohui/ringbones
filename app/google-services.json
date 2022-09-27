@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "1001702189092-rq9i57q4tac79e4k7dj8oor3ucs8l6up.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.xxh.ringbones",
+            "certificate_hash": "f8e366712afd1bb22a1a768f37c10abb9c227ae5"
+          }
+        },
+        {
           "client_id": "1001702189092-9vr0nca8uq65f0vj31a12oet7i5gl6r8.apps.googleusercontent.com",
           "client_type": 3
         }

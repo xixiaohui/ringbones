@@ -129,7 +129,7 @@ class RingtoneActionUtils {
             values.put(MediaStore.Audio.Media.IS_ALARM, false)
             values.put(MediaStore.Audio.Media.IS_MUSIC, false)
             val uri = MediaStore.Audio.Media.getContentUriForPath(sdfile.absolutePath)
-            val newUri: Uri? = activity.contentResolver.insert(uri, values)
+            val newUri: Uri? = activity.contentResolver.insert(uri!!, values)
             RingtoneManager.setActualDefaultRingtoneUri(
                 activity,
                 RingtoneManager.TYPE_NOTIFICATION,
@@ -150,7 +150,7 @@ class RingtoneActionUtils {
             values.put(MediaStore.Audio.Media.IS_ALARM, true)
             values.put(MediaStore.Audio.Media.IS_MUSIC, false)
             val uri = MediaStore.Audio.Media.getContentUriForPath(sdfile.absolutePath)
-            val newUri: Uri? = activity.contentResolver.insert(uri, values)
+            val newUri: Uri? = activity.contentResolver.insert(uri!!, values)
             RingtoneManager.setActualDefaultRingtoneUri(
                 activity,
                 RingtoneManager.TYPE_ALARM,
