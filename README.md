@@ -55,3 +55,6 @@ Android Architecture Components.
     activity_main.xml
     AndroidManifest.xml
 
+#2025.1.4
+musix.jks(ivy,123456)
+
